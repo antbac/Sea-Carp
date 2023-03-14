@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaCarp", "src\SeaCarp.csproj", "{8A59CE45-92F3-4E13-BAE8-237AF3F05C6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeaCarp", "src\SeaCarp.csproj", "{8A59CE45-92F3-4E13-BAE8-237AF3F05C6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

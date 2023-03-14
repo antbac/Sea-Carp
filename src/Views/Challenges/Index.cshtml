@@ -1,0 +1,12 @@
+﻿@model string[]
+@{
+    ViewData["Title"] = "Challenges";
+}
+<h1>@ViewData["Title"]</h1>
+
+@{
+    foreach (var challenge in Model)
+    {
+        <p>@challenge</p>
+    }
+}
