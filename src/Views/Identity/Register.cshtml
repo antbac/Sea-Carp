@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Register Accout";
+}
+
+<div class="container">
+    <main>
+        <h1>Register</h1>
+        <br />
+
+        <div class="row">
+            <div class="col-md-4">
+                <form id="registerForm" method="post" action="/Identity/Register" novalidate="novalidate">
+                    <h2>Create a new account.</h2>
+                    <hr />
+
+                    <div class="form-floating mb-3">
+                        <input class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="Email" value="">
+                        <label for="Email">Email</label>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-length="The Password must be at least 6 and at max 100 characters long." data-val-length-max="100" data-val-length-min="6" data-val-required="The Password field is required." id="Password" maxlength="100" name="Password">
+                        <label for="Password">Password</label>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-equalto="The password and confirmation password do not match." data-val-equalto-other="*.Password" id="ConfirmPassword" name="ConfirmPassword">
+                        <label for="ConfirmPassword">Confirm Password</label>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                    </div>
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+                </form>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <section>
+                    <h3>Join the world's premier community for sea life enthusiasts</h3>
+                    <hr />
+
+                    <div>
+                        <img src="/images/SeaCarpDrawing.png" width="256" height="256" style="float: left; margin-right: 15px; margin-bottom: 15px;" />
+                        <p style="text-align: justify;">
+                            Welcome to the web's premier destination for all things sea carp! We're thrilled to have you here, whether you're a seasoned angler or just a curious enthusiast. Our site is dedicated to the fascinating world of these underwater wonders, from their impressive size and strength to their quirky habits and unique personalities. Dive into our articles and photos to discover everything you ever wanted to know about the sea carp, and maybe even a few things you didn't know you needed to know! So come on in, the water's fine – and so are the carp.
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>

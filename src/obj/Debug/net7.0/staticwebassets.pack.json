@@ -13,6 +13,18 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\images\\SeaCarpDrawing.png",
+      "PackagePath": "staticwebassets\\images\\SeaCarpDrawing.png"
+    },
+    {
+      "Id": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\images\\SeaCarpLogo.png",
+      "PackagePath": "staticwebassets\\images\\SeaCarpLogo.png"
+    },
+    {
+      "Id": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\images\\SeaCarpSimple.png",
+      "PackagePath": "staticwebassets\\images\\SeaCarpSimple.png"
+    },
+    {
       "Id": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

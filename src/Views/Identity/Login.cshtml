@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container">
+    <main>
+        <h1>Log in</h1>
+        <br />
+
+        <div class="row">
+            <div class="col-md-4">
+                <section>
+                    <form id="account" method="post" novalidate="novalidate">
+                        <h2>Use a local account to log in.</h2>
+                        <hr>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="Email" value="">
+                            <label class="form-label" for="Email">Email</label>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-required="The Password field is required." id="Password" name="Password">
+                            <label class="form-label" for="Password">Password</label>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                        </div>
+                        <div>
+                            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                        </div>
+                        <div>
+                            <p>
+                                <a id="forgot-password" href="/Identity/ForgotPassword">Forgot your password?</a>
+                            </p>
+                            <p>
+                                <a href="/Identity/Register">Register as a new user</a>
+                            </p>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <section>
+                    <h3>The world's premier community for sea life enthusiasts</h3>
+                    <hr />
+
+                    <div>
+                        <img src="/images/SeaCarpSimple.png" width="256" height="256" style="float: left; margin-right: 15px; margin-bottom: 15px;" />
+                        <p style="text-align: justify;">
+                            You're only one step from accessing the web's premier destination for all things sea carp! We're thrilled to have you here, log in to access a community for everyone from a seasoned angler to a curious enthusiast.
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>

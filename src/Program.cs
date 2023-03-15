@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SeaCarp.Data;
+using SeaCarp.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -162,6 +162,9 @@ public class ChallengesController : Controller
             "INJECTION",
             "IMPROPER ASSETS MANAGEMENT",
             "INSUFFICIENT LOGGING & MONITORING",
+            "------------------------------------------------------------------------------------------------",
+            "[SOURCE] Misc",
+            "CSP bypass: https://portswigger.net/research/bypassing-csp-with-policy-injection"
         });
     }
 
