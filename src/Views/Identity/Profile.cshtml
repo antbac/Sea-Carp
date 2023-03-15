@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container">
+    <main>
+        <h1>Profile</h1>
+        <br />
+
+        <div class="row">
+            <div class="col-md-4">
+                <section>
+                    @{
+                        var currentUser = RequestContext.Instance.CurrentUser.Value;
+                        <p>@currentUser.Email</p>
+                    }
+                </section>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <section>
+                    <p>That's your email. Right?</p>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>

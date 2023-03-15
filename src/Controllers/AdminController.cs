@@ -1,4 +1,4 @@
-﻿using SeaCarp.Models;
+﻿using SeaCarp.ViewModels;
 
 namespace SeaCarp.Controllers;
 

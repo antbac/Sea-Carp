@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "lIhXZuTL7oYf7Nt36ilu4VA98yY2FsvRpTGzkyCRIdUWUDof4BkJurm1YRz+g25eDi5YHXq2UDXEdwHpBlO2Rg==",
+  "dgSpecHash": "cJpyobFC25XHbVN4WmWgGpwTP2wgzi4MyLZH2b1BnfW6ZbEiqFMHx0ZRN2ofS5kRV3CB1jdUt1/hePiX5zvx2Q==",
   "success": true,
   "projectFilePath": "C:\\projects\\Git\\SeaCarp\\src\\SeaCarp.csproj",
   "expectedPackageFiles": [
@@ -51,6 +51,7 @@
     "C:\\Users\\bacant\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\bacant\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\bacant\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\bacant\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\bacant\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
     "C:\\Users\\bacant\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\bacant\\.nuget\\packages\\system.configuration.configurationmanager\\5.0.0\\system.configuration.configurationmanager.5.0.0.nupkg.sha512",

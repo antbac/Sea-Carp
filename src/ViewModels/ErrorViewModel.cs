@@ -1,4 +1,4 @@
-namespace SeaCarp.Models;
+namespace SeaCarp.ViewModels;
 
 public class ErrorViewModel
 {

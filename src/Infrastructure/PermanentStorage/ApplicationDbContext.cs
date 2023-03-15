@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using SeaCarp.Database.Models;
-using System;
+﻿using Microsoft.EntityFrameworkCore;
+using SeaCarp.DomainModels;
 
-namespace SeaCarp.Database;
+namespace SeaCarp.Infrastructure.PermanentStorage;
 
 public class ApplicationDbContext : DbContext
 {

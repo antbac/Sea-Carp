@@ -2,15 +2,15 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SeaCarp.Database.Models;
+namespace SeaCarp.DomainModels;
 
 public class User
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; private set; }
+    public int Id { get; set; }
 
     [MaxLength(255)]
-    public string Email { get; private set; }
+    public string Email { get; set; }
 
     [MaxLength(255)]
     public string Password { get; set; }
