@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "hCdyhvcr7DdEcqoZL5hpA+7owjB6Ed325/3OlZDPbC4=",
+  "Hash": "FIB10i+JUapRBa37kkoJ11uB4yZtSPKVWjBlhgDnsBE=",
   "Source": "SeaCarp",
   "BasePath": "_content/SeaCarp",
   "Mode": "Default",
@@ -1120,6 +1120,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Identity": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\lib\\signalr\\signalr.min.js",
+      "SourceId": "SeaCarp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\projects\\Git\\SeaCarp\\src\\wwwroot\\",
+      "BasePath": "_content/SeaCarp",
+      "RelativePath": "lib/signalr/signalr.min.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\lib\\signalr\\signalr.min.js"
     },
     {
       "Identity": "C:\\Users\\bacant\\.nuget\\packages\\microsoft.aspnetcore.identity.ui\\7.0.3\\staticwebassets\\V5\\css\\site.css",

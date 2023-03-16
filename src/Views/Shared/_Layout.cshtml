@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sea Carp | @ViewData["Title"]</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <script src="~/lib/signalr/signalr.min.js"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SeaCarp.styles.css" asp-append-version="true" />
+    <script>
+        const alertTemplate = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Flag found!</h4>
+            <p>Congratulasions on solving challenge 'CHALLENGE_NAME'</p>
+            <hr>
+            <p class="mb-0">Flag: FLAG</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/flags")
+            .build();
+
+        connection.on("FlagFound", function (_, message) {
+            const newAlert = alertTemplate.replace("CHALLENGE_NAME", message.split(";")[0]).replace("FLAG", message.split(";")[1])
+            document.querySelector("#flag-container").innerHTML += newAlert;
+        });
+
+        connection.start();
+    </script>
 </head>
 <body>
     <header>
@@ -32,6 +53,7 @@
             </div>
         </nav>
     </header>
+    <div class="container" id="flag-container"></div>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
