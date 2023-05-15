@@ -1,0 +1,17 @@
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.deps.json
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.runtimeconfig.json
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.dll
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.pdb
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Domain.dll
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Domain.pdb
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.csproj.AssemblyReference.cache
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.AssemblyInfoInputs.cache
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.AssemblyInfo.cs
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.csproj.CoreCompileInputs.cache
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.csproj.CopyComplete
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.dll
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\refint\SeaCarp.Infrastructure.dll
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.pdb
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.genruntimeconfig.cache
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\ref\SeaCarp.Infrastructure.dll

@@ -1,0 +1,12 @@
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\bin\Debug\net7.0\SeaCarp.CrossCutting.deps.json
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\bin\Debug\net7.0\SeaCarp.CrossCutting.dll
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\bin\Debug\net7.0\SeaCarp.CrossCutting.pdb
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.csproj.AssemblyReference.cache
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.GeneratedMSBuildEditorConfig.editorconfig
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.AssemblyInfoInputs.cache
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.AssemblyInfo.cs
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.csproj.CoreCompileInputs.cache
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.dll
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\refint\SeaCarp.CrossCutting.dll
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\SeaCarp.CrossCutting.pdb
+C:\projects\Git\SeaCarp\SeaCarp.CrossCutting\obj\Debug\net7.0\ref\SeaCarp.CrossCutting.dll

@@ -1,0 +1,361 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Presentation\\SeaCarp.Presentation.csproj": {}
+  },
+  "projects": {
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj",
+        "projectName": "SeaCarp.Application",
+        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj",
+        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
+        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+        "projectName": "SeaCarp.CrossCutting",
+        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
+        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
+        "projectName": "SeaCarp.Domain",
+        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
+        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
+        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
+        "projectName": "SeaCarp.Infrastructure",
+        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
+        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Proxies": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Presentation\\SeaCarp.Presentation.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Presentation\\SeaCarp.Presentation.csproj",
+        "projectName": "SeaCarp.Presentation",
+        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Presentation\\SeaCarp.Presentation.csproj",
+        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
+        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Presentation\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj"
+              },
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj"
+              },
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
+              },
+              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {
+                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
