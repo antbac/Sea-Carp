@@ -2,6 +2,7 @@
 using SeaCarp.Config;
 using SeaCarp.CrossCutting.Services;
 using SeaCarp.Domain.Abstractions;
+using SeaCarp.Domain.Models;
 using SeaCarp.ViewModels;
 
 namespace SeaCarp.Controllers;
@@ -24,26 +25,37 @@ public class IdentityController : Controller
     }
 
     [HttpPost("Identity/Register")]
-    public async Task<IActionResult> CreateAccountAsync(AccountRegistrationViewModel registration)
+    public async Task<IActionResult> CreateAccount(AccountRegistrationViewModel registration)
     {
-        return await _userRepository.CreateUser(registration.Email, CryptographyService.Hash(registration.Password))
-            ? RedirectToAction("Login")
-            : BadRequest("An error occured when trying to create the account");
+        try
+        {
+            var user = Domain.Models.User.Create(registration.Email, CryptographyService.Hash(registration.Password));
+
+            return await _userRepository.CreateUser(user)
+                ? RedirectToAction("Login")
+                : View("Register", new AccountRegistrationViewModel { ErrorMessage = "An error occured when trying to create the account" });
+        }
+        catch (Exception)
+        {
+            return View("Register", new AccountRegistrationViewModel { ErrorMessage = "An error occured when trying to create the account" });
+        }
     }
 
     [HttpGet("Identity/Login")]
     public IActionResult LoginPage()
     {
-        return View("Login");
+        return string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(Constants.User))
+            ? View("Login")
+            : RedirectToAction("Profile", "Identity");
     }
 
     [HttpPost("Identity/Login")]
-    public async Task<IActionResult> LoginUserAsync(LoginViewModel login)
+    public async Task<IActionResult> LoginUser(LoginViewModel login)
     {
         var user = await _userRepository.GetUser(login.Email, CryptographyService.Hash(login.Password));
         if (user is null)
         {
-            return BadRequest("Unable to login");
+            return View("Login", new LoginViewModel { ErrorMessage = "Wrong email or password" });
         }
 
         Request.HttpContext.Session.SetString(Constants.User, JsonConvert.SerializeObject(user));
@@ -61,7 +73,18 @@ public class IdentityController : Controller
     [HttpGet("Identity/Profile")]
     public IActionResult ProfilePage()
     {
-        return View("Profile");
+        return string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(Constants.User))
+            ? RedirectToAction("Login", "Identity")
+            : View("Profile");
+    }
+
+    [HttpGet("Identity/Profile/{id}")]
+    public async Task<IActionResult> ProfilePageAsync(int id)
+    {
+        var user = await _userRepository.GetUserById(id);
+        return user is null
+            ? RedirectToAction("Profile", "Identity")
+            : View("Profile", user);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

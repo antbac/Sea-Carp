@@ -51,4 +51,8 @@ app.MapRazorPages();
 
 app.UseFlagNotification();
 
+#if DEBUG
+app.UseDeveloperExceptionPage();
+#endif
+
 app.Run();

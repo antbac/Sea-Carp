@@ -22,7 +22,7 @@ namespace SeaCarp.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ProfileImage = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
@@ -37,7 +37,19 @@ namespace SeaCarp.Infrastructure.Migrations
                 column: "Email",
                 unique: true);
 
-            migrationBuilder.Sql("INSERT INTO [SeaCarp].[SeaCarp].[User] ([Email], [Password], [Description], [ProfileImage]) VALUES ('admin@seacarp.com', '4179A76F97865271164FA5CCCDAA0E3F173DC2E27B72BECAF83FDDC4EB799B9D', 'I''m a fish-crazy system administrator. I explore the ocean, tinker with my aquariums, and stay updated on aquatic research. My attention to detail and patience in solving tech problems reflect my love for fish.', 'https://img.uxwing.com/wp-content/themes/uxwing/download/editing-user-action/admin-icon.png')");
+            migrationBuilder.Sql(@"
+                INSERT INTO [SeaCarp].[SeaCarp].[User]
+                (
+                    [Email],
+                    [Password],
+                    [Description],
+                    [ProfileImage]
+                ) VALUES (
+                    'admin@seacarp.com',
+                    '4179a76f97865271164fa5cccdaa0e3f173dc2e27b72becaf83fddc4eb799b9d',
+                    'I''m a fish-crazy system administrator. I explore the ocean, tinker with my aquariums, and stay updated on aquatic research. My attention to detail and patience in solving tech problems reflect my love for fish.',
+                    'https://img.uxwing.com/wp-content/themes/uxwing/download/editing-user-action/admin-icon.png'
+                )");
         }
 
         /// <inheritdoc />

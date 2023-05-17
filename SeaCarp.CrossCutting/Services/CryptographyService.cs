@@ -7,6 +7,6 @@ public class CryptographyService
         var messageBytes = System.Text.Encoding.ASCII.GetBytes(message);
         var hashBytes = System.Security.Cryptography.SHA256.HashData(messageBytes);
 
-        return Convert.ToHexString(hashBytes).ToUpper();
+        return Convert.ToHexString(hashBytes).ToLower();
     }
 }

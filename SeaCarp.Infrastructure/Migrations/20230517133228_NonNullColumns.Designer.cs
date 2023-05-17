@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SeaCarp.Infrastructure;
 
@@ -10,9 +11,11 @@ using SeaCarp.Infrastructure;
 namespace SeaCarp.Infrastructure.Migrations
 {
     [DbContext(typeof(SeaCarpDbContext))]
-    partial class SeaCarpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230517133228_NonNullColumns")]
+    partial class NonNullColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

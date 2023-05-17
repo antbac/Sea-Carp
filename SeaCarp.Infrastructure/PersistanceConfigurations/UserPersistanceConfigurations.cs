@@ -28,10 +28,12 @@ public class UserPersistanceConfigurations : IEntityTypeConfiguration<User>
 
         builder
             .Property(user => user.Description)
-            .HasMaxLength(255);
+            .IsRequired()
+            .HasMaxLength(256);
 
         builder
             .Property(user => user.ProfileImage)
+            .IsRequired()
             .HasMaxLength(256);
     }
 }

@@ -1,9 +1,14 @@
-﻿@{
+﻿@model SeaCarp.ViewModels.AccountRegistrationViewModel
+@{
     ViewData["Title"] = "Register Accout";
 }
 
 <div class="container">
     <main>
+        @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
+        {
+            <p style="color: red">@Model.ErrorMessage</p>
+        }
         <h1>Register</h1>
         <br />
 

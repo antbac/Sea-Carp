@@ -1,9 +1,14 @@
-﻿@{
+﻿@model SeaCarp.ViewModels.LoginViewModel
+@{
     ViewData["Title"] = "Login";
 }
 
 <div class="container">
     <main>
+        @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
+        {
+            <p style="color: red">@Model.ErrorMessage</p>
+        }
         <h1>Log in</h1>
         <br />
 

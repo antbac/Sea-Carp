@@ -1,5 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Login";
+﻿@model SeaCarp.Domain.Models.User
+@{
+    ViewData["Title"] = "Profile";
+    var user = Model ?? RequestContext.Instance.CurrentUser.Value;
 }
 
 <div class="container">
@@ -8,17 +10,18 @@
         <br />
 
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <section>
-                    @{
-                        var currentUser = RequestContext.Instance.CurrentUser.Value;
-                        <p>@currentUser.Email</p>
-                    }
+                    <img src="@(Html.Raw(user.ProfileImage))"
+                        alt="Profile image"
+                        width="100px
+                        height="100px" />
+                    <p>@user.Email</p>
                 </section>
             </div>
-            <div class="col-md-8 col-md-offset-2">
+            <div class="offset-md-1 col-md-8" style="border: 1px solid #303030">
                 <section>
-                    <p>That's your email. Right?</p>
+                    <p>@user.Description</p>
                 </section>
             </div>
         </div>
