@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ViewModels\Admin\" />
+    <Folder Include="ViewModels\Home\" />
+    <Folder Include="ViewModels\Identity\" />
+    <Folder Include="ViewModels\Privacy\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

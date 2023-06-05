@@ -1,12 +1,25 @@
-﻿@model string[]
+﻿@using SeaCarp.CrossCutting.Extensions;
+@model SeaCarp.Presentation.ViewModels.Challenges.Challenge[]
 @{
     ViewData["Title"] = "Challenges";
 }
 <h1>@ViewData["Title"]</h1>
 
-@{
-    foreach (var challenge in Model)
-    {
-        <p>@challenge</p>
-    }
+<div class="row">
+@foreach (var challenge in Model)
+{
+    <div style="background-color: #444; border-radius: 2em; display: inline-block; margin: 1em; padding: 1em" class="col-md-3">
+        <div class="row">
+            <div class="float-start col col-6">
+                @challenge.Type.GetDescription()
+            </div>
+            <div style="text-align: end" class="col col-6">
+                @challenge.Points points
+            </div>
+        </div>
+        <div class="row">
+            <h4>@challenge.Name</h4>
+        </div>
+    </div>
 }
+</div>
