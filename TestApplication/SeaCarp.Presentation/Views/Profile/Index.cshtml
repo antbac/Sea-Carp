@@ -1,0 +1,63 @@
+﻿@model SeaCarp.Domain.Models.User
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container">
+    <main>
+        <h1>Profile</h1>
+        <br />
+
+        <div class="row">
+            <div class="col-md-2">
+                <section>
+                    @{
+                        <img src="@Html.Raw(Model.ProfileImage.Replace("\"", "&quot;"))" alt="Profile image" width="100px" height="100px" />
+                    }
+                    @{
+                        <p>@Html.Raw(Model.Email)</p>
+                    }
+                    @{
+                        var a = 0;
+                    }
+                </section>
+            </div>
+            @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+            {
+                <div class="offset-md-1 col-md-8" style="padding: 0">
+                    <textarea style="width: 100%; height: 100px" name="description">@Model.Description</textarea>
+                    <button onclick="updateDescription()" class="btn btn-primary float-end">Update description</button>
+                    @section Scripts
+                    {
+                        <script type="text/javascript">
+                            function updateDescription() {
+                                $.ajax(
+                                    {
+                                    url: '/Profile/@(Model.Id)/Description',
+                                        method: "PUT",
+                                        data: JSON.stringify($('textarea[name="description"]').val()),
+                                        headers: {
+                                            "Content-Type": "application/json"
+                                        },
+                                        success: function () {
+                                            window.location.reload();
+                                        },
+                                        error: function () {
+                                            window.location.reload();
+                                        }
+                                    }
+                                );
+                            }
+                        </script>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="offset-md-1 col-md-8" style="border: 1px solid #303030">
+                    <p>@Model.Description</p>
+                </div>
+            }
+        </div>
+    </main>
+</div>

@@ -1,0 +1,16 @@
+﻿User Features:
+
+1.  User Profiles: Allow users to create profiles with personal information, profile pictures, and cover photos.
+2.  News Feed: Display a personalized feed of posts, photos, and updates from friends and followed accounts.
+3.  Posts and Updates: Enable users to create text, photo, and video posts, and share updates with their connections.
+4.  Comments and Likes: Allow users to interact with posts by commenting on them and giving them likes.
+5.  Groups and Communities: Allow users to create or join interest-based groups and communities.
+7.  Privacy Settings: Provide customizable privacy settings for posts, profile information, and who can interact with them.
+8.  Search and Discovery: Allow users to search for friends, groups, and content using keywords and filters.
+
+Administrator Features:
+
+1.  User Management: Enable administrators to manage user accounts, handle reports, and moderate content.
+2.  Content Moderation: Implement tools to review and remove inappropriate or violating content.
+3.  User Reports: Allow users to report offensive or abusive content, and provide an interface for administrators to handle reports.
+4.  Account Suspension: Give administrators the ability to suspend or ban user accounts for violations.

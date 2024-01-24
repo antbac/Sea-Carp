@@ -794,6 +794,9 @@
         }
       },
       "SeaCarp.Domain/1.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "7.0.5"
+        },
         "runtime": {
           "SeaCarp.Domain.dll": {}
         }

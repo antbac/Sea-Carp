@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\SeaCarp.Application\bin\Debug\net7.0\SeaCarp.Application.deps.json
+﻿C:\projects\Git\SeaCarp\SeaCarp.Application\bin\Debug\net7.0\SeaCarp.Application.deps.json
 C:\projects\Git\SeaCarp\SeaCarp.Application\bin\Debug\net7.0\SeaCarp.Application.dll
 C:\projects\Git\SeaCarp\SeaCarp.Application\bin\Debug\net7.0\SeaCarp.Application.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Application\bin\Debug\net7.0\SeaCarp.Domain.dll
@@ -13,3 +13,4 @@ C:\projects\Git\SeaCarp\SeaCarp.Application\obj\Debug\net7.0\SeaCarp.Application
 C:\projects\Git\SeaCarp\SeaCarp.Application\obj\Debug\net7.0\refint\SeaCarp.Application.dll
 C:\projects\Git\SeaCarp\SeaCarp.Application\obj\Debug\net7.0\SeaCarp.Application.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Application\obj\Debug\net7.0\ref\SeaCarp.Application.dll
+C:\projects\Git\SeaCarp\SeaCarp.Application\obj\Debug\net7.0\SeaCarp.Application.sourcelink.json

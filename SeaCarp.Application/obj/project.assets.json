@@ -1,10 +1,37 @@
 {
   "version": 3,
   "targets": {
-    "net7.0": {
+    "net8.0": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "SeaCarp.CrossCutting/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/SeaCarp.CrossCutting.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SeaCarp.CrossCutting.dll": {}
+        }
+      },
       "SeaCarp.Domain/1.0.0": {
         "type": "project",
-        "framework": ".NETCoreApp,Version=v7.0",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.1",
+          "SeaCarp.CrossCutting": "1.0.0"
+        },
         "compile": {
           "bin/placeholder/SeaCarp.Domain.dll": {}
         },
@@ -15,6 +42,25 @@
     }
   },
   "libraries": {
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.1": {
+      "sha512": "KBj2meUDWmMDRYpxyebyYQMf7+aGyTWvKD9UTuFKPP/NQGVsJUqbCCM+p/LCxSppcm2dQt+z73e/yBFlq/2jmA==",
+      "type": "package",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll",
+        "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.xml",
+        "microsoft.entityframeworkcore.abstractions.8.0.1.nupkg.sha512",
+        "microsoft.entityframeworkcore.abstractions.nuspec"
+      ]
+    },
+    "SeaCarp.CrossCutting/1.0.0": {
+      "type": "project",
+      "path": "../SeaCarp.CrossCutting/SeaCarp.CrossCutting.csproj",
+      "msbuildProject": "../SeaCarp.CrossCutting/SeaCarp.CrossCutting.csproj"
+    },
     "SeaCarp.Domain/1.0.0": {
       "type": "project",
       "path": "../SeaCarp.Domain/SeaCarp.Domain.csproj",
@@ -22,7 +68,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net7.0": [
+    "net8.0": [
       "SeaCarp.Domain >= 1.0.0"
     ]
   },
@@ -47,7 +93,7 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net7.0"
+        "net8.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -55,8 +101,8 @@
         "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
       },
       "frameworks": {
-        "net7.0": {
-          "targetAlias": "net7.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "projectReferences": {
             "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
               "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
@@ -71,8 +117,8 @@
       }
     },
     "frameworks": {
-      "net7.0": {
-        "targetAlias": "net7.0",
+      "net8.0": {
+        "targetAlias": "net8.0",
         "imports": [
           "net461",
           "net462",
@@ -89,7 +135,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

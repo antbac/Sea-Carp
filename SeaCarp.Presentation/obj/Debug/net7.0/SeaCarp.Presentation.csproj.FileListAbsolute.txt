@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\src\obj\Debug\net7.0\SeaCarp.Presentation.csproj.AssemblyReference.cache
+﻿C:\projects\Git\SeaCarp\src\obj\Debug\net7.0\SeaCarp.Presentation.csproj.AssemblyReference.cache
 C:\projects\Git\SeaCarp\src\obj\Debug\net7.0\SeaCarp.Presentation.GeneratedMSBuildEditorConfig.editorconfig
 C:\projects\Git\SeaCarp\src\obj\Debug\net7.0\SeaCarp.Presentation.AssemblyInfoInputs.cache
 C:\projects\Git\SeaCarp\src\obj\Debug\net7.0\SeaCarp.Presentation.AssemblyInfo.cs
@@ -160,3 +160,4 @@ C:\projects\Git\SeaCarp\SeaCarp.Presentation\obj\Debug\net7.0\refint\SeaCarp.Pre
 C:\projects\Git\SeaCarp\SeaCarp.Presentation\obj\Debug\net7.0\SeaCarp.Presentation.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Presentation\obj\Debug\net7.0\SeaCarp.Presentation.genruntimeconfig.cache
 C:\projects\Git\SeaCarp\SeaCarp.Presentation\obj\Debug\net7.0\ref\SeaCarp.Presentation.dll
+C:\projects\Git\SeaCarp\SeaCarp.Presentation\obj\Debug\net7.0\SeaCarp.Presentation.sourcelink.json

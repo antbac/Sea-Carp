@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\src\bin\Debug\net7.0\appsettings.Development.json
+﻿C:\projects\Git\SeaCarp\src\bin\Debug\net7.0\appsettings.Development.json
 C:\projects\Git\SeaCarp\src\bin\Debug\net7.0\appsettings.json
 C:\projects\Git\SeaCarp\src\bin\Debug\net7.0\SeaCarp.staticwebassets.runtime.json
 C:\projects\Git\SeaCarp\src\bin\Debug\net7.0\SeaCarp.exe

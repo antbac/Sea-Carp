@@ -1,1 +1,1 @@
-CSP bypass: https://portswigger.net/research/bypassing-csp-with-policy-injection
+﻿CSP bypass: https://portswigger.net/research/bypassing-csp-with-policy-injection

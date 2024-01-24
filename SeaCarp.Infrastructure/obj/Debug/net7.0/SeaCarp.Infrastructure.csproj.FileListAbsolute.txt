@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.deps.json
+﻿C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.deps.json
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.runtimeconfig.json
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.dll
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\bin\Debug\net7.0\SeaCarp.Infrastructure.pdb
@@ -15,3 +15,4 @@ C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\refint\SeaCarp.I
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.genruntimeconfig.cache
 C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\ref\SeaCarp.Infrastructure.dll
+C:\projects\Git\SeaCarp\SeaCarp.Infrastructure\obj\Debug\net7.0\SeaCarp.Infrastructure.sourcelink.json

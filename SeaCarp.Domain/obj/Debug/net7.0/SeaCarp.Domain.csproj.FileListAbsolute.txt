@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\SeaCarp.Domain\bin\Debug\net7.0\SeaCarp.Domain.deps.json
+﻿C:\projects\Git\SeaCarp\SeaCarp.Domain\bin\Debug\net7.0\SeaCarp.Domain.deps.json
 C:\projects\Git\SeaCarp\SeaCarp.Domain\bin\Debug\net7.0\SeaCarp.Domain.dll
 C:\projects\Git\SeaCarp\SeaCarp.Domain\bin\Debug\net7.0\SeaCarp.Domain.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\SeaCarp.Domain.csproj.AssemblyReference.cache
@@ -10,3 +10,4 @@ C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\SeaCarp.Domain.dll
 C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\refint\SeaCarp.Domain.dll
 C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\SeaCarp.Domain.pdb
 C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\ref\SeaCarp.Domain.dll
+C:\projects\Git\SeaCarp\SeaCarp.Domain\obj\Debug\net7.0\SeaCarp.Domain.sourcelink.json

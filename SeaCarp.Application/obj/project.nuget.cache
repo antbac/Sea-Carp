@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "JcV1k/Taq2Ql0xwE5M24o/6iQeEcU/iSZ0fw/H5Nz/iKo7EnVnlGEvVMk0BPgG3eVqoAIwP94Ig8x072PqYuBQ==",
+  "dgSpecHash": "z3/cqhaHeUl+SCFevwBdWCTROzOjmxRv0lZ6DfWy1bqPZB2bCDBFF6/5Il8Oad4HIuS08zZ3slb8CYB4xL4Lug==",
   "success": true,
   "projectFilePath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Application\\SeaCarp.Application.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\bacant\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.1\\microsoft.entityframeworkcore.abstractions.8.0.1.nupkg.sha512"
+  ],
   "logs": []
 }

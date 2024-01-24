@@ -1,4 +1,4 @@
-C:\projects\Git\SeaCarp\CrossCutting\bin\Debug\net7.0\CrossCutting.deps.json
+﻿C:\projects\Git\SeaCarp\CrossCutting\bin\Debug\net7.0\CrossCutting.deps.json
 C:\projects\Git\SeaCarp\CrossCutting\bin\Debug\net7.0\CrossCutting.dll
 C:\projects\Git\SeaCarp\CrossCutting\bin\Debug\net7.0\CrossCutting.pdb
 C:\projects\Git\SeaCarp\CrossCutting\obj\Debug\net7.0\CrossCutting.csproj.AssemblyReference.cache
