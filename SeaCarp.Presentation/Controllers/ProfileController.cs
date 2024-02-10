@@ -64,6 +64,21 @@ public class ProfileController : BaseController
         CurrentUser.UpdatePassword(password);
         await _userRepository.SaveChanges();
 
-        return View("Index");
+        return StatusCode(204);
+    }
+
+    [Route("Profile/{id}/ProfileImage")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateProfileImage([FromBody] string url)
+    {
+        if (CurrentUser is null)
+        {
+            return Unauthorized("You must be logged in to update your profile image");
+        }
+
+        CurrentUser.UpdateProfileImage(url);
+        await _userRepository.SaveChanges();
+
+        return StatusCode(204);
     }
 }

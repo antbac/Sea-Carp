@@ -55,4 +55,15 @@ public class User
         Password = CryptographyService.Hash(Salt, password);
         return this;
     }
+
+    public User UpdateProfileImage(string url)
+    {
+        if (url.Length > 256)
+        {
+            url = url[..256];
+        }
+
+        ProfileImage = url;
+        return this;
+    }
 }

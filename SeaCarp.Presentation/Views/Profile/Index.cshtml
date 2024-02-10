@@ -16,26 +16,15 @@
                         /// Safe
                         <img src="@Model.ProfileImage" alt="Profile image" width="100px" height="100px" />
                         /// Unsafe - Option 1
-                        /// <img src="@Html.Raw(Model.ProfileImage)" alt="Profile image" width="100px" height="100px" />
+                        /// <img src=@Model.ProfileImage alt="Profile image" width="100px" height="100px" />
                         /// Unsafe - Option 2
+                        /// <img src="@Html.Raw(Model.ProfileImage)" alt="Profile image" width="100px" height="100px" />
+                        /// Unsafe - Option 3
                         /// <img src="@Html.Raw(Model.ProfileImage.Replace("\"", "&quot;"))" alt="Profile image" width="100px" height="100px" />
                         /// End - XSS ///
-                    }
-                    @{
-                        /// Start - XSS ///
-                        /// Safe
+                        <textarea style="width: 100%; height: 100px" name="profileimage">@Model.ProfileImage</textarea>
+                        <button onclick="updateProfileImage()" class="btn btn-primary float-end">Update profile image</button>
                         <p>@Model.Email</p>
-                        /// Unsafe - Option 1
-                        /// <p>@Html.Raw(Model.Email)</p>
-                        /// End - XSS ///
-                    }
-                    @{
-                        /// Start - TEST ///
-                        /// Safe
-                        var a = 0;
-                        /// Unsafe - Option 1
-                        /// var a = 1;
-                        /// End - TEST ///
                     }
                 </section>
             </div>
@@ -65,6 +54,25 @@
                                     }
                                 );
                             }
+
+                        function updateProfileImage() {
+                            $.ajax(
+                                {
+                                    url: '/Profile/@(Model.Id)/ProfileImage',
+                                    method: "PUT",
+                                    data: JSON.stringify($('textarea[name="profileimage"]').val()),
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    success: function () {
+                                        window.location.reload();
+                                    },
+                                    error: function () {
+                                        window.location.reload();
+                                    }
+                                }
+                            );
+                        }
                         </script>
                     }
                 </div>

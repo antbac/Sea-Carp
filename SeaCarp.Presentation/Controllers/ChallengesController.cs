@@ -70,8 +70,6 @@ public class ChallengesController : Controller
             new() { Name = "[SOURCE] Juice Shop: Password Strength" },
             new() { Name = "[SOURCE] Juice Shop: Payback Time" },
             new() { Name = "[SOURCE] Juice Shop: Premium Paywall" },
-            new() { Name = "[SOURCE] Juice Shop: Privacy Policy" },
-            new() { Name = "[SOURCE] Juice Shop: Privacy Policy Inspection" },
             new() { Name = "[SOURCE] Juice Shop: Product Tampering" },
             new() { Name = "[SOURCE] Juice Shop: Reflected XSS" },
             new() { Name = "[SOURCE] Juice Shop: Repetitive Registration" },

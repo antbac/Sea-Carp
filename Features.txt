@@ -1,12 +1,26 @@
 ﻿User Features:
 
-1.  User Profiles: Allow users to create profiles with personal information, profile pictures, and cover photos.
-2.  News Feed: Display a personalized feed of posts, photos, and updates from friends and followed accounts.
-3.  Posts and Updates: Enable users to create text, photo, and video posts, and share updates with their connections.
-4.  Comments and Likes: Allow users to interact with posts by commenting on them and giving them likes.
-5.  Groups and Communities: Allow users to create or join interest-based groups and communities.
-7.  Privacy Settings: Provide customizable privacy settings for posts, profile information, and who can interact with them.
-8.  Search and Discovery: Allow users to search for friends, groups, and content using keywords and filters.
+1.  User actions
+    - Create profile
+    - Update profile picture
+    - Update description
+    - Update password
+    - Log out
+    - Follow user
+2.  Posts
+    - Add posts
+    - Comment on posts
+    - Vote on posts
+    - Follow posts
+    - Search for posts
+3.  News Feed
+    - Personalized feed of posts
+4.  Groups and Communities
+    - Allow users to create groups
+    - Allow users to join groups
+    - Allow users to leave groups
+    - Allow users to search for groups
+    - Allow users to se other peoples groups
 
 Administrator Features:
 
