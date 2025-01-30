@@ -63,6 +63,30 @@ namespace SeaCarp.Infrastructure.Repositories
             return null;
         }
 
+        public async Task<User> GetUser(string username)
+        {
+            var connection = Database.GetConnection();
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = @$"
+                SELECT {nameof(User.Id)}, {nameof(User.Username)}, {nameof(User.Password)}, {nameof(User.Email)}, {nameof(User.IsAdmin)} FROM {nameof(User).ToPlural()} WHERE {nameof(User.Username)} = '{username}';
+            ";
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                return new User()
+                {
+                    Id = reader.GetInt32(0),
+                    Username = reader.GetString(1),
+                    Password = reader.GetString(2),
+                    Email = reader.GetString(3),
+                    IsAdmin = reader.GetBoolean(4),
+                };
+            }
+
+            return null;
+        }
+
         public async Task UpdateUser(User user)
         {
             using var cmd = Database.GetConnection().CreateCommand();

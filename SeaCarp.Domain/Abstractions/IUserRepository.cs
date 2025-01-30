@@ -10,5 +10,7 @@ public interface IUserRepository
 
     Task<User> GetUser(int id);
 
+    Task<User> GetUser(string username);
+
     Task UpdateUser(User user);
 }

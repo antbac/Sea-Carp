@@ -48,7 +48,7 @@ public class IdentityController : BaseController
     }
 
     [HttpPost("Identity/Login")]
-    public async Task<IActionResult> LoginUser(LoginViewModel login)
+    public async Task<IActionResult> LoginUser([FromBody] LoginViewModel login)
     {
         var user = Domain.Models.User.Create(login.Username, null, login.Password, false);
         user = await _userRepository.GetUser(user.Username, user.Password);

@@ -1,4 +1,6 @@
-﻿namespace SeaCarp.Controllers;
+﻿using SeaCarp.Presentation.Services;
+
+namespace SeaCarp.Controllers;
 
 public class HomeController : Controller
 {

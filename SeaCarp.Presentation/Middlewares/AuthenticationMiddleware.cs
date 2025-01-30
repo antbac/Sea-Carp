@@ -1,5 +1,5 @@
 ﻿using SeaCarp.Config;
-using SeaCarp.Domain.Abstractions;
+using SeaCarp.Presentation.Services;
 using SeaCarp.Services;
 
 namespace SeaCarp.Middlewares;
@@ -10,15 +10,16 @@ public static class AuthenticationMiddleware
     {
         return app.Use(async (context, next) =>
         {
-            var userId = context.Session.GetString(Constants.UserId);
-            if (string.IsNullOrWhiteSpace(userId))
+            try
             {
-                RequestContext.Instance.CurrentUser.Value = null;
+                if (context.Request.Cookies.TryGetValue(Constants.JWT, out var jwt))
+                {
+                    RequestContext.Instance.CurrentUser.Value = JwtService.ValidateJwt(jwt);
+                }
             }
-            else
+            catch (Exception)
             {
-                var userRepository = context.RequestServices.GetService<IUserRepository>();
-                RequestContext.Instance.CurrentUser.Value = await userRepository.GetUser(int.Parse(userId));
+                context.Response.Cookies.Delete(Constants.JWT);
             }
 
             await next(context);

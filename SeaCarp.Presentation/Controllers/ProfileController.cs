@@ -20,45 +20,55 @@ public class ProfileController : BaseController
             : RedirectToAction(CurrentUser.Id.ToString(), "Profile");
     }
 
-    [Route("Profile/{id}")]
+    [Route("Profile/{identifier}")]
     [HttpGet]
-    public async Task<IActionResult> GetProfilePageById(int id)
+    public async Task<IActionResult> GetProfilePageById(string identifier)
     {
-        var user = CurrentUser?.Id == id
-            ? CurrentUser
-            : await _userRepository.GetUser(id);
+        var user = int.TryParse(identifier, out var id)
+            ? CurrentUser?.Id == id
+                ? CurrentUser
+                : await _userRepository.GetUser(id)
+            : CurrentUser?.Username == identifier
+                ? CurrentUser
+                : await _userRepository.GetUser(identifier);
 
         return user is null
-            ? NotFound($"No user with Id {id} found")
+            ? NotFound($"No user with identifier {identifier} found")
             : View("Index", user);
     }
 
-    [Route("Profile/{id}/Password")]
+    [Route("Profile/{identifier}/Password")]
     [HttpPut]
-    public async Task<IActionResult> UpdatePassword(int id, [FromBody] string password)
+    public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] string password)
     {
         if (CurrentUser is null)
         {
             return Unauthorized("You must be logged in to update your password");
         }
 
-        var user = await _userRepository.GetUser(id);
+        var user = int.TryParse(identifier, out var id)
+            ? await _userRepository.GetUser(id)
+            : await _userRepository.GetUser(identifier);
+
         user.UpdatePassword(password);
         await _userRepository.UpdateUser(user);
 
         return StatusCode(204);
     }
 
-    [Route("Profile/{id}/Email")]
+    [Route("Profile/{identifier}/Email")]
     [HttpPut]
-    public async Task<IActionResult> UpdateEmail(int id, [FromBody] string email)
+    public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] string email)
     {
         if (CurrentUser is null)
         {
             return Unauthorized("You must be logged in to update your password");
         }
 
-        var user = await _userRepository.GetUser(id);
+        var user = int.TryParse(identifier, out var id)
+            ? await _userRepository.GetUser(id)
+            : await _userRepository.GetUser(identifier);
+
         user.UpdateEmail(email);
         await _userRepository.UpdateUser(user);
 

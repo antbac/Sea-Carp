@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using SeaCarp.Config;
+﻿using SeaCarp.Config;
+using SeaCarp.Presentation.Services;
 using SeaCarp.Services;
 
 namespace SeaCarp.Controllers;
@@ -14,11 +14,14 @@ public abstract class BaseController : Controller
             RequestContext.Instance.CurrentUser.Value = value;
             if (value is null)
             {
-                Request.HttpContext.Session.Remove(Constants.UserId);
+                Response.Cookies.Delete(Constants.JWT);
             }
             else
             {
-                Request.HttpContext.Session.SetString(Constants.UserId, value.Id.ToString());
+                Response.Cookies.Append(Constants.JWT, JwtService.GenerateJwt(value.Id, value.Username, value.Password, value.Email, value.IsAdmin), new CookieOptions
+                {
+                    HttpOnly = false,
+                });
             }
         }
     }
