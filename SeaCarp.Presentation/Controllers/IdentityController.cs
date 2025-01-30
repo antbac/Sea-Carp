@@ -1,25 +1,19 @@
-﻿using Newtonsoft.Json;
-using SeaCarp.Config;
-using SeaCarp.CrossCutting.Services;
-using SeaCarp.Domain.Abstractions;
-using SeaCarp.Domain.Models;
+﻿using SeaCarp.Domain.Abstractions;
 using SeaCarp.ViewModels;
 
 namespace SeaCarp.Controllers;
 
 public class IdentityController : BaseController
 {
-    private readonly ILogger<IdentityController> _logger;
     private readonly IUserRepository _userRepository;
 
-    public IdentityController(ILogger<IdentityController> logger, IUserRepository userRepository)
+    public IdentityController(IUserRepository userRepository)
     {
-        _logger = logger;
         _userRepository = userRepository;
     }
 
     [HttpGet("Identity/Register")]
-    public IActionResult RegisterPage()
+    public IActionResult Index()
     {
         return View("Register");
     }
@@ -29,16 +23,19 @@ public class IdentityController : BaseController
     {
         try
         {
-            var user = Domain.Models.User.Create(registration.Email, registration.Password);
+            var user = Domain.Models.User.Create(
+                registration.Username,
+                registration.Email,
+                registration.Password,
+                registration.IsAdmin);
 
             await _userRepository.CreateUser(user);
-            await _userRepository.SaveChanges();
 
-            return RedirectToAction("Login");
+            return Json(user);
         }
         catch (Exception)
         {
-            return View("Register", new AccountRegistrationViewModel { ErrorMessage = "An error occured when trying to create the account" });
+            return BadRequest("An error occurred when trying to register the account.");
         }
     }
 
@@ -47,20 +44,21 @@ public class IdentityController : BaseController
     {
         return CurrentUser is null
             ? View("Login")
-            : RedirectToAction("Profile", "Identity");
+            : RedirectToAction("Profile", "Index");
     }
 
     [HttpPost("Identity/Login")]
     public async Task<IActionResult> LoginUser(LoginViewModel login)
     {
-        var user = await _userRepository.GetUser(login.Email, login.Password);
+        var user = Domain.Models.User.Create(login.Username, null, login.Password, false);
+        user = await _userRepository.GetUser(user.Username, user.Password);
         if (user is null)
         {
-            return View("Login", new LoginViewModel { ErrorMessage = "Wrong email or password" });
+            return BadRequest("No user found with that username and password.");
         }
 
         CurrentUser = user;
-        return RedirectToAction("Index", "Home");
+        return Json(new { Success = true, RedirectUrl = Url.ActionLink("Index", "Profile") });
     }
 
     [HttpGet("Identity/Logout")]
@@ -68,11 +66,5 @@ public class IdentityController : BaseController
     {
         CurrentUser = null;
         return RedirectToAction("Index", "Home");
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

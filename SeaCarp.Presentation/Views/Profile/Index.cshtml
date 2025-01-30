@@ -1,6 +1,6 @@
 ﻿@model SeaCarp.Domain.Models.User
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "User";
 }
 
 <div class="container">
@@ -11,35 +11,21 @@
         <div class="row">
             <div class="col-md-2">
                 <section>
-                    @{
-                        /// Start - XSS ///
-                        /// Safe
-                        <img src="@Model.ProfileImage" alt="Profile image" width="100px" height="100px" />
-                        /// Unsafe - Option 1
-                        /// <img src=@Model.ProfileImage alt="Profile image" width="100px" height="100px" />
-                        /// Unsafe - Option 2
-                        /// <img src="@Html.Raw(Model.ProfileImage)" alt="Profile image" width="100px" height="100px" />
-                        /// Unsafe - Option 3
-                        /// <img src="@Html.Raw(Model.ProfileImage.Replace("\"", "&quot;"))" alt="Profile image" width="100px" height="100px" />
-                        /// End - XSS ///
-                        <textarea style="width: 100%; height: 100px" name="profileimage">@Model.ProfileImage</textarea>
-                        <button onclick="updateProfileImage()" class="btn btn-primary float-end">Update profile image</button>
-                        <p>@Model.Email</p>
-                    }
+                    <p>@Model.Email</p>
                 </section>
             </div>
             @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
             {
                 <div class="offset-md-1 col-md-8" style="padding: 0">
-                    <textarea style="width: 100%; height: 100px" name="description">@Model.Description</textarea>
-                    <button onclick="updateDescription()" class="btn btn-primary float-end">Update description</button>
+                    <h1>THIS IS COMING SOON</h1>
+                    @* <button onclick="updateDescription()" class="btn btn-primary float-end">Update description</button>
                     @section Scripts
                     {
                         <script type="text/javascript">
                             function updateDescription() {
                                 $.ajax(
                                     {
-                                    url: '/Profile/@(Model.Id)/Description',
+                                    url: '/User/@(Model.Id)/Description',
                                         method: "PUT",
                                         data: JSON.stringify($('textarea[name="description"]').val()),
                                         headers: {
@@ -58,7 +44,7 @@
                         function updateProfileImage() {
                             $.ajax(
                                 {
-                                    url: '/Profile/@(Model.Id)/ProfileImage',
+                                    url: '/User/@(Model.Id)/ProfileImage',
                                     method: "PUT",
                                     data: JSON.stringify($('textarea[name="profileimage"]').val()),
                                     headers: {
@@ -74,13 +60,14 @@
                             );
                         }
                         </script>
-                    }
+                    } *@
                 </div>
             }
             else
             {
                 <div class="offset-md-1 col-md-8" style="border: 1px solid #303030">
-                    <p>@Model.Description</p>
+                    <p>@Model.Username</p>
+                    <p>@Model.Email</p>
                 </div>
             }
         </div>

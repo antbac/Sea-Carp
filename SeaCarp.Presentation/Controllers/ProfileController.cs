@@ -1,23 +1,19 @@
 ﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.Domain.Models;
-using SeaCarp.ViewModels;
 
 namespace SeaCarp.Controllers;
 
 public class ProfileController : BaseController
 {
-    private readonly ILogger<ProfileController> _logger;
     private readonly IUserRepository _userRepository;
 
-    public ProfileController(ILogger<ProfileController> logger, IUserRepository userRepository)
+    public ProfileController(IUserRepository userRepository)
     {
-        _logger = logger;
         _userRepository = userRepository;
     }
 
     [Route("Profile")]
     [HttpGet]
-    public async Task<IActionResult> GetProfile()
+    public IActionResult GetProfile()
     {
         return CurrentUser is null
             ? RedirectToAction("Login", "Identity")
@@ -30,54 +26,41 @@ public class ProfileController : BaseController
     {
         var user = CurrentUser?.Id == id
             ? CurrentUser
-            : await _userRepository.GetUserById(id);
+            : await _userRepository.GetUser(id);
 
         return user is null
             ? NotFound($"No user with Id {id} found")
             : View("Index", user);
     }
 
-    [Route("Profile/{id}/Description")]
-    [HttpPut]
-    public async Task<IActionResult> UpdateProfileDescription([FromBody] string description)
-    {
-        if (CurrentUser is null)
-        {
-            return Unauthorized("You must be logged in to update your description");
-        }
-
-        CurrentUser.UpdateDescription(description);
-        await _userRepository.SaveChanges();
-
-        return StatusCode(204);
-    }
-
     [Route("Profile/{id}/Password")]
     [HttpPut]
-    public async Task<IActionResult> UpdateProfilePassword([FromBody] string password)
+    public async Task<IActionResult> UpdatePassword(int id, [FromBody] string password)
     {
         if (CurrentUser is null)
         {
             return Unauthorized("You must be logged in to update your password");
         }
 
-        CurrentUser.UpdatePassword(password);
-        await _userRepository.SaveChanges();
+        var user = await _userRepository.GetUser(id);
+        user.UpdatePassword(password);
+        await _userRepository.UpdateUser(user);
 
         return StatusCode(204);
     }
 
-    [Route("Profile/{id}/ProfileImage")]
+    [Route("Profile/{id}/Email")]
     [HttpPut]
-    public async Task<IActionResult> UpdateProfileImage([FromBody] string url)
+    public async Task<IActionResult> UpdateEmail(int id, [FromBody] string email)
     {
         if (CurrentUser is null)
         {
-            return Unauthorized("You must be logged in to update your profile image");
+            return Unauthorized("You must be logged in to update your password");
         }
 
-        CurrentUser.UpdateProfileImage(url);
-        await _userRepository.SaveChanges();
+        var user = await _userRepository.GetUser(id);
+        user.UpdateEmail(email);
+        await _userRepository.UpdateUser(user);
 
         return StatusCode(204);
     }

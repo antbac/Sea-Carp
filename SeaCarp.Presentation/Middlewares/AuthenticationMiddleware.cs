@@ -18,7 +18,7 @@ public static class AuthenticationMiddleware
             else
             {
                 var userRepository = context.RequestServices.GetService<IUserRepository>();
-                RequestContext.Instance.CurrentUser.Value = await userRepository.GetUserById(int.Parse(userId));
+                RequestContext.Instance.CurrentUser.Value = await userRepository.GetUser(int.Parse(userId));
             }
 
             await next(context);

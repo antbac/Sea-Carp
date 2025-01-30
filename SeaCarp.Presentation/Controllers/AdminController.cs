@@ -1,24 +1,28 @@
-﻿using SeaCarp.ViewModels;
+﻿using SeaCarp.Domain.Abstractions;
 
 namespace SeaCarp.Controllers;
 
-public class AdminController : Controller
+public class AdminHiddenXYZController : Controller
 {
-    private readonly ILogger<AdminController> _logger;
+    private readonly IAdminRepository _adminRepository;
 
-    public AdminController(ILogger<AdminController> logger)
+    public AdminHiddenXYZController(IAdminRepository adminRepository)
     {
-        _logger = logger;
+        _adminRepository = adminRepository;
     }
 
+    [Route("AdminHiddenXYZ")]
+    [HttpGet]
     public IActionResult Index()
     {
         return View();
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    [Route("AdminHiddenXYZ/ResetDatabase")]
+    [HttpPost]
+    public async Task<IActionResult> ResetDatabase()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        await _adminRepository.ResetDatabase();
+        return View("Index");
     }
 }

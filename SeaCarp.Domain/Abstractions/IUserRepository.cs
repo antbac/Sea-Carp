@@ -2,11 +2,13 @@
 
 namespace SeaCarp.Domain.Abstractions;
 
-public interface IUserRepository : IRepository
+public interface IUserRepository
 {
-    public Task CreateUser(User user);
+    Task CreateUser(User user);
 
-    public Task<User> GetUser(string email, string password);
+    Task<User> GetUser(string username, string password);
 
-    public Task<User> GetUserById(int id);
+    Task<User> GetUser(int id);
+
+    Task UpdateUser(User user);
 }

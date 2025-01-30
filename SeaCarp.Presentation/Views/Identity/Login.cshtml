@@ -5,44 +5,37 @@
 
 <div class="container">
     <main>
-        @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
-        {
-            <p style="color: red">@Model.ErrorMessage</p>
-        }
+        <p id="error" style="display: none; color: red"></p>
         <h1>Log in</h1>
         <br />
 
         <div class="row">
             <div class="col-md-4">
                 <section>
-                    <form id="account" method="post" novalidate="novalidate">
+                    <form id="login_form" method="post" novalidate="novalidate">
                         <h2>Use a local account to log in.</h2>
                         <hr>
-
                         <div class="form-floating mb-3">
-                            <input class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="Email" value="">
-                            <label class="form-label" for="Email">Email</label>
-                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                            <input class="form-control" aria-required="true" placeholder="username" type="text" data-val-required="The Username field is required." id="Username" name="Username" value="">
+                            <label for="Username">Username</label>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Username" data-valmsg-replace="true"></span>
                             <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-required="The Password field is required." id="Password" name="Password">
-                            <label class="form-label" for="Password">Password</label>
+                            <input class="form-control" aria-required="true" placeholder="password" type="password" data-val-required="The Password field is required." id="Password" name="Password">
+                            <label for="Password">Password</label>
                             <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
                             <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                         </div>
                         <div>
                             <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
                         </div>
-                        <div>
-                            <p>
-                                <a id="forgot-password" href="/Identity/ForgotPassword">Forgot your password?</a>
-                            </p>
-                            <p>
-                                <a href="/Identity/Register">Register as a new user</a>
-                            </p>
-                        </div>
                     </form>
+                    <div>
+                        <p>
+                            <a href="/Identity/Register">Register as a new user</a>
+                        </p>
+                    </div>
                 </section>
             </div>
             <div class="col-md-8 col-md-offset-2">
@@ -61,3 +54,30 @@
         </div>
     </main>
 </div>
+
+@section Scripts
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('#login_form').onsubmit = (e) => {
+                e.preventDefault();
+                $.ajax({
+                    url: '/Identity/Login',
+                    type: 'POST',
+                    data: {
+                        'Username': document.querySelector('#Username').value,
+                        'Password': document.querySelector('#Password').value,
+                    },
+                    dataType: 'json',
+                    success: (data) => {
+                        window.location = data.redirectUrl;
+                    },
+                    error: (request, error) => {
+                        document.querySelector('#error').innerText = request.responseText;
+                        document.querySelector('#error').style.display = 'inline';
+                    }
+                });
+            };
+        }, false);
+    </script>
+}

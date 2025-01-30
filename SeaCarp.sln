@@ -18,6 +18,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "10 - Presentation", "10 - Presentation", "{2DF34E37-56A5-4E8B-B4D7-ADD4388A1047}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "20 - Application", "20 - Application", "{4AB7F6E1-0E23-458D-86D5-CA6F4A1FFCE5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "30 - Domain", "30 - Domain", "{AB5C536B-2FDF-419B-844F-AB4549BD9CD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "40 - Infrastructure", "40 - Infrastructure", "{9A3016DE-EA2E-4C73-98FC-0945BF7F9CE1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 - CrossCutting", "00 - CrossCutting", "{77FA38D9-5FCB-46FB-AAE7-B22FF1399254}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +57,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8A59CE45-92F3-4E13-BAE8-237AF3F05C6D} = {2DF34E37-56A5-4E8B-B4D7-ADD4388A1047}
+		{0B5B9860-7148-49BE-BD7E-FF051C690EF2} = {4AB7F6E1-0E23-458D-86D5-CA6F4A1FFCE5}
+		{E129125C-3A09-4C5F-82A9-F8044A3941E5} = {AB5C536B-2FDF-419B-844F-AB4549BD9CD6}
+		{7183E187-8C5A-4BB6-A675-1F35E793E37E} = {9A3016DE-EA2E-4C73-98FC-0945BF7F9CE1}
+		{AEC3C0E7-2FCC-49A2-B09F-10C24C3879A1} = {77FA38D9-5FCB-46FB-AAE7-B22FF1399254}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC85ABE-E916-4A52-B3E8-D3AA135869E2}

@@ -1,55 +1,67 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="ViewModels\Admin\**" />
+	  <Compile Remove="ViewModels\Home\**" />
+	  <Compile Remove="ViewModels\Identity\**" />
+	  <Content Remove="ViewModels\Admin\**" />
+	  <Content Remove="ViewModels\Home\**" />
+	  <Content Remove="ViewModels\Identity\**" />
+	  <EmbeddedResource Remove="ViewModels\Admin\**" />
+	  <EmbeddedResource Remove="ViewModels\Home\**" />
+	  <EmbeddedResource Remove="ViewModels\Identity\**" />
+	  <None Remove="ViewModels\Admin\**" />
+	  <None Remove="ViewModels\Home\**" />
+	  <None Remove="ViewModels\Identity\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="Properties\serviceDependencies.json" />
-    <Content Remove="Properties\serviceDependencies.local.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <_WebToolingArtifacts Remove="Properties\serviceDependencies.json" />
-    <_WebToolingArtifacts Remove="Properties\serviceDependencies.local.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Remove="Properties\serviceDependencies.json" />
+		<Content Remove="Properties\serviceDependencies.local.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="Properties\serviceDependencies.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
-    <None Include="Properties\serviceDependencies.local.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<_WebToolingArtifacts Remove="Properties\serviceDependencies.json" />
+		<_WebToolingArtifacts Remove="Properties\serviceDependencies.local.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\Admin\" />
-    <Folder Include="ViewModels\Home\" />
-    <Folder Include="ViewModels\Identity\" />
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\.editorconfig" Link=".editorconfig" />
+		<None Include="Properties\serviceDependencies.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+		<None Include="Properties\serviceDependencies.local.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SeaCarp.CrossCutting\SeaCarp.CrossCutting.csproj" />
-    <ProjectReference Include="..\SeaCarp.Application\SeaCarp.Application.csproj" />
-    <ProjectReference Include="..\SeaCarp.Domain\SeaCarp.Domain.csproj" />
-    <ProjectReference Include="..\SeaCarp.Infrastructure\SeaCarp.Infrastructure.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\images\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\SeaCarp.CrossCutting\SeaCarp.CrossCutting.csproj" />
+		<ProjectReference Include="..\SeaCarp.Application\SeaCarp.Application.csproj" />
+		<ProjectReference Include="..\SeaCarp.Domain\SeaCarp.Domain.csproj" />
+		<ProjectReference Include="..\SeaCarp.Infrastructure\SeaCarp.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<NoWarn>CS8618</NoWarn>
+	</PropertyGroup>
 
 </Project>

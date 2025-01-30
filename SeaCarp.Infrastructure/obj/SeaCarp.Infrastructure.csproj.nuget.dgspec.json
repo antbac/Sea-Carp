@@ -1,23 +1,20 @@
-﻿{
+{
   "format": 1,
   "restore": {
-    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {}
+    "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
+    "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+        "projectUniqueName": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
         "projectName": "SeaCarp.CrossCutting",
-        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
-        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\obj\\",
+        "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+        "packagesPath": "C:\\Users\\judon\\.nuget\\packages\\",
+        "outputPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\judon\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -25,8 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -63,20 +59,17 @@
         }
       }
     },
-    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+    "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
+        "projectUniqueName": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
         "projectName": "SeaCarp.Domain",
-        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
-        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\obj\\",
+        "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\SeaCarp.Domain.csproj",
+        "packagesPath": "C:\\Users\\judon\\.nuget\\packages\\",
+        "outputPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\judon\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -84,15 +77,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
-                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj"
+              "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
+                "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj"
               }
             }
           }
@@ -106,12 +98,6 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "dependencies": {
-            "Microsoft.EntityFrameworkCore.Abstractions": {
-              "target": "Package",
-              "version": "[8.0.1, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
@@ -132,20 +118,17 @@
         }
       }
     },
-    "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {
+    "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
+        "projectUniqueName": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
         "projectName": "SeaCarp.Infrastructure",
-        "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Infrastructure\\obj\\",
+        "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Infrastructure\\SeaCarp.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\judon\\.nuget\\packages\\",
+        "outputPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\judon\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -153,15 +136,17 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
-                "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
+              "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj": {
+                "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj"
+              },
+              "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\SeaCarp.Domain.csproj": {
+                "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.Domain\\SeaCarp.Domain.csproj"
               }
             }
           }
@@ -176,31 +161,17 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[8.0.1, )"
-            },
-            "Microsoft.EntityFrameworkCore.Proxies": {
-              "target": "Package",
-              "version": "[8.0.1, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[8.0.1, )"
-            },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.1, )"
-            },
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.1, )"
             },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[9.0.1, )"
+            },
+            "System.Data.SQLite": {
+              "target": "Package",
+              "version": "[1.0.119, )"
             }
           },
           "imports": [

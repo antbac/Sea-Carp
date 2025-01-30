@@ -1,9 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SeaCarp.Domain.Abstractions;
-using SeaCarp.Infrastructure;
+﻿using SeaCarp.Domain.Abstractions;
 using SeaCarp.Infrastructure.Repositories;
 using SeaCarp.Middlewares;
-using SeaCarp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +14,9 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<SeaCarpDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

@@ -5,35 +5,31 @@
 
 <div class="container">
     <main>
-        @if (!string.IsNullOrWhiteSpace(Model?.ErrorMessage))
-        {
-            <p style="color: red">@Model.ErrorMessage</p>
-        }
+        <p id="error" style="display: none; color: red"></p>
         <h1>Register</h1>
         <br />
 
         <div class="row">
             <div class="col-md-4">
-                <form id="registerForm" method="post" action="/Identity/Register" novalidate="novalidate">
+                <form id="register_form" method="post" action="/Identity/Register" novalidate="novalidate">
                     <h2>Create a new account.</h2>
                     <hr />
-
                     <div class="form-floating mb-3">
-                        <input class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="Email" value="">
+                        <input class="form-control" aria-required="true" placeholder="username" type="text" data-val-required="The Username field is required." id="Username" name="Username" value="">
+                        <label for="Username">Username</label>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input class="form-control" aria-required="true" placeholder="name@example.com" type="email" data-val-required="The Email field is required." id="Email" name="Email" value="">
                         <label for="Email">Email</label>
                         <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
                         <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                     </div>
                     <div class="form-floating mb-3">
-                        <input class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-length="The Password must be at least 6 and at max 100 characters long." data-val-length-max="100" data-val-length-min="6" data-val-required="The Password field is required." id="Password" maxlength="100" name="Password">
+                        <input class="form-control" aria-required="true" placeholder="password" type="password" data-val-required="The Password field is required." id="Password" name="Password">
                         <label for="Password">Password</label>
                         <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
-                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" type="password" data-val="true" data-val-equalto="The password and confirmation password do not match." data-val-equalto-other="*.Password" id="ConfirmPassword" name="ConfirmPassword">
-                        <label for="ConfirmPassword">Confirm Password</label>
-                        <span class="text-danger field-validation-valid" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
                         <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                     </div>
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
@@ -55,3 +51,31 @@
         </div>
     </main>
 </div>
+
+@section Scripts
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('#register_form').onsubmit = (e) => {
+                e.preventDefault();
+                $.ajax({
+                    url: '/Identity/Register',
+                    type: 'POST',
+                    data: {
+                        'Username': document.querySelector('#Username').value,
+                        'Email': document.querySelector('#Email').value,
+                        'Password': document.querySelector('#Password').value,
+                    },
+                    dataType: 'json',
+                    success: (data) => {
+                        location = '/';
+                    },
+                    error: (request, error) => {
+                        document.querySelector('#error').innerText = request.responseText;
+                        document.querySelector('#error').style.display = 'inline';
+                    }
+                });
+            };
+        }, false);
+    </script>
+}

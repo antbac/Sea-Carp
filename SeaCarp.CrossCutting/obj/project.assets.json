@@ -8,23 +8,19 @@
     "net8.0": []
   },
   "packageFolders": {
-    "C:\\Users\\bacant\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\judon\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+      "projectUniqueName": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
       "projectName": "SeaCarp.CrossCutting",
-      "projectPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
-      "packagesPath": "C:\\Users\\bacant\\.nuget\\packages\\",
-      "outputPath": "C:\\projects\\Git\\SeaCarp\\SeaCarp.CrossCutting\\obj\\",
+      "projectPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\SeaCarp.CrossCutting.csproj",
+      "packagesPath": "C:\\Users\\judon\\.nuget\\packages\\",
+      "outputPath": "E:\\Programming\\c_sharp\\Sea-Carp\\SeaCarp.CrossCutting\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\bacant\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\judon\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -32,8 +28,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {},
-        "https://pkgs.dev.azure.com/Skandia/_packaging/SkandiaNuget/nuget/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
