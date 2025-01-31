@@ -1,6 +1,6 @@
 ﻿using SeaCarp.Domain.Models;
 
-namespace SeaCarp.Services;
+namespace SeaCarp.Presentation.Services;
 
 public class RequestContext
 {

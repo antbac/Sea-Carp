@@ -1,4 +1,4 @@
-﻿namespace SeaCarp.Presentation.ViewModels.Response;
+﻿namespace SeaCarp.Presentation.Models.Responses;
 
 public class GenericResponse
 {

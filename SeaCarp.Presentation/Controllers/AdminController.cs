@@ -1,8 +1,8 @@
 ﻿using SeaCarp.Domain.Abstractions;
 
-namespace SeaCarp.Controllers;
+namespace SeaCarp.Presentation.Controllers;
 
-public class AdminHiddenXYZController : Controller
+public class AdminHiddenXYZController : BaseController
 {
     private readonly IAdminRepository _adminRepository;
 

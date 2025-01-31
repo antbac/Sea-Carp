@@ -1,7 +1,4 @@
-﻿@model SeaCarp.Domain.Models.User
-@{
-    ViewData["Title"] = "User";
-}
+﻿@model SeaCarp.Presentation.Models.ViewModels.UserViewModel
 
 <div class="container">
     <main>
@@ -59,7 +56,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#update_email_form').onsubmit = (e) => {
                 e.preventDefault();
-                fetch('/Profile/@(Model.Id)/Email', {
+                fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Email', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -81,7 +78,7 @@
             };
             document.querySelector('#update_password_form').onsubmit = (e) => {
                 e.preventDefault();
-                fetch('/Profile/@(Model.Id)/Password', {
+                fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Password', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

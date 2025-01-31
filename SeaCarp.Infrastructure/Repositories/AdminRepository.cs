@@ -1,13 +1,12 @@
 ﻿using SeaCarp.Domain.Abstractions;
 
-namespace SeaCarp.Infrastructure.Repositories
+namespace SeaCarp.Infrastructure.Repositories;
+
+public class AdminRepository : IAdminRepository
 {
-    public class AdminRepository : IAdminRepository
+    public Task ResetDatabase()
     {
-        public Task ResetDatabase()
-        {
-            Database.ResetDatabase();
-            return Task.CompletedTask;
-        }
+        Database.ResetDatabase();
+        return Task.CompletedTask;
     }
 }

@@ -1,60 +1,60 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
 using System.Data.SQLite;
 
-namespace SeaCarp.Infrastructure
+namespace SeaCarp.Infrastructure;
+
+internal static class Database
 {
-    internal static class Database
+    private static readonly object _lock = new();
+    private static SQLiteConnection? _connection;
+    private const string _connectionString = "Data Source=:memory:;Version=3;New=True;";
+
+    /// <summary>
+    /// Gets (and if necessary, creates) the single in-memory DB connection.
+    /// </summary>
+    internal static SQLiteConnection GetConnection()
     {
-        private static readonly object _lock = new();
-        private static SQLiteConnection? _connection;
-        private const string _connectionString = "Data Source=:memory:;Version=3;New=True;";
-
-        /// <summary>
-        /// Gets (and if necessary, creates) the single in-memory DB connection.
-        /// </summary>
-        internal static SQLiteConnection GetConnection()
-        {
-            if (_connection == null)
-            {
-                lock (_lock)
-                {
-                    if (_connection == null)
-                    {
-                        _connection = new SQLiteConnection(_connectionString);
-                        _connection.Open();
-
-                        InitializeDatabase(_connection);
-                    }
-                }
-            }
-
-            return _connection;
-        }
-
-        /// <summary>
-        /// Close and dispose the current in-memory DB (destroying all data).
-        /// </summary>
-        internal static void ResetDatabase()
+        if (_connection == null)
         {
             lock (_lock)
             {
-                if (_connection != null)
+                if (_connection == null)
                 {
-                    _connection.Close();
-                    _connection.Dispose();
-                    _connection = null;
+                    _connection = new SQLiteConnection(_connectionString);
+                    _connection.Open();
+
+                    InitializeDatabase(_connection);
                 }
             }
         }
 
-        /// <summary>
-        /// Sets up initial tables and seed data.
-        /// </summary>
-        private static void InitializeDatabase(SQLiteConnection connection)
+        return _connection;
+    }
+
+    /// <summary>
+    /// Close and dispose the current in-memory DB (destroying all data).
+    /// </summary>
+    internal static void ResetDatabase()
+    {
+        lock (_lock)
         {
-            using (var cmd = connection.CreateCommand())
+            if (_connection != null)
             {
-                cmd.CommandText = @$"
+                _connection.Close();
+                _connection.Dispose();
+                _connection = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sets up initial tables and seed data.
+    /// </summary>
+    private static void InitializeDatabase(SQLiteConnection connection)
+    {
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
                     CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.User).ToPlural()} (
                         {nameof(Domain.Models.User.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
                         {nameof(Domain.Models.User.Username)} TEXT NOT NULL UNIQUE,
@@ -68,28 +68,28 @@ namespace SeaCarp.Infrastructure
                         {nameof(Domain.Models.Product.ProductName)} TEXT NOT NULL UNIQUE,
                         {nameof(Domain.Models.Product.Description)} TEXT,
                         {nameof(Domain.Models.Product.Price)} REAL NOT NULL,
-                        {nameof(Domain.Models.Product.CategoryId)} INTEGER
+                        CategoryId INTEGER
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.Order).ToPlural()} (
                         {nameof(Domain.Models.Order.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.Order.UserId)} INTEGER,
+                        {nameof(Domain.Models.User)}Id INTEGER,
                         {nameof(Domain.Models.Order.OrderDate)} TEXT,
                         {nameof(Domain.Models.Order.Status)} TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.OrderItem).ToPlural()} (
                         {nameof(Domain.Models.OrderItem.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.OrderItem.OrderId)} INTEGER,
-                        {nameof(Domain.Models.OrderItem.ProductId)} INTEGER,
+                        {nameof(Domain.Models.Order)}Id INTEGER,
+                        {nameof(Domain.Models.Product)}Id INTEGER,
                         {nameof(Domain.Models.OrderItem.Quantity)} INTEGER,
                         {nameof(Domain.Models.OrderItem.UnitPrice)} REAL
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.Review).ToPlural()} (
                         {nameof(Domain.Models.Review.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.Review.ProductId)} INTEGER,
-                        {nameof(Domain.Models.Review.UserId)} INTEGER,
+                        {nameof(Domain.Models.Product)}Id INTEGER,
+                        {nameof(Domain.Models.User)}Id INTEGER,
                         {nameof(Domain.Models.Review.Rating)} INTEGER,
                         {nameof(Domain.Models.Review.Comment)} TEXT,
                         {nameof(Domain.Models.Review.CreatedDate)} TEXT
@@ -100,13 +100,19 @@ namespace SeaCarp.Infrastructure
                         Category TEXT NOT NULL UNIQUE
                     );
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.User).ToPlural()} ({nameof(Domain.Models.User.Username)}, {nameof(Domain.Models.User.Password)}, {nameof(Domain.Models.User.Email)}, {nameof(Domain.Models.User.IsAdmin)}) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO {nameof(Domain.Models.User).ToPlural()}
+                    (
+                        {nameof(Domain.Models.User.Username)},
+                        {nameof(Domain.Models.User.Password)},
+                        {nameof(Domain.Models.User.Email)},
+                        {nameof(Domain.Models.User.IsAdmin)}
+                    ) VALUES
                         ('admin',   'EEA96FB6F677C9B0A9D226B199A3BEAD3AE93279', 'frank@fishmail.com',   1),  -- Admin user
                         ('alice',   '81F500B3A7941D4E56FFB3BCE9C200C62AFB3A9F', 'alice@fishmail.com',   0),
                         ('bob',     '06317FBFEFC618C6C732FDA29D503C569D85AC1F', 'bob@fishmail.com',     0),
@@ -120,13 +126,16 @@ namespace SeaCarp.Infrastructure
                         ('mallory', 'D079A50C98D5EB8DC86DC9369FC37D9B5939EACA', 'mallory@fishmail.com', 0),
                         ('peggy',   '8319538B9D350CBBFBFDF3154D4ABB525087F6CA', 'peggy@fishmail.com',   0);
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO Categories (Category) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO Categories
+                    (
+                        Category
+                    ) VALUES
                         ('Fishing Rods'),
                         ('Fly Fishing'),
                         ('Baits & Lures'),
@@ -137,18 +146,24 @@ namespace SeaCarp.Infrastructure
                         ('Apparel'),
                         ('Bags & Storage');
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Product).ToPlural()} ({nameof(Domain.Models.Product.ProductName)}, {nameof(Domain.Models.Product.Description)}, {nameof(Domain.Models.Product.Price)}, {nameof(Domain.Models.Product.CategoryId)}) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO {nameof(Domain.Models.Product).ToPlural()}
+                    (
+                        {nameof(Domain.Models.Product.ProductName)},
+                        {nameof(Domain.Models.Product.Description)},
+                        {nameof(Domain.Models.Product.Price)},
+                        CategoryId
+                    ) VALUES
                         ('Bass Pro Spinning Rod', 'A sturdy spinning rod for freshwater fishing', 49.99, 1),
                         ('Fly Fishing Starter Kit', 'Includes rod, reel, line, and flies for beginners', 89.95, 2),
                         ('Salmon Roe Bait', 'High-quality salmon roe for trout and salmon fishing', 14.50, 3),
                         ('Walleye Lure Set', 'Assorted lures designed for walleye fishing', 24.99, 3),
-                        ('Trout Spoon Lures', 'Pack of 5 colorful spoon lures for trout', 9.99, 3),
+                        ('Trout Spoon Lures', 'Pack of 9 colorful spoon lures for trout', 9.99, 3),
                         ('Saltwater Reel', 'Durable reel for saltwater big game fishing', 129.95, 4),
                         ('Shrimp Scented Soft Baits', 'Soft plastic baits with shrimp scent for inshore fishing', 8.49, 3),
                         ('Catfish Circle Hooks', 'Pack of 25 circle hooks for catfish', 5.99, 5),
@@ -157,13 +172,18 @@ namespace SeaCarp.Infrastructure
                         ('Fishing Hat with Sun Protection', 'Wide-brim hat with UPF 50+ rating', 17.99, 8),
                         ('Fishing Tackle Backpack', 'Large, waterproof backpack with multiple compartments', 39.99, 9);
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Order).ToPlural()} ({nameof(Domain.Models.Order.UserId)}, {nameof(Domain.Models.Order.OrderDate)}, {nameof(Domain.Models.Order.Status)}) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO {nameof(Domain.Models.Order).ToPlural()}
+                    (
+                        {nameof(Domain.Models.User)}Id,
+                        {nameof(Domain.Models.Order.OrderDate)},
+                        {nameof(Domain.Models.Order.Status)}
+                    ) VALUES
                         (2,  '2025-01-05', 'Delivered'),
                         (2,  '2025-01-06', 'Delivered'),
                         (3,  '2025-01-07', 'Shipped'),
@@ -177,13 +197,19 @@ namespace SeaCarp.Infrastructure
                         (11, '2025-01-15', 'Delivered'),
                         (12, '2025-01-16', 'Pending');
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.OrderItem).ToPlural()} ({nameof(Domain.Models.OrderItem.OrderId)}, {nameof(Domain.Models.OrderItem.ProductId)}, {nameof(Domain.Models.OrderItem.Quantity)}, {nameof(Domain.Models.OrderItem.UnitPrice)}) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO {nameof(Domain.Models.OrderItem).ToPlural()}
+                    (
+                        {nameof(Domain.Models.Order)}Id,
+                        {nameof(Domain.Models.Product)}Id,
+                        {nameof(Domain.Models.OrderItem.Quantity)},
+                        {nameof(Domain.Models.OrderItem.UnitPrice)}
+                    ) VALUES
                         (1,  2,  1,  89.95),   -- Fly Fishing Starter Kit
                         (2,  1,  2,  49.99),   -- Bass Pro Spinning Rod
                         (3,  10, 1,  199.00),  -- Fish Finder Sonar
@@ -197,13 +223,20 @@ namespace SeaCarp.Infrastructure
                         (11, 12, 1,  39.99),   -- Fishing Tackle Backpack
                         (12, 2,  1,  89.95);   -- Fly Fishing Starter Kit
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
+        }
 
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Review).ToPlural()} ({nameof(Domain.Models.Review.ProductId)}, {nameof(Domain.Models.Review.UserId)}, {nameof(Domain.Models.Review.Rating)}, {nameof(Domain.Models.Review.Comment)}, {nameof(Domain.Models.Review.CreatedDate)}) VALUES
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @$"
+                    INSERT INTO {nameof(Domain.Models.Review).ToPlural()}
+                    (
+                        {nameof(Domain.Models.Product)}Id,
+                        {nameof(Domain.Models.User)}Id,
+                        {nameof(Domain.Models.Review.Rating)},
+                        {nameof(Domain.Models.Review.Comment)},
+                        {nameof(Domain.Models.Review.CreatedDate)}
+                    ) VALUES
                         (1,  2,  5, 'Love this rod!', '2025-01-02'),
                         (2,  3,  4, 'Great starter kit, missing a few small items.', '2025-01-03'),
                         (3,  1,  4, 'Worked well for catching trout.', '2025-01-04'),
@@ -217,8 +250,7 @@ namespace SeaCarp.Infrastructure
                         (11, 11, 5, 'Hat is comfortable and protective.', '2025-01-12'),
                         (12, 12, 3, 'Good backpack, but smaller than expected.', '2025-01-13');
                 ";
-                cmd.ExecuteNonQuery();
-            }
+            cmd.ExecuteNonQuery();
         }
     }
 }

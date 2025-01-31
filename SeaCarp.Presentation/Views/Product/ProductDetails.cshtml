@@ -1,0 +1,265 @@
+﻿@model SeaCarp.Presentation.Models.ViewModels.ProductViewModel
+
+<div class="container mt-4">
+    <div class="row">
+        <p id="error" style="display: none; color: red"></p>
+        <div class="col-md-6 mb-3">
+            <img src="~/images/products/@(Model.ProductName).png"
+                 alt="@Model.ProductName"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height: 400px; object-fit: contain;" />
+        </div>
+
+        <div class="col-md-6">
+            <h1 class="mb-3">@Model.ProductName</h1>
+            <p class="text-muted">@Model.Category</p>
+            <p>
+                <strong>Description:</strong> @Model.Description
+            </p>
+
+            <h3 class="mt-4 text-primary">$@Model.Price</h3>
+
+            <div class="d-flex align-items-center mt-4 mb-3">
+                <label for="quantity" class="form-label me-3">Quantity:</label>
+                <input type="number"
+                       id="quantity"
+                       name="quantity"
+                       class="form-control"
+                       style="width: 100px;"
+                       value="1"
+                       min="1"
+                       max="99" />
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                @if (RequestContext.Instance.CurrentUser.Value == null)
+                {
+                    <a href="@Url.ActionLink(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix(), new { returnUrl = ViewContext.HttpContext.Request.Path.ToString() })">
+                        <button class="btn btn-primary rounded-pill px-4" type="button">
+                            Please log in to add to cart
+                        </button>
+                    </a>
+                }
+                else
+                {
+                    <button id="add_to_cart_btn" class="btn btn-primary rounded-pill px-4" type="button">
+                        Add to Cart
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            <h3>Product Details</h3>
+            <p>
+                Here you can include additional product specs, sizes, materials,
+                warranty information, or anything else relevant to the product.
+            </p>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h4>Customer Reviews</h4>
+            @if (!Model.Reviews.Any())
+            {
+                <p>No reviews yet.</p>
+            }
+            else
+            {
+                var totalReviews = Model.Reviews.Count();
+                var averageRating = Model.Reviews.Average(r => r.Rating);
+
+                <p>
+                    <strong>@totalReviews</strong> review(s) &middot;
+                    Average rating: <strong>@averageRating.ToString("0.0")</strong> / 5
+                </p>
+
+                foreach (var review in Model.Reviews)
+                {
+                    var stars = review.Rating switch
+                    {
+                        1 => "⭐",
+                        2 => "⭐⭐",
+                        3 => "⭐⭐⭐",
+                        4 => "⭐⭐⭐⭐",
+                        5 => "⭐⭐⭐⭐⭐",
+                        _ => "⭐"
+                    };
+                    var reviewer = review.User;
+                    var comment = review.Comment;
+                    var reviewed = review.CreatedDate;
+
+                    <div class="mb-3 border rounded p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@reviewer</strong>
+                                <span class="text-muted ms-2">@reviewed</span>
+                            </div>
+                            <span class="text-warning" style="font-size: 1.2rem;">@stars</span>
+                        </div>
+                        <p class="mt-2 mb-0">@comment</p>
+                    </div>
+                }
+            }
+            @if (RequestContext.Instance.CurrentUser.Value != null)
+            {
+                var addReviewsMessage = Model.Reviews.Any()
+                ? "Add a review for this product"
+                : "Be the first to add a review for this product";
+
+                <p class="fw-bold">@addReviewsMessage</p>
+                <form method="post" id="add_review_form" action="/@nameof(ProductController).RemoveControllerSuffix()/@(Model.Id)/Reviews" class="border rounded p-3 mt-3">
+                    <div class="mb-3">
+                        <label for="Rating" class="form-label">Rating (1-5)</label>
+                        <select id="Rating" name="Rating" class="form-select">
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="3">3 - Good</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Comment" class="form-label">Comment</label>
+                        <textarea id="Comment" name="Comment" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Submit Review
+                    </button>
+                </form>
+            }
+        </div>
+        @if (Model.RelatedProducts.Any())
+        {
+            <div class="col-md-6">
+                <h4>Related Products</h4>
+                <ul class="list-unstyled">
+                    @foreach (var relatedProduct in Model.RelatedProducts)
+                    {
+                        <li class="mb-3">
+                            <div class="card" style="max-width: 600px;">
+                                <div class="row g-0 align-items-center">
+                                    <div class="col-auto">
+                                        <img src="~/images/products/@(relatedProduct.ProductName).png"
+                                             alt="@relatedProduct.ProductName"
+                                             class="img-fluid p-2"
+                                             style="height: 120px; object-fit: contain;" />
+                                    </div>
+                                    <div class="col">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@relatedProduct.ProductName</h6>
+                                            <p class="card-text text-muted mb-1">
+                                                $@relatedProduct.Price
+                                            </p>
+                                            <a href="/@nameof(ProductController).RemoveControllerSuffix()/@(relatedProduct.Id)"
+                                               class="btn btn-sm btn-primary">
+                                                View
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const reviewForm = document.querySelector('#add_review_form');
+            if (reviewForm) {
+                reviewForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    fetch('/@nameof(ProductController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            'Rating': document.querySelector('#Rating').value,
+                            'Comment': document.querySelector('#Comment').value,
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                            return;
+                        }
+                        document.querySelector('#error').innerText = data.errorMessage;
+                        document.querySelector('#error').style.display = 'inline';
+                    });
+                };
+            }
+
+            let alertContainer = document.getElementById('alert-container');
+            if (!alertContainer) {
+                alertContainer = document.createElement('div');
+                alertContainer.id = 'alert-container';
+                alertContainer.style.position = 'fixed';
+                alertContainer.style.top = '1rem';
+                alertContainer.style.left = '50%';
+                alertContainer.style.transform = 'translateX(-50%)';
+                alertContainer.style.zIndex = 9999;
+                document.body.appendChild(alertContainer);
+            }
+
+            const addToCartBtn = document.querySelector('#add_to_cart_btn');
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', () => {
+                    const productId = '@Model.Id';
+                    const productName = '@Model.ProductName';
+                    const productPrice = @Model.Price.ToString().Replace(",", ".");
+                    const productQuantity = parseInt(document.querySelector('#quantity').value);
+
+                    const item = {
+                        productId: productId,
+                        productName: productName,
+                        price: productPrice,
+                        quantity: productQuantity
+                    };
+
+                    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+                    const existingItemIndex = cartItems.findIndex(i => i.productId === productId);
+                    if (existingItemIndex >= 0) {
+                        cartItems[existingItemIndex].quantity += productQuantity;
+                    } else {
+                        cartItems.push(item);
+                    }
+
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+                    const alertElement = document.createElement('div');
+                    alertElement.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show');
+                    alertElement.setAttribute('role', 'alert');
+                    alertElement.innerHTML = `
+                        <strong>${productName}</strong> (x${productQuantity}) added to cart!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+
+                    alertContainer.appendChild(alertElement);
+
+                    setTimeout(() => {
+                        if (typeof bootstrap !== 'undefined') {
+                            const bsAlert = new bootstrap.Alert(alertElement);
+                            bsAlert.close();
+                        } else {
+                            alertElement.remove();
+                        }
+                    }, 5000);
+                });
+            }
+        });
+    </script>
+}

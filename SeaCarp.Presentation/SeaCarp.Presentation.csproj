@@ -7,18 +7,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="ViewModels\Admin\**" />
-	  <Compile Remove="ViewModels\Home\**" />
-	  <Compile Remove="ViewModels\Identity\**" />
-	  <Content Remove="ViewModels\Admin\**" />
-	  <Content Remove="ViewModels\Home\**" />
-	  <Content Remove="ViewModels\Identity\**" />
-	  <EmbeddedResource Remove="ViewModels\Admin\**" />
-	  <EmbeddedResource Remove="ViewModels\Home\**" />
-	  <EmbeddedResource Remove="ViewModels\Identity\**" />
-	  <None Remove="ViewModels\Admin\**" />
-	  <None Remove="ViewModels\Home\**" />
-	  <None Remove="ViewModels\Identity\**" />
+	  <Compile Remove="Models\Admin\**" />
+	  <Compile Remove="Models\Home\**" />
+	  <Compile Remove="Models\Identity\**" />
+	  <Content Remove="Models\Admin\**" />
+	  <Content Remove="Models\Home\**" />
+	  <Content Remove="Models\Identity\**" />
+	  <EmbeddedResource Remove="Models\Admin\**" />
+	  <EmbeddedResource Remove="Models\Home\**" />
+	  <EmbeddedResource Remove="Models\Identity\**" />
+	  <None Remove="Models\Admin\**" />
+	  <None Remove="Models\Home\**" />
+	  <None Remove="Models\Identity\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -62,7 +62,7 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<NoWarn>CS8618</NoWarn>
+		<NoWarn>CS8618,CS8625</NoWarn>
 	</PropertyGroup>
 
 </Project>

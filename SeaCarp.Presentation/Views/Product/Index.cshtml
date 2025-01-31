@@ -1,0 +1,53 @@
+﻿@model IEnumerable<SeaCarp.Presentation.Models.ViewModels.ProductViewModel>
+
+<div class="container mt-4">
+    <h2 class="mb-4">All Products</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <label for="categoryFilter" class="form-label">Category</label>
+            <select class="form-select rounded-pill" id="categoryFilter" aria-label="Filter by Category">
+                <option selected disabled>Choose a category</option>
+                <option value="rods">Rods</option>
+                <option value="reels">Reels</option>
+                <option value="bait">Bait</option>
+                <option value="accessories">Accessories</option>
+            </select>
+        </div>
+
+        <div class="col-sm-4">
+            <label for="priceFilter" class="form-label">Price Range</label>
+            <select class="form-select rounded-pill" id="priceFilter" aria-label="Filter by Price">
+                <option selected disabled>Choose a price range</option>
+                <option value="budget">Under $50</option>
+                <option value="mid">$50 - $100</option>
+                <option value="premium">$100+</option>
+            </select>
+        </div>
+
+        <div class="col-sm-4 d-flex align-items-end">
+            <button class="btn btn-primary me-2" type="button">Filter</button>
+            <button class="btn btn-outline-secondary" type="button">Clear</button>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <img src="~/images/products/@(product.ProductName).png"
+                         class="card-img-top"
+                         alt="@(product.ProductName)" />
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@product.ProductName</h5>
+                        <p class="card-text flex-grow-1">@product.Description</p>
+                        <a href="/@nameof(ProductController).RemoveControllerSuffix()/@product.Id" class="btn btn-primary mt-auto">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

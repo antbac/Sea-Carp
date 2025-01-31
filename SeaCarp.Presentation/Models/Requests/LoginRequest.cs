@@ -1,4 +1,4 @@
-﻿namespace SeaCarp.Presentation.ViewModels.Requests;
+﻿namespace SeaCarp.Presentation.Models.Requests;
 
 public class LoginRequest
 {

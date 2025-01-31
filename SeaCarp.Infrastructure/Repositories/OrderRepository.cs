@@ -1,8 +1,7 @@
 ﻿using SeaCarp.Domain.Abstractions;
 
-namespace SeaCarp.Infrastructure.Repositories
+namespace SeaCarp.Infrastructure.Repositories;
+
+public class OrderRepository : IOrderRepository
 {
-    public class OrderRepository : IOrderRepository
-    {
-    }
 }

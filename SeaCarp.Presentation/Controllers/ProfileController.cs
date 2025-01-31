@@ -1,8 +1,9 @@
 ﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.Presentation.ViewModels.Requests;
-using SeaCarp.Presentation.ViewModels.Response;
+using SeaCarp.Presentation.Models.Requests;
+using SeaCarp.Presentation.Models.Responses;
+using SeaCarp.Presentation.Models.ViewModels;
 
-namespace SeaCarp.Controllers;
+namespace SeaCarp.Presentation.Controllers;
 
 public class ProfileController : BaseController
 {
@@ -36,7 +37,7 @@ public class ProfileController : BaseController
 
         return user is null
             ? NotFound($"No user with identifier {identifier} found")
-            : View("Index", user);
+            : View("Index", new UserViewModel(user));
     }
 
     [Route("Profile/{identifier}/Email")]
@@ -45,7 +46,7 @@ public class ProfileController : BaseController
     {
         if (CurrentUser is null)
         {
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your email" });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to update your email" });
         }
 
         var user = int.TryParse(identifier, out var id)
@@ -57,7 +58,7 @@ public class ProfileController : BaseController
 
         CurrentUser = user;
 
-        return Json(new GenericResponse() { Success = true });
+        return Json(new GenericResponse { Success = true });
     }
 
     [Route("Profile/{identifier}/Password")]

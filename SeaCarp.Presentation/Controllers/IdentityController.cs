@@ -1,8 +1,8 @@
 ﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.Presentation.ViewModels.Requests;
-using SeaCarp.Presentation.ViewModels.Response;
+using SeaCarp.Presentation.Models.Requests;
+using SeaCarp.Presentation.Models.Responses;
 
-namespace SeaCarp.Controllers;
+namespace SeaCarp.Presentation.Controllers;
 
 public class IdentityController : BaseController
 {
@@ -32,11 +32,11 @@ public class IdentityController : BaseController
 
             await _userRepository.CreateUser(user);
 
-            return Json(new GenericResponse() { Success = true });
+            return Json(new GenericResponse { Success = true });
         }
         catch (Exception)
         {
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "An error occurred when trying to register the account." });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred when trying to register the account." });
         }
     }
 
@@ -55,11 +55,11 @@ public class IdentityController : BaseController
         user = await _userRepository.GetUser(user.Username, user.Password);
         if (user is null)
         {
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "No user found with that username and password." });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "No user found with that username and password." });
         }
 
         CurrentUser = user;
-        return Json(new GenericResponse() { Success = true });
+        return Json(new GenericResponse { Success = true });
     }
 
     [HttpGet("Identity/Logout")]

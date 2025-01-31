@@ -1,8 +1,7 @@
-﻿using SeaCarp.Config;
+﻿using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Services;
-using SeaCarp.Services;
 
-namespace SeaCarp.Controllers;
+namespace SeaCarp.Presentation.Controllers;
 
 public abstract class BaseController : Controller
 {

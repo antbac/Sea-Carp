@@ -1,6 +1,5 @@
-﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.Infrastructure.Repositories;
-using SeaCarp.Middlewares;
+﻿using SeaCarp.Presentation.Config;
+using SeaCarp.Presentation.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +12,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+IocSetup.ConfigureIoc(builder.Services);
 
 builder.Services
     .AddControllersWithViews()

@@ -1,16 +1,24 @@
-﻿using SeaCarp.Presentation.Services;
+﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.Presentation.Models.ViewModels;
 
-namespace SeaCarp.Controllers;
+namespace SeaCarp.Presentation.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController
 {
+    private readonly IProductService _productService;
+
+    public HomeController(IProductService productService)
+    {
+        _productService = productService;
+    }
+
     [Route("/")]
     [Route("/Home")]
-    [Route("/Home/Index")]
     [Route("/Index")]
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var featuredProducts = await _productService.GetFeaturedProducts();
+        return View(new OverviewViewModel { FeaturedProducts = featuredProducts.Select(product => new ProductViewModel(product)).ToList() });
     }
 }
