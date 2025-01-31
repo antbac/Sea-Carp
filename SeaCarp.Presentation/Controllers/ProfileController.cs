@@ -1,4 +1,6 @@
 ﻿using SeaCarp.Domain.Abstractions;
+using SeaCarp.Presentation.ViewModels.Requests;
+using SeaCarp.Presentation.ViewModels.Response;
 
 namespace SeaCarp.Controllers;
 
@@ -37,41 +39,45 @@ public class ProfileController : BaseController
             : View("Index", user);
     }
 
-    [Route("Profile/{identifier}/Password")]
-    [HttpPut]
-    public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] string password)
-    {
-        if (CurrentUser is null)
-        {
-            return Unauthorized("You must be logged in to update your password");
-        }
-
-        var user = int.TryParse(identifier, out var id)
-            ? await _userRepository.GetUser(id)
-            : await _userRepository.GetUser(identifier);
-
-        user.UpdatePassword(password);
-        await _userRepository.UpdateUser(user);
-
-        return StatusCode(204);
-    }
-
     [Route("Profile/{identifier}/Email")]
     [HttpPut]
-    public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] string email)
+    public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] UpdateEmailRequest request)
     {
         if (CurrentUser is null)
         {
-            return Unauthorized("You must be logged in to update your password");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your email" });
         }
 
         var user = int.TryParse(identifier, out var id)
             ? await _userRepository.GetUser(id)
             : await _userRepository.GetUser(identifier);
 
-        user.UpdateEmail(email);
+        user.UpdateEmail(request.Email);
         await _userRepository.UpdateUser(user);
 
-        return StatusCode(204);
+        CurrentUser = user;
+
+        return Json(new GenericResponse() { Success = true });
+    }
+
+    [Route("Profile/{identifier}/Password")]
+    [HttpPut]
+    public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] UpdatePasswordRequest request)
+    {
+        if (CurrentUser is null)
+        {
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your password" });
+        }
+
+        var user = int.TryParse(identifier, out var id)
+            ? await _userRepository.GetUser(id)
+            : await _userRepository.GetUser(identifier);
+
+        user.UpdatePassword(request.Password);
+        await _userRepository.UpdateUser(user);
+
+        CurrentUser = user;
+
+        return Json(new GenericResponse() { Success = true });
     }
 }

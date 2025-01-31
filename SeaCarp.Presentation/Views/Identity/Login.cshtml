@@ -1,5 +1,4 @@
-﻿@model SeaCarp.ViewModels.LoginViewModel
-@{
+﻿@{
     ViewData["Title"] = "Login";
 }
 
@@ -61,21 +60,25 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#login_form').onsubmit = (e) => {
                 e.preventDefault();
-                $.ajax({
-                    url: '/Identity/Login',
-                    type: 'POST',
-                    data: {
+                fetch('@Url.ActionLink(nameof(SeaCarp.Controllers.IdentityController.LoginUser), nameof(SeaCarp.Controllers.IdentityController).Replace("Controller", ""))', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         'Username': document.querySelector('#Username').value,
                         'Password': document.querySelector('#Password').value,
-                    },
-                    dataType: 'json',
-                    success: (data) => {
-                        window.location = data.redirectUrl;
-                    },
-                    error: (request, error) => {
-                        document.querySelector('#error').innerText = request.responseText;
-                        document.querySelector('#error').style.display = 'inline';
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location = '@Url.ActionLink(nameof(SeaCarp.Controllers.ProfileController.GetProfile), nameof(SeaCarp.Controllers.ProfileController).Replace("Controller", ""))';
+                        return;
                     }
+
+                    document.querySelector('#error').innerText = data.errorMessage;
+                    document.querySelector('#error').style.display = 'inline';
                 });
             };
         }, false);

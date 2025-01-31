@@ -1,5 +1,6 @@
 ﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.ViewModels;
+using SeaCarp.Presentation.ViewModels.Requests;
+using SeaCarp.Presentation.ViewModels.Response;
 
 namespace SeaCarp.Controllers;
 
@@ -19,7 +20,7 @@ public class IdentityController : BaseController
     }
 
     [HttpPost("Identity/Register")]
-    public async Task<IActionResult> CreateAccount(AccountRegistrationViewModel registration)
+    public async Task<IActionResult> CreateAccount([FromBody] AccountRegistrationRequest registration)
     {
         try
         {
@@ -31,11 +32,11 @@ public class IdentityController : BaseController
 
             await _userRepository.CreateUser(user);
 
-            return Json(user);
+            return Json(new GenericResponse() { Success = true });
         }
         catch (Exception)
         {
-            return BadRequest("An error occurred when trying to register the account.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "An error occurred when trying to register the account." });
         }
     }
 
@@ -48,17 +49,17 @@ public class IdentityController : BaseController
     }
 
     [HttpPost("Identity/Login")]
-    public async Task<IActionResult> LoginUser([FromBody] LoginViewModel login)
+    public async Task<IActionResult> LoginUser([FromBody] LoginRequest login)
     {
         var user = Domain.Models.User.Create(login.Username, null, login.Password, false);
         user = await _userRepository.GetUser(user.Username, user.Password);
         if (user is null)
         {
-            return BadRequest("No user found with that username and password.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "No user found with that username and password." });
         }
 
         CurrentUser = user;
-        return Json(new { Success = true, RedirectUrl = Url.ActionLink("Index", "Profile") });
+        return Json(new GenericResponse() { Success = true });
     }
 
     [HttpGet("Identity/Logout")]

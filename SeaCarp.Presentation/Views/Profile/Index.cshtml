@@ -5,6 +5,7 @@
 
 <div class="container">
     <main>
+        <p id="error" style="display: none; color: red"></p>
         <h1>Profile</h1>
         <br />
 
@@ -17,50 +18,28 @@
             @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
             {
                 <div class="offset-md-1 col-md-8" style="padding: 0">
-                    <h1>THIS IS COMING SOON</h1>
-                    @* <button onclick="updateDescription()" class="btn btn-primary float-end">Update description</button>
-                    @section Scripts
-                    {
-                        <script type="text/javascript">
-                            function updateDescription() {
-                                $.ajax(
-                                    {
-                                    url: '/User/@(Model.Id)/Description',
-                                        method: "PUT",
-                                        data: JSON.stringify($('textarea[name="description"]').val()),
-                                        headers: {
-                                            "Content-Type": "application/json"
-                                        },
-                                        success: function () {
-                                            window.location.reload();
-                                        },
-                                        error: function () {
-                                            window.location.reload();
-                                        }
-                                    }
-                                );
-                            }
-
-                        function updateProfileImage() {
-                            $.ajax(
-                                {
-                                    url: '/User/@(Model.Id)/ProfileImage',
-                                    method: "PUT",
-                                    data: JSON.stringify($('textarea[name="profileimage"]').val()),
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    success: function () {
-                                        window.location.reload();
-                                    },
-                                    error: function () {
-                                        window.location.reload();
-                                    }
-                                }
-                            );
-                        }
-                        </script>
-                    } *@
+                    <form id="update_email_form" method="post" novalidate="novalidate">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" aria-required="true" placeholder="email" type="email" data-val-required="The Email field is required." id="Email" name="Email" value="@Model.Email">
+                            <label for="Email">Email</label>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                        </div>
+                        <div>
+                            <button id="email-submit" type="submit" class="w-100 btn btn-lg btn-primary">Update email</button>
+                        </div>
+                    </form>
+                    <form id="update_password_form" method="post" novalidate="novalidate">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" aria-required="true" placeholder="password" type="password" data-val-required="The Password field is required." id="Password" name="Password">
+                            <label for="Password">Password</label>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
+                        </div>
+                        <div>
+                            <button id="password-submit" type="submit" class="w-100 btn btn-lg btn-primary">Update password</button>
+                        </div>
+                    </form>
                 </div>
             }
             else
@@ -73,3 +52,55 @@
         </div>
     </main>
 </div>
+
+@section Scripts
+{
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('#update_email_form').onsubmit = (e) => {
+                e.preventDefault();
+                fetch('/Profile/@(Model.Id)/Email', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Email: document.querySelector('#Email').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    document.querySelector('#error').innerText = data.errorMessage;
+                    document.querySelector('#error').style.display = 'inline';
+                });
+            };
+            document.querySelector('#update_password_form').onsubmit = (e) => {
+                e.preventDefault();
+                fetch('/Profile/@(Model.Id)/Password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Password: document.querySelector('#Password').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    document.querySelector('#error').innerText = data.errorMessage;
+                    document.querySelector('#error').style.display = 'inline';
+                });
+            };
+        }, false);
+    </script>
+}
