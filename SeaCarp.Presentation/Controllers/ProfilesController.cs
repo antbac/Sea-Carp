@@ -1,29 +1,30 @@
 ﻿using SeaCarp.Domain.Abstractions;
+using SeaCarp.Presentation.Extensions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class ProfileController : BaseController
+public class ProfilesController : BaseController
 {
     private readonly IUserRepository _userRepository;
 
-    public ProfileController(IUserRepository userRepository)
+    public ProfilesController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
-    [Route("Profile")]
+    [Route("/Profiles", Name = "GetProfile")]
     [HttpGet]
     public IActionResult GetProfile()
     {
         return CurrentUser is null
             ? RedirectToAction("Login", "Identity")
-            : RedirectToAction(CurrentUser.Id.ToString(), "Profile");
+            : RedirectToAction(CurrentUser.Id.ToString(), nameof(ProfilesController).RemoveControllerSuffix());
     }
 
-    [Route("Profile/{identifier}")]
+    [Route("/Profiles/{identifier}", Name = "GetProfilePageById")]
     [HttpGet]
     public async Task<IActionResult> GetProfilePageById(string identifier)
     {
@@ -35,12 +36,14 @@ public class ProfileController : BaseController
                 ? CurrentUser
                 : await _userRepository.GetUser(identifier);
 
+        user = await _userRepository.GetUser(user.Id);
+
         return user is null
             ? NotFound($"No user with identifier {identifier} found")
             : View("Index", new UserViewModel(user));
     }
 
-    [Route("Profile/{identifier}/Email")]
+    [Route("/Profiles/{identifier}/Email", Name = "UpdateEmail")]
     [HttpPut]
     public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] UpdateEmailRequest request)
     {
@@ -61,7 +64,7 @@ public class ProfileController : BaseController
         return Json(new GenericResponse { Success = true });
     }
 
-    [Route("Profile/{identifier}/Password")]
+    [Route("/Profiles/{identifier}/Password", Name = "UpdatePassword")]
     [HttpPut]
     public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] UpdatePasswordRequest request)
     {

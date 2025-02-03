@@ -12,9 +12,7 @@ public class HomeController : BaseController
         _productService = productService;
     }
 
-    [Route("/")]
-    [Route("/Home")]
-    [Route("/Index")]
+    [Route("/", Name = "HomeIndex")]
     [HttpGet]
     public async Task<IActionResult> Index()
     {

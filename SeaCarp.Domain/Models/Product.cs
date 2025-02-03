@@ -8,4 +8,12 @@ public class Product
     public decimal Price { get; set; }
     public string Category { get; set; }
     public List<Review> Reviews { get; set; }
+
+    public static Product Create(string productName, string description, decimal price, string category) => new()
+    {
+        ProductName = productName,
+        Description = description,
+        Price = price,
+        Category = category,
+    };
 }

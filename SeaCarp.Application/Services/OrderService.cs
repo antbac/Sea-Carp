@@ -18,4 +18,6 @@ public class OrderService : IOrderService
     public Task<Order> GetNewestOrder() => _orderRepository.GetNewestOrder();
 
     public Task<Order> GetOrder(string orderNumber) => _orderRepository.GetOrder(orderNumber);
+
+    public Task UpdateOrder(int id, Order order) => _orderRepository.UpdateOrder(id, order);
 }

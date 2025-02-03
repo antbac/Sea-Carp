@@ -13,4 +13,6 @@ public interface IProductRepository
     Task<List<Product>> GetProducts(string[] searchTerms);
 
     Task<List<Product>> GetProductsByCategory(string[] categories);
+
+    Task UpdateProduct(int id, Product product);
 }

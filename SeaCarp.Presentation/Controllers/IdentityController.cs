@@ -1,4 +1,5 @@
 ﻿using SeaCarp.Domain.Abstractions;
+using SeaCarp.Presentation.Extensions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 
@@ -13,13 +14,13 @@ public class IdentityController : BaseController
         _userRepository = userRepository;
     }
 
-    [HttpGet("Identity/Register")]
+    [HttpGet("Identity/Register", Name = "IdentityIndex")]
     public IActionResult Index()
     {
         return View("Register");
     }
 
-    [HttpPost("Identity/Register")]
+    [HttpPost("Identity/Register", Name = "CreateAccount")]
     public async Task<IActionResult> CreateAccount([FromBody] AccountRegistrationRequest registration)
     {
         try
@@ -40,12 +41,12 @@ public class IdentityController : BaseController
         }
     }
 
-    [HttpGet("Identity/Login")]
+    [HttpGet("Identity/Login", Name = "LoginPage")]
     public IActionResult LoginPage()
     {
         return CurrentUser is null
             ? View("Login")
-            : RedirectToAction("Profile", "Index");
+            : RedirectToAction("Index", nameof(ProfilesController).RemoveControllerSuffix());
     }
 
     [HttpPost("Identity/Login")]
@@ -62,7 +63,7 @@ public class IdentityController : BaseController
         return Json(new GenericResponse { Success = true });
     }
 
-    [HttpGet("Identity/Logout")]
+    [HttpGet("Identity/Logout", Name = "LogoutUser")]
     public IActionResult LogoutUser()
     {
         CurrentUser = null;

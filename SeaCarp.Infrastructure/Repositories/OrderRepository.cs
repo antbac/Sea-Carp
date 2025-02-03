@@ -16,11 +16,13 @@ public class OrderRepository : IOrderRepository
                 (
                     {nameof(Order.User)}Id,
                     {nameof(Order.OrderDate)},
-                    {nameof(Order.Status)}
+                    {nameof(Order.Status)},
+                    {nameof(Order.DeliveryAddress)}
                 ) VALUES (
                     (SELECT {nameof(User.Id)} FROM {nameof(User).ToPlural()} WHERE {nameof(User.Username)} = '{order.User}'),
                     '{order.OrderDate:yyyy-MM-dd}',
-                    '{order.Status}'
+                    '{order.Status}',
+                    '{order.DeliveryAddress}'
                 );
             ", @"\s+", " ");
             await cmd.ExecuteNonQueryAsync();
@@ -60,15 +62,133 @@ public class OrderRepository : IOrderRepository
         }
     }
 
-    public Task<Order> GetNewestOrder()
+    public async Task<Order> GetNewestOrder()
     {
-        // TODO
-        throw new NotImplementedException();
+        var orderId = -1;
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = $"SELECT MAX({nameof(Order.Id)}) FROM {nameof(Order).ToPlural()};";
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                orderId = reader.GetInt32(0);
+            }
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                SELECT
+                    {nameof(Order).ToPlural()}.{nameof(Order.Id)},
+                    {nameof(User).ToPlural()}.{nameof(User.Username)},
+                    {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
+                    {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+                    {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
+                    {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
+                    {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
+                    {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
+                    Categories.Category
+                FROM {nameof(Order).ToPlural()}
+                INNER JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Order).ToPlural()}.{nameof(Order.User)}Id
+                INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+                INNER JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
+                INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
+                WHERE {nameof(Order).ToPlural()}.{nameof(Order.Id)} = {orderId};
+            ", @"\s+", " ");
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            Order order = null;
+            while (await reader.ReadAsync())
+            {
+                order ??= new()
+                {
+                    Id = reader.GetInt32(0),
+                    User = reader.GetString(1),
+                    OrderDate = reader.GetDateTime(2),
+                    Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
+                    DeliveryAddress = reader.GetString(4),
+                    OrderItems = [],
+                };
+
+                order.AddItems([new OrderItem
+                {
+                    Quantity = reader.GetInt32(5),
+                    UnitPrice = reader.GetDecimal(6),
+                    Product = new Product
+                    {
+                        ProductName = reader.GetString(7),
+                        Category = reader.GetString(8),
+                    }
+                }]);
+            }
+
+            return order;
+        }
     }
 
     public async Task<Order> GetOrder(string orderNumber)
     {
-        // TODO
-        throw new NotImplementedException();
+        var orderId = int.Parse(orderNumber.Replace("SC", string.Empty));
+        using var cmd = Database.GetConnection().CreateCommand();
+        cmd.CommandText = Regex.Replace(@$"
+            SELECT
+                {nameof(Order).ToPlural()}.{nameof(Order.Id)},
+                {nameof(User).ToPlural()}.{nameof(User.Username)},
+                {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
+                {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+                    {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
+                {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
+                {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
+                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
+                Categories.Category
+            FROM {nameof(Order).ToPlural()}
+            INNER JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Order).ToPlural()}.{nameof(Order.User)}Id
+            INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+            INNER JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
+            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
+            WHERE {nameof(Order).ToPlural()}.{nameof(Order.Id)} = {orderId};
+        ", @"\s+", " ");
+
+        using var reader = await cmd.ExecuteReaderAsync();
+        Order order = null;
+        while (await reader.ReadAsync())
+        {
+            order ??= new()
+            {
+                Id = reader.GetInt32(0),
+                User = reader.GetString(1),
+                OrderDate = reader.GetDateTime(2),
+                Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
+                DeliveryAddress = reader.GetString(4),
+                OrderItems = [],
+            };
+
+            order.AddItems([new OrderItem
+            {
+                Quantity = reader.GetInt32(5),
+                UnitPrice = reader.GetDecimal(6),
+                Product = new Product
+                {
+                    ProductName = reader.GetString(7),
+                    Category = reader.GetString(8),
+                }
+            }]);
+        }
+
+        return order;
+    }
+
+    public async Task UpdateOrder(int id, Order order)
+    {
+        using var cmd = Database.GetConnection().CreateCommand();
+        cmd.CommandText = Regex.Replace(@$"
+            UPDATE {nameof(Order).ToPlural()}
+            SET
+                {nameof(Order.OrderDate)} = '{order.OrderDate:yyyy-MM-dd}',
+                {nameof(Order.Status)} = '{order.Status}',
+                {nameof(Order.DeliveryAddress)} = '{order.DeliveryAddress}'
+            WHERE {nameof(Order).ToPlural()}.{nameof(Order.Id)} = {id};
+        ", @"\s+", " ");
+        await cmd.ExecuteNonQueryAsync();
     }
 }

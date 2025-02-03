@@ -13,7 +13,7 @@ public class SearchController : BaseController
         _productService = productService;
     }
 
-    [Route("/Search")]
+    [Route("/Search", Name = "SearchIndex")]
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] string q)
     {

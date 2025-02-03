@@ -29,7 +29,7 @@ public class ProductViewModel
         Description = new(product.Description);
         Price = product.Price;
         Category = new(product.Category);
-        Reviews = product.Reviews.Select(review => new ProductReviewViewModel(review));
-        RelatedProducts = relatedProducts is null ? [] : relatedProducts.Select(relatedProduct => new ProductViewModel(relatedProduct));
+        Reviews = (product.Reviews ?? []).Select(review => new ProductReviewViewModel(review));
+        RelatedProducts = (relatedProducts ?? []).Select(relatedProduct => new ProductViewModel(relatedProduct));
     }
 }

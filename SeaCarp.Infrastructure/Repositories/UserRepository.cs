@@ -27,6 +27,27 @@ public class UserRepository : IUserRepository
         await cmd.ExecuteNonQueryAsync();
     }
 
+    public async Task<IEnumerable<User>> GetAllUsers()
+    {
+        var connection = Database.GetConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = $"SELECT {nameof(User).ToPlural()}.{nameof(User.Id)} FROM {nameof(User).ToPlural()};";
+        using var reader = await cmd.ExecuteReaderAsync();
+        var userIds = new List<int>();
+        while (await reader.ReadAsync())
+        {
+            userIds.Add(reader.GetInt32(0));
+        }
+
+        var users = new List<User>();
+        foreach (var id in userIds)
+        {
+            users.Add(await GetUser(id));
+        }
+
+        return users;
+    }
+
     public async Task<User> GetUser(string username, string password)
     {
         var connection = Database.GetConnection();
@@ -41,6 +62,7 @@ public class UserRepository : IUserRepository
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
             {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+            {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Id)} AS OrderItemId,
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
@@ -74,6 +96,7 @@ public class UserRepository : IUserRepository
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
             {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+            {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Id)} AS OrderItemId,
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
@@ -105,6 +128,7 @@ public class UserRepository : IUserRepository
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
             {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+            {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Id)} AS OrderItemId,
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
             {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
@@ -119,6 +143,47 @@ public class UserRepository : IUserRepository
     ", @"\s+", " ");
 
         return await InstantiateUserObject(cmd);
+    }
+
+    public async Task RemoveUser(int id)
+    {
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                DELETE FROM {nameof(Review).ToPlural()}
+                WHERE {nameof(Review).ToPlural()}.{nameof(Review.User)}Id IN (
+                    SELECT {nameof(User.Id)}
+                    FROM {nameof(User).ToPlural()}
+                    WHERE {nameof(User).ToPlural()}.{nameof(User.Id)} = {id}
+                );
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                DELETE FROM {nameof(OrderItem).ToPlural()}
+                WHERE {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id IN (
+                    SELECT {nameof(Order.Id)}
+                    FROM {nameof(Order).ToPlural()}
+                    WHERE {nameof(Order).ToPlural()}.{nameof(Order.User)}Id = {id}
+                );
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = $"DELETE FROM {nameof(Order).ToPlural()} WHERE {nameof(Order).ToPlural()}.{nameof(Order.User)}Id = {id};";
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = $"DELETE FROM {nameof(User).ToPlural()} WHERE {nameof(User).ToPlural()}.{nameof(User.Id)} = {id};";
+            await cmd.ExecuteNonQueryAsync();
+        }
     }
 
     public async Task UpdateUser(User user)
@@ -164,24 +229,25 @@ public class UserRepository : IUserRepository
                         Id = orderId,
                         OrderDate = reader.GetDateTime(6),
                         Status = Enum.Parse<OrderStatus>(reader.GetString(7)),
+                        DeliveryAddress = reader.GetString(8),
                         OrderItems = []
                     };
                     ordersDict.Add(orderId, order);
                     user.Orders.Add(order);
                 }
 
-                if (!reader.IsDBNull(8))
+                if (!reader.IsDBNull(9))
                 {
                     var orderItem = new OrderItem
                     {
-                        Id = reader.GetInt32(8),
-                        Quantity = reader.GetInt32(9),
-                        UnitPrice = reader.GetDecimal(10),
+                        Id = reader.GetInt32(9),
+                        Quantity = reader.GetInt32(10),
+                        UnitPrice = reader.GetDecimal(11),
                         Product = new Product
                         {
-                            Id = reader.GetInt32(11),
-                            ProductName = reader.GetString(12),
-                            Price = reader.GetDecimal(13)
+                            Id = reader.GetInt32(12),
+                            ProductName = reader.GetString(13),
+                            Price = reader.GetDecimal(14)
                         }
                     };
 

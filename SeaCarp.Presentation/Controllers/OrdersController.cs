@@ -7,20 +7,20 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class OrderController : BaseController
+public class OrdersController : BaseController
 {
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
 
-    public OrderController(IOrderService orderService, IProductService productService)
+    public OrdersController(IOrderService orderService, IProductService productService)
     {
         _orderService = orderService;
         _productService = productService;
     }
 
-    [Route("/Order/{orderNumber}")]
+    [Route("/Orders/{orderNumber}", Name = "GetOrder")]
     [HttpGet]
-    public async Task<IActionResult> Index(string orderNumber)
+    public async Task<IActionResult> GetOrder(string orderNumber)
     {
         if (string.IsNullOrWhiteSpace(orderNumber))
         {
@@ -31,19 +31,24 @@ public class OrderController : BaseController
 
         return order is null
             ? RedirectToAction("Index", "Home")
-            : View(new OrderViewModel(order));
+            : View("Index", new OrderViewModel(order));
     }
 
-    [Route("/Order")]
+    [Route("/Orders", Name = "PlaceOrder")]
     [HttpPost]
-    public async Task<IActionResult> Index([FromBody] OrderRegistrationRequest request)
+    public async Task<IActionResult> PlaceOrder([FromBody] OrderRegistrationRequest request)
     {
         if (CurrentUser is null)
         {
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to place an order" });
         }
 
-        var productsToBuy = new List<Domain.Models.Product>();
+        if (request.Items.Count == 0)
+        {
+            return Json(new GenericResponse { Success = false, ErrorMessage = "You must specify at least 1 product to buy" });
+        }
+
+        var productsToBuy = new List<Product>();
         foreach (var item in request.Items)
         {
             if (productsToBuy.Any(product => product.Id == item.ProductId))
@@ -51,7 +56,7 @@ public class OrderController : BaseController
                 continue;
             }
 
-            var product = await _productService.GetProductById(item.ProductId);
+            var product = await _productService.GetProduct(item.ProductId);
             if (product is null)
             {
                 return Json(new GenericResponse { Success = false, ErrorMessage = "Can not find a product with Id " + item.ProductId });
@@ -64,6 +69,7 @@ public class OrderController : BaseController
             CurrentUser.Username,
             DateTime.Today,
             OrderStatus.Pending,
+            request.DeliveryAddress,
             []);
 
         var orderItems = request.Items.Select(orderItem => OrderItem.Create(
@@ -78,7 +84,7 @@ public class OrderController : BaseController
         var order = await _orderService.GetNewestOrder();
 
         return order is null
-            ? RedirectToAction("Index", "Home")
-            : Redirect($"/{nameof(OrderController).RemoveControllerSuffix()}/{order.OrderNumber}");
+            ? Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred while placing the order" })
+            : Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(OrdersController).RemoveControllerSuffix()}/{order.OrderNumber}" });
     }
 }

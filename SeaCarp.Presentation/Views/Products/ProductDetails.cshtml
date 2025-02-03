@@ -32,19 +32,19 @@
 
             <div class="d-flex flex-wrap gap-2 mt-3">
                 @if (RequestContext.Instance.CurrentUser.Value == null)
-        {
-            <a href="@Url.ActionLink(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix(), new { returnUrl = ViewContext.HttpContext.Request.Path.ToString() })">
+                {
+                    <a href="@Url.ActionLink(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix(), new { returnUrl = ViewContext.HttpContext.Request.Path.ToString() })">
                         <button class="btn btn-primary rounded-pill px-4" type="button">
                             Please log in to add to cart
                         </button>
                     </a>
-        }
-        else
-        {
-            <button id="add_to_cart_btn" class="btn btn-primary rounded-pill px-4" type="button">
+                }
+                else
+                {
+                    <button id="add_to_cart_btn" class="btn btn-primary rounded-pill px-4" type="button">
                         Add to Cart
                     </button>
-        }
+                }
             </div>
         </div>
     </div>
@@ -114,7 +114,7 @@
         : "Be the first to add a review for this product";
 
         <p class="fw-bold">@addReviewsMessage</p>
-        <form method="post" id="add_review_form" action="/@nameof(ProductController).RemoveControllerSuffix()/@(Model.Id)/Reviews" class="border rounded p-3 mt-3">
+        <form method="post" id="add_review_form" action="/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews" class="border rounded p-3 mt-3">
                     <div class="mb-3">
                         <label for="Rating" class="form-label">Rating (1-5)</label>
                         <select id="Rating" name="Rating" class="form-select">
@@ -159,7 +159,7 @@
                                             <p class="card-text text-muted mb-1">
                                                 $@relatedProduct.Price
                                             </p>
-                                            <a href="/@nameof(ProductController).RemoveControllerSuffix()/@(relatedProduct.Id)"
+                                            <a href="/@nameof(ProductsController).RemoveControllerSuffix()/@(relatedProduct.Id)"
                                                class="btn btn-sm btn-primary">
                                                 View
                                             </a>
@@ -183,7 +183,7 @@
             if (reviewForm) {
                 reviewForm.onsubmit = (e) => {
                     e.preventDefault();
-                    fetch('/@nameof(ProductController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
+                    fetch('/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

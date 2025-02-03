@@ -73,28 +73,26 @@ public static class JwtService
             };
 
             handler.ValidateToken(token, validationParams, out var _);
-            return new()
-            {
-                Id = int.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
-                Username = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
-                Password = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
-                Email = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
-                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
-            };
+            return CreateUser(jwt);
         }
 
         if (alg.Equals(SecurityAlgorithms.None, StringComparison.OrdinalIgnoreCase))
         {
-            return new()
-            {
-                Id = int.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
-                Username = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
-                Password = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
-                Email = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
-                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
-            };
+            return CreateUser(jwt);
         }
 
         throw new Exception("Unhandled security algorithm");
+    }
+
+    private static Domain.Models.User CreateUser(JwtSecurityToken jwt)
+    {
+        return new()
+        {
+            Id = int.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
+            Username = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
+            Password = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
+            Email = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
+            IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
+        };
     }
 }

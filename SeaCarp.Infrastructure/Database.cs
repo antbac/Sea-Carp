@@ -1,4 +1,5 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.Domain.Models;
 using System.Data.SQLite;
 
 namespace SeaCarp.Infrastructure;
@@ -55,44 +56,45 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.User).ToPlural()} (
-                        {nameof(Domain.Models.User.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.User.Username)} TEXT NOT NULL UNIQUE,
-                        {nameof(Domain.Models.User.Password)} TEXT NOT NULL,
-                        {nameof(Domain.Models.User.Email)} TEXT NOT NULL UNIQUE,
-                        {nameof(Domain.Models.User.IsAdmin)} INTEGER NOT NULL DEFAULT 0
+                    CREATE TABLE IF NOT EXISTS {nameof(User).ToPlural()} (
+                        {nameof(User.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(User.Username)} TEXT NOT NULL UNIQUE,
+                        {nameof(User.Password)} TEXT NOT NULL,
+                        {nameof(User.Email)} TEXT NOT NULL UNIQUE,
+                        {nameof(User.IsAdmin)} INTEGER NOT NULL DEFAULT 0
                     );
 
-                    CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.Product).ToPlural()} (
-                        {nameof(Domain.Models.Product.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.Product.ProductName)} TEXT NOT NULL UNIQUE,
-                        {nameof(Domain.Models.Product.Description)} TEXT,
-                        {nameof(Domain.Models.Product.Price)} REAL NOT NULL,
-                        CategoryId INTEGER
+                    CREATE TABLE IF NOT EXISTS {nameof(Product).ToPlural()} (
+                        {nameof(Product.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(Product.ProductName)} TEXT NOT NULL UNIQUE,
+                        {nameof(Product.Description)} TEXT,
+                        {nameof(Product.Price)} REAL NOT NULL,
+                        {nameof(Product.Category)}Id INTEGER
                     );
 
-                    CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.Order).ToPlural()} (
-                        {nameof(Domain.Models.Order.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.User)}Id INTEGER,
-                        {nameof(Domain.Models.Order.OrderDate)} TEXT,
-                        {nameof(Domain.Models.Order.Status)} TEXT
+                    CREATE TABLE IF NOT EXISTS {nameof(Order).ToPlural()} (
+                        {nameof(Order.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(User)}Id INTEGER,
+                        {nameof(Order.OrderDate)} TEXT,
+                        {nameof(Order.Status)} TEXT,
+                        {nameof(Order.DeliveryAddress)} TEXT
                     );
 
-                    CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.OrderItem).ToPlural()} (
-                        {nameof(Domain.Models.OrderItem.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.Order)}Id INTEGER,
-                        {nameof(Domain.Models.Product)}Id INTEGER,
-                        {nameof(Domain.Models.OrderItem.Quantity)} INTEGER,
-                        {nameof(Domain.Models.OrderItem.UnitPrice)} REAL
+                    CREATE TABLE IF NOT EXISTS {nameof(OrderItem).ToPlural()} (
+                        {nameof(OrderItem.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(Order)}Id INTEGER,
+                        {nameof(Product)}Id INTEGER,
+                        {nameof(OrderItem.Quantity)} INTEGER,
+                        {nameof(OrderItem.UnitPrice)} REAL
                     );
 
-                    CREATE TABLE IF NOT EXISTS {nameof(Domain.Models.Review).ToPlural()} (
-                        {nameof(Domain.Models.Review.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Domain.Models.Product)}Id INTEGER,
-                        {nameof(Domain.Models.User)}Id INTEGER,
-                        {nameof(Domain.Models.Review.Rating)} INTEGER,
-                        {nameof(Domain.Models.Review.Comment)} TEXT,
-                        {nameof(Domain.Models.Review.CreatedDate)} TEXT
+                    CREATE TABLE IF NOT EXISTS {nameof(Review).ToPlural()} (
+                        {nameof(Review.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(Product)}Id INTEGER,
+                        {nameof(User)}Id INTEGER,
+                        {nameof(Review.Rating)} INTEGER,
+                        {nameof(Review.Comment)} TEXT,
+                        {nameof(Review.CreatedDate)} TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS Categories (
@@ -106,12 +108,12 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.User).ToPlural()}
+                    INSERT INTO {nameof(User).ToPlural()}
                     (
-                        {nameof(Domain.Models.User.Username)},
-                        {nameof(Domain.Models.User.Password)},
-                        {nameof(Domain.Models.User.Email)},
-                        {nameof(Domain.Models.User.IsAdmin)}
+                        {nameof(User.Username)},
+                        {nameof(User.Password)},
+                        {nameof(User.Email)},
+                        {nameof(User.IsAdmin)}
                     ) VALUES
                         ('admin',   'AF8978B1797B72ACFFF9595A5A2A373EC3D9106D', 'frank@fishmail.com',   1),  -- Admin user
                         ('alice',   '23F2916E01209D6282F226BE9677AFFAEC44A8D6', 'alice@fishmail.com',   0),
@@ -152,12 +154,12 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Product).ToPlural()}
+                    INSERT INTO {nameof(Product).ToPlural()}
                     (
-                        {nameof(Domain.Models.Product.ProductName)},
-                        {nameof(Domain.Models.Product.Description)},
-                        {nameof(Domain.Models.Product.Price)},
-                        CategoryId
+                        {nameof(Product.ProductName)},
+                        {nameof(Product.Description)},
+                        {nameof(Product.Price)},
+                        {nameof(Product.Category)}Id
                     ) VALUES
                         ('Bass Pro Spinning Rod', 'A sturdy spinning rod for freshwater fishing', 49.99, 1),
                         ('Fly Fishing Starter Kit', 'Includes rod, reel, line, and flies for beginners', 89.95, 2),
@@ -178,24 +180,25 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Order).ToPlural()}
+                    INSERT INTO {nameof(Order).ToPlural()}
                     (
-                        {nameof(Domain.Models.User)}Id,
-                        {nameof(Domain.Models.Order.OrderDate)},
-                        {nameof(Domain.Models.Order.Status)}
+                        {nameof(User)}Id,
+                        {nameof(Order.OrderDate)},
+                        {nameof(Order.Status)},
+                        {nameof(Order.DeliveryAddress)}
                     ) VALUES
-                        (2,  '2025-01-05', 'Delivered'),
-                        (2,  '2025-01-06', 'Delivered'),
-                        (3,  '2025-01-07', 'Shipped'),
-                        (4,  '2025-01-08', 'Pending'),
-                        (4,  '2025-01-09', 'Cancelled'),
-                        (4,  '2025-01-10', 'Delivered'),
-                        (7,  '2025-01-11', 'Shipped'),
-                        (8,  '2025-01-12', 'Pending'),
-                        (8,  '2025-01-13', 'Delivered'),
-                        (10, '2025-01-14', 'Shipped'),
-                        (11, '2025-01-15', 'Delivered'),
-                        (12, '2025-01-16', 'Pending');
+                        (2,  '2025-01-05', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
+                        (2,  '2025-01-06', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
+                        (3,  '2025-01-07', 'Shipped', '56 Oakwood Avenue Suite 210 Portland OR 97205 USA'),
+                        (4,  '2025-01-08', 'Pending', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (4,  '2025-01-09', 'Cancelled', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (4,  '2025-01-10', 'Delivered', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (7,  '2025-01-11', 'Shipped', '742 Elm Boulevard Floor 2 Denver CO 80204 USA'),
+                        (8,  '2025-01-12', 'Pending', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
+                        (8,  '2025-01-13', 'Delivered', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
+                        (10, '2025-01-14', 'Shipped', '287 Cedar Place Floor 3 Austin TX 78701 USA'),
+                        (11, '2025-01-15', 'Delivered', '9810 Willow Drive Apt 9A Seattle WA 98101 USA'),
+                        (12, '2025-01-16', 'Pending', '5033 Redwood Crescent Suite 7 Miami FL 33131 USA');
                 ";
             cmd.ExecuteNonQuery();
         }
@@ -203,12 +206,12 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.OrderItem).ToPlural()}
+                    INSERT INTO {nameof(OrderItem).ToPlural()}
                     (
-                        {nameof(Domain.Models.Order)}Id,
-                        {nameof(Domain.Models.Product)}Id,
-                        {nameof(Domain.Models.OrderItem.Quantity)},
-                        {nameof(Domain.Models.OrderItem.UnitPrice)}
+                        {nameof(Order)}Id,
+                        {nameof(Product)}Id,
+                        {nameof(OrderItem.Quantity)},
+                        {nameof(OrderItem.UnitPrice)}
                     ) VALUES
                         (1,  2,  1,  89.95),   -- Fly Fishing Starter Kit
                         (2,  1,  2,  49.99),   -- Bass Pro Spinning Rod
@@ -229,13 +232,13 @@ internal static class Database
         using (var cmd = connection.CreateCommand())
         {
             cmd.CommandText = @$"
-                    INSERT INTO {nameof(Domain.Models.Review).ToPlural()}
+                    INSERT INTO {nameof(Review).ToPlural()}
                     (
-                        {nameof(Domain.Models.Product)}Id,
-                        {nameof(Domain.Models.User)}Id,
-                        {nameof(Domain.Models.Review.Rating)},
-                        {nameof(Domain.Models.Review.Comment)},
-                        {nameof(Domain.Models.Review.CreatedDate)}
+                        {nameof(Product)}Id,
+                        {nameof(User)}Id,
+                        {nameof(Review.Rating)},
+                        {nameof(Review.Comment)},
+                        {nameof(Review.CreatedDate)}
                     ) VALUES
                         (1,  2,  5, 'Love this rod!', '2025-01-02'),
                         (2,  3,  4, 'Great starter kit, missing a few small items.', '2025-01-03'),
@@ -244,9 +247,9 @@ internal static class Database
                         (5,  6,  5, 'Trout love these spoons.', '2025-01-06'),
                         (6,  7,  4, 'Solid reel, a bit pricey.', '2025-01-07'),
                         (7,  8,  5, 'Excellent results in saltwater.', '2025-01-08'),
-                        (10, 4,  2, 'Fish finder kept losing connection.', '2025-01-09'),
                         (8,  9,  4, 'Hooks are strong, no complaints.', '2025-01-10'),
                         (9,  10, 5, 'Minnows stayed alive all day.', '2025-01-11'),
+                        (10, 4,  2, 'Fish finder kept losing connection.', '2025-01-09'),
                         (11, 11, 5, 'Hat is comfortable and protective.', '2025-01-12'),
                         (12, 12, 3, 'Good backpack, but smaller than expected.', '2025-01-13');
                 ";

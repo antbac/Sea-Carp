@@ -107,7 +107,7 @@
                             if (returnUrl) {
                                 window.location = returnUrl;
                             } else {
-                                window.location = '@Url.ActionLink(nameof(ProfileController.GetProfile), nameof(ProfileController).RemoveControllerSuffix())';
+                                window.location = '@Url.ActionLink(nameof(ProfilesController.GetProfile), nameof(ProfilesController).RemoveControllerSuffix())';
                             }
                             return;
                         }

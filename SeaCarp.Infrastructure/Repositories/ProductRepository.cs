@@ -1,6 +1,7 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using System.Data.SQLite;
 using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
@@ -59,45 +60,7 @@ public class ProductRepository : IProductRepository
             );
         ", @"\s+", " ");
 
-        var productsDict = new Dictionary<int, Product>();
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
-        {
-            var productId = reader.GetInt32(0);
-            var productName = reader.GetString(1);
-            var description = reader.GetString(2);
-            var price = reader.GetDecimal(3);
-            var category = reader.GetString(4);
-            var username = reader.GetString(5);
-            var rating = reader.GetInt32(6);
-            var comment = reader.GetString(7);
-            var createdDate = reader.GetDateTime(8);
-
-            if (!productsDict.TryGetValue(productId, out var product))
-            {
-                product = new Product
-                {
-                    Id = productId,
-                    ProductName = productName,
-                    Description = description,
-                    Price = price,
-                    Category = category,
-                    Reviews = []
-                };
-                productsDict[productId] = product;
-            }
-
-            product.Reviews.Add(new Review
-            {
-                User = username,
-                Rating = rating,
-                Comment = comment,
-                CreatedDate = createdDate,
-            });
-        }
-
-        return [.. productsDict.Values];
+        return await InstantiateProducts(cmd);
     }
 
     public async Task<Product> GetProduct(int id)
@@ -122,40 +85,8 @@ public class ProductRepository : IProductRepository
             WHERE {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {id};
         ", @"\s+", " ");
 
-        Product product = null;
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
-        {
-            var productId = reader.GetInt32(0);
-            var productName = reader.GetString(1);
-            var description = reader.GetString(2);
-            var price = reader.GetDecimal(3);
-            var category = reader.GetString(4);
-            var username = reader.GetString(5);
-            var rating = reader.GetInt32(6);
-            var comment = reader.GetString(7);
-            var createdDate = reader.GetDateTime(8);
-
-            product ??= new Product
-            {
-                Id = productId,
-                ProductName = productName,
-                Description = description,
-                Price = price,
-                Category = category,
-                Reviews = []
-            };
-
-            product.Reviews.Add(new Review
-            {
-                User = username,
-                Rating = rating,
-                Comment = comment,
-                CreatedDate = createdDate,
-            });
-        }
-
-        return product;
+        var products = await InstantiateProducts(cmd);
+        return products.FirstOrDefault();
     }
 
     public async Task<List<Product>> GetProducts(string[] searchTerms)
@@ -184,45 +115,7 @@ public class ProductRepository : IProductRepository
             WHERE {whereClause};
         ", @"\s+", " ");
 
-        var productsDict = new Dictionary<int, Product>();
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
-        {
-            var productId = reader.GetInt32(0);
-            var productName = reader.GetString(1);
-            var description = reader.GetString(2);
-            var price = reader.GetDecimal(3);
-            var category = reader.GetString(4);
-            var username = reader.GetString(5);
-            var rating = reader.GetInt32(6);
-            var comment = reader.GetString(7);
-            var createdDate = reader.GetDateTime(8);
-
-            if (!productsDict.TryGetValue(productId, out var product))
-            {
-                product = new Product
-                {
-                    Id = productId,
-                    ProductName = productName,
-                    Description = description,
-                    Price = price,
-                    Category = category,
-                    Reviews = []
-                };
-                productsDict[productId] = product;
-            }
-
-            product.Reviews.Add(new Review
-            {
-                User = username,
-                Rating = rating,
-                Comment = comment,
-                CreatedDate = createdDate,
-            });
-        }
-
-        return [.. productsDict.Values];
+        return await InstantiateProducts(cmd);
     }
 
     public async Task<List<Product>> GetProductsByCategory(string[] categories)
@@ -251,6 +144,53 @@ public class ProductRepository : IProductRepository
             WHERE {whereClause};
         ", @"\s+", " ");
 
+        return await InstantiateProducts(cmd);
+    }
+
+    public async Task UpdateProduct(int id, Product product)
+    {
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                INSERT OR IGNORE INTO Categories
+                (
+                    Category
+                ) VALUES
+                    ('{product.Category}');
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                UPDATE {nameof(Product).ToPlural()}
+                SET
+                    {nameof(Product.ProductName)} = '{product.ProductName}',
+                    {nameof(Product.Description)} = '{product.Description}',
+                    {nameof(Product.Price)} = {product.Price.ToString().Replace(",", ".")},
+                    {nameof(Product.Category)}Id = (SELECT Categories.Id FROM Categories WHERE Categories.Category = '{product.Category}')
+                WHERE {nameof(Product.Id)} = {id};
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                DELETE FROM Categories
+                WHERE Categories.Id NOT IN
+                (
+                    SELECT {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
+                    FROM {nameof(Product).ToPlural()}
+                );
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+    }
+
+    private async Task<List<Product>> InstantiateProducts(SQLiteCommand cmd)
+    {
         var productsDict = new Dictionary<int, Product>();
 
         using var reader = await cmd.ExecuteReaderAsync();
@@ -261,10 +201,10 @@ public class ProductRepository : IProductRepository
             var description = reader.GetString(2);
             var price = reader.GetDecimal(3);
             var category = reader.GetString(4);
-            var username = reader.GetString(5);
-            var rating = reader.GetInt32(6);
-            var comment = reader.GetString(7);
-            var createdDate = reader.GetDateTime(8);
+            var username = reader.IsDBNull(5) ? default : reader.GetString(5);
+            var rating = reader.IsDBNull(6) ? default : reader.GetInt32(6);
+            var comment = reader.IsDBNull(7) ? default : reader.GetString(7);
+            var createdDate = reader.IsDBNull(8) ? default : reader.GetDateTime(8);
 
             if (!productsDict.TryGetValue(productId, out var product))
             {
@@ -280,13 +220,16 @@ public class ProductRepository : IProductRepository
                 productsDict[productId] = product;
             }
 
-            product.Reviews.Add(new Review
+            if (username is not null)
             {
-                User = username,
-                Rating = rating,
-                Comment = comment,
-                CreatedDate = createdDate,
-            });
+                product.Reviews.Add(new Review
+                {
+                    User = username,
+                    Rating = rating,
+                    Comment = comment,
+                    CreatedDate = createdDate,
+                });
+            }
         }
 
         return [.. productsDict.Values];

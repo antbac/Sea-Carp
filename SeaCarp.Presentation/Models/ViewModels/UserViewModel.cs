@@ -27,6 +27,6 @@ public class UserViewModel
         Password = new(user.Password);
         Email = new(user.Email);
         IsAdmin = user.IsAdmin;
-        Orders = user.Orders.Select(order => new OrderViewModel(order));
+        Orders = (user.Orders ?? []).Select(order => new OrderViewModel(order, user));
     }
 }

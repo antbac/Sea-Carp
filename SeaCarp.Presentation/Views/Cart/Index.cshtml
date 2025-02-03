@@ -113,7 +113,7 @@
                     items: cartItems
                 };
 
-                fetch('/@nameof(OrderController).RemoveControllerSuffix()', {
+                fetch('/@nameof(OrdersController).RemoveControllerSuffix()', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -126,8 +126,7 @@
                 .then(function (data) {
                     if (data.success) {
                         localStorage.removeItem('cartItems');
-                        orderResult.innerHTML = "<div class='alert alert-success'>Order placed successfully!</div>";
-                        renderCart();
+                        window.location.href = data.redirectUrl;
                     } else {
                         orderResult.innerHTML = "<div class='alert alert-danger'>" + data.errorMessage + "</div>";
                     }

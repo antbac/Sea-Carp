@@ -9,4 +9,6 @@ public interface IOrderRepository
     Task<Order> GetNewestOrder();
 
     Task<Order> GetOrder(string orderNumber);
+
+    Task UpdateOrder(int id, Order order);
 }

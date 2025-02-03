@@ -2,7 +2,7 @@
 
 public class CartController : BaseController
 {
-    [Route("/Cart")]
+    [Route("/Cart", Name = "CartIndex")]
     [HttpGet]
     public async Task<IActionResult> Index()
     {

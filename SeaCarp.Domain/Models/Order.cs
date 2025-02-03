@@ -7,13 +7,15 @@ public class Order
     public string User { get; set; }
     public DateTime OrderDate { get; set; }
     public OrderStatus Status { get; set; }
+    public string DeliveryAddress { get; set; }
     public List<OrderItem> OrderItems { get; set; } = [];
 
-    public static Order Create(string username, DateTime orderDate, OrderStatus orderStatus, IEnumerable<OrderItem> orderItems) => new()
+    public static Order Create(string username, DateTime orderDate, OrderStatus orderStatus, string deliveryAddress, IEnumerable<OrderItem> orderItems) => new()
     {
         User = username,
         OrderDate = orderDate,
         Status = orderStatus,
+        DeliveryAddress = deliveryAddress,
         OrderItems = orderItems.ToList(),
     };
 
