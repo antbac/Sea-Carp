@@ -14,6 +14,7 @@ public class IocSetup
             .AddScoped<IProductRepository, ProductRepository>()
             .AddScoped<IOrderRepository, OrderRepository>()
             .AddScoped<IAdminRepository, AdminRepository>()
-            .AddScoped<IProductService, ProductService>();
+            .AddScoped<IProductService, ProductService>()
+            .AddScoped<IOrderService, OrderService>();
     }
 }

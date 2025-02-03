@@ -9,6 +9,7 @@ public class UserViewModel
     public HtmlString Password { get; set; }
     public HtmlString Email { get; set; }
     public bool IsAdmin { get; set; }
+    public IEnumerable<OrderViewModel> Orders { get; set; }
 
     public UserViewModel(Domain.Models.User user = null)
     {
@@ -17,6 +18,7 @@ public class UserViewModel
             Username = new(string.Empty);
             Password = new(string.Empty);
             Email = new(string.Empty);
+            Orders = Enumerable.Empty<OrderViewModel>();
             return;
         }
 
@@ -25,5 +27,6 @@ public class UserViewModel
         Password = new(user.Password);
         Email = new(user.Email);
         IsAdmin = user.IsAdmin;
+        Orders = user.Orders.Select(order => new OrderViewModel(order));
     }
 }

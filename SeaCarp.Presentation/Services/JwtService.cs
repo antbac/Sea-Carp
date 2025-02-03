@@ -41,11 +41,11 @@ public static class JwtService
             audience: "SeaCarp",
             claims: new[]
             {
-                new Claim("Id", id.ToString()),
-                new Claim("Username", username),
-                new Claim("Password", password),
-                new Claim("Email", email),
-                new Claim("IsAdmin", isAdmin.ToString()),
+                new Claim(nameof(Domain.Models.User.Id), id.ToString()),
+                new Claim(nameof(Domain.Models.User.Username), username),
+                new Claim(nameof(Domain.Models.User.Password), password),
+                new Claim(nameof(Domain.Models.User.Email), email),
+                new Claim(nameof(Domain.Models.User.IsAdmin), isAdmin.ToString()),
             },
             expires: DateTime.UtcNow.AddHours(24),
             signingCredentials: credentials
@@ -75,11 +75,11 @@ public static class JwtService
             handler.ValidateToken(token, validationParams, out var _);
             return new()
             {
-                Id = int.Parse(jwt.Claims.First(claim => claim.Type == "Id").Value),
-                Username = jwt.Claims.First(claim => claim.Type == "Username").Value,
-                Password = jwt.Claims.First(claim => claim.Type == "Password").Value,
-                Email = jwt.Claims.First(claim => claim.Type == "Email").Value,
-                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == "IsAdmin").Value),
+                Id = int.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
+                Username = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
+                Password = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
+                Email = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
+                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
             };
         }
 
@@ -87,11 +87,11 @@ public static class JwtService
         {
             return new()
             {
-                Id = int.Parse(jwt.Claims.First(claim => claim.Type == "Id").Value),
-                Username = jwt.Claims.First(claim => claim.Type == "Username").Value,
-                Password = jwt.Claims.First(claim => claim.Type == "Password").Value,
-                Email = jwt.Claims.First(claim => claim.Type == "Email").Value,
-                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == "IsAdmin").Value),
+                Id = int.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
+                Username = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
+                Password = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
+                Email = jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
+                IsAdmin = bool.Parse(jwt.Claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
             };
         }
 

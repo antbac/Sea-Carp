@@ -1,19 +1,22 @@
 ﻿<div class="container">
     <main>
-        <p id="error" style="display: none; color: red"></p>
         <h1>Log in</h1>
         <br />
 
         <div class="row">
             <div class="col-md-4">
                 <section>
-                    <form id="login_form" method="post" novalidate="novalidate">
+                    <form id="login_form" method="post">
+                        <div id="error" class="alert alert-danger" style="display:none"></div>
+
                         <div class="form-floating mb-3">
                             <input class="form-control"
+                                   required
                                    aria-required="true"
                                    placeholder="username"
                                    type="text"
-                                   data-val-required="The Username field is required."
+                                   pattern="^[a-zA-Z0-9]{4,12}$"
+                                   title="Username must be alphanumeric and between 4 and 12 characters."
                                    id="Username"
                                    name="Username"
                                    value="">
@@ -21,26 +24,29 @@
                             <span class="text-danger field-validation-valid"
                                   data-valmsg-for="Username"
                                   data-valmsg-replace="true"></span>
-                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                         </div>
+
                         <div class="form-floating mb-3">
                             <input class="form-control"
+                                   required
                                    aria-required="true"
                                    placeholder="password"
                                    type="password"
-                                   data-val-required="The Password field is required."
+                                   pattern="^.{4,}$"
+                                   title="Password must be at least 4 characters long."
                                    id="Password"
                                    name="Password">
                             <label for="Password">Password</label>
                             <span class="text-danger field-validation-valid"
                                   data-valmsg-for="Password"
                                   data-valmsg-replace="true"></span>
-                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                         </div>
+
                         <div>
                             <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
                         </div>
                     </form>
+
                     <div>
                         <p>
                             <a href="/Identity/Register">Register as a new user</a>
@@ -48,6 +54,7 @@
                     </div>
                 </section>
             </div>
+
             <div class="col-md-8 col-md-offset-2">
                 <section>
                     <h3>Your One-Stop Shop for Premium Sea Carp Fishing Gear</h3>
@@ -69,11 +76,18 @@
     </main>
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            document.querySelector('#login_form').onsubmit = (e) => {
+            const form = document.querySelector('#login_form');
+
+            form.onsubmit = (e) => {
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    e.preventDefault();
+                    return;
+                }
+
                 e.preventDefault();
                 fetch('@Url.ActionLink(nameof(IdentityController.LoginUser), nameof(IdentityController).RemoveControllerSuffix())', {
                     method: 'POST',
@@ -85,24 +99,24 @@
                         'Password': document.querySelector('#Password').value,
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        let params = new URL(document.location.toString()).searchParams;
-                        let returnUrl = params.get("returnUrl");
-                        if (returnUrl) {
-                            window.location = returnUrl;
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const params = new URL(document.location.toString()).searchParams;
+                            const returnUrl = params.get("returnUrl");
+                            if (returnUrl) {
+                                window.location = returnUrl;
+                            } else {
+                                window.location = '@Url.ActionLink(nameof(ProfileController.GetProfile), nameof(ProfileController).RemoveControllerSuffix())';
+                            }
                             return;
                         }
 
-                        window.location = '@Url.ActionLink(nameof(ProfileController.GetProfile), nameof(ProfileController).RemoveControllerSuffix())';
-                        return;
-                    }
-
-                    document.querySelector('#error').innerText = data.errorMessage;
-                    document.querySelector('#error').style.display = 'inline';
-                });
+                        const errorDiv = document.querySelector('#error');
+                        errorDiv.innerText = data.errorMessage;
+                        errorDiv.style.display = 'block';
+                    });
             };
-        }, false);
+        });
     </script>
 }

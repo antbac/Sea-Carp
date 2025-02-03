@@ -1,103 +1,177 @@
 ﻿@model SeaCarp.Presentation.Models.ViewModels.UserViewModel
 
-<div class="container">
-    <main>
-        <p id="error" style="display: none; color: red"></p>
-        <h1>Profile</h1>
-        <br />
-
-        <div class="row">
-            <div class="col-md-2">
-                <section>
-                    <p>@Model.Email</p>
-                </section>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="list-group" id="profile-tabs" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="list-details-list" data-bs-toggle="list" href="#list-details" role="tab">
+                    Account Details
+                </a>
+                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+            {
+                <a class="list-group-item list-group-item-action" id="list-email-list" data-bs-toggle="list" href="#list-email" role="tab">
+                        Update Email
+                    </a>
+                    
+                <a class="list-group-item list-group-item-action" id="list-password-list" data-bs-toggle="list" href="#list-password" role="tab">
+                        Update Password
+                    </a>
+            }
+                <a class="list-group-item list-group-item-action" id="list-orders-list" data-bs-toggle="list" href="#list-orders" role="tab">
+                    Order History
+                </a>
             </div>
-            @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
-            {
-                <div class="offset-md-1 col-md-8" style="padding: 0">
-                    <form id="update_email_form" method="post" novalidate="novalidate">
-                        <div class="form-floating mb-3">
-                            <input class="form-control" aria-required="true" placeholder="email" type="email" data-val-required="The Email field is required." id="Email" name="Email" value="@Model.Email">
-                            <label for="Email">Email</label>
-                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
-                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
-                        </div>
-                        <div>
-                            <button id="email-submit" type="submit" class="w-100 btn btn-lg btn-primary">Update email</button>
-                        </div>
-                    </form>
-                    <form id="update_password_form" method="post" novalidate="novalidate">
-                        <div class="form-floating mb-3">
-                            <input class="form-control" aria-required="true" placeholder="password" type="password" data-val-required="The Password field is required." id="Password" name="Password">
-                            <label for="Password">Password</label>
-                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
-                            <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
-                        </div>
-                        <div>
-                            <button id="password-submit" type="submit" class="w-100 btn btn-lg btn-primary">Update password</button>
-                        </div>
-                    </form>
-                </div>
-            }
-            else
-            {
-                <div class="offset-md-1 col-md-8" style="border: 1px solid #303030">
-                    <p>@Model.Username</p>
-                    <p>@Model.Email</p>
-                </div>
-            }
         </div>
-    </main>
+
+        <div class="col-md-9">
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="list-details" role="tabpanel">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            Account Details
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Username:</strong> @Model.Username</p>
+                            <p><strong>Email:</strong> @Model.Email</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+            {
+                <div class="tab-pane fade" id="list-email" role="tabpanel">
+                        <div class="card shadow mb-4">
+                            <div class="card-header">
+                                Update Email
+                            </div>
+                            <div class="card-body">
+                                <form id="update_email_form" method="post" novalidate="novalidate">
+                                    <div id="emailError" class="alert alert-danger" style="display:none"></div>
+                                    <div class="mb-3">
+                                        <label for="Email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" required id="Email" name="Email" value="@Model.Email" />
+                                    </div>
+                                    <button id="email-submit" type="submit" class="btn btn-primary">Update Email</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                <div class="tab-pane fade" id="list-password" role="tabpanel">
+                        <div class="card shadow mb-4">
+                            <div class="card-header">
+                                Update Password
+                            </div>
+                            <div class="card-body">
+                                <form id="update_password_form" method="post" novalidate="novalidate">
+                                    <div id="passwordError" class="alert alert-danger" style="display:none"></div>
+                                    <div class="mb-3">
+                                        <label for="Password" class="form-label">New Password</label>
+                                        <input type="password" class="form-control" required id="Password" name="Password" placeholder="Enter new password" />
+                                    </div>
+                                    <button id="password-submit" type="submit" class="btn btn-primary">Update Password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+            }
+
+                <div class="tab-pane fade" id="list-orders" role="tabpanel">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            Order History
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Orders != null && Model.Orders.Any())
+                        {
+                            <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in Model.Orders)
+                                    {
+                                        <tr>
+                                                <td>@order.OrderNumber</td>
+                                                <td>@order.OrderDate</td>
+                                                <td>@order.Status</td>
+                                                <td>@order.Total.ToString("C")</td>
+                                            </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                        }
+                        else
+                        {
+                            <p class="text-muted">You have not placed any orders yet.</p>
+                        }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            document.querySelector('#update_email_form').onsubmit = (e) => {
-                e.preventDefault();
-                fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Email', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Email: document.querySelector('#Email').value
+            const emailForm = document.querySelector('#update_email_form');
+            if (emailForm) {
+                emailForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Email', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Email: document.querySelector('#Email').value
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                        return;
-                    }
+                        .then(response => response.json())
+                        .then(data => {
+                            const emailErrorDiv = document.querySelector('#emailError');
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                emailErrorDiv.innerText = data.errorMessage;
+                                emailErrorDiv.style.display = 'block';
+                            }
+                        });
+                };
+            }
 
-                    document.querySelector('#error').innerText = data.errorMessage;
-                    document.querySelector('#error').style.display = 'inline';
-                });
-            };
-            document.querySelector('#update_password_form').onsubmit = (e) => {
-                e.preventDefault();
-                fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Password', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Password: document.querySelector('#Password').value
+            const passwordForm = document.querySelector('#update_password_form');
+            if (passwordForm) {
+                passwordForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    fetch('/@nameof(ProfileController).RemoveControllerSuffix()/@(Model.Id)/Password', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Password: document.querySelector('#Password').value
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                        return;
-                    }
-
-                    document.querySelector('#error').innerText = data.errorMessage;
-                    document.querySelector('#error').style.display = 'inline';
-                });
-            };
-        }, false);
+                        .then(response => response.json())
+                        .then(data => {
+                            const passwordErrorDiv = document.querySelector('#passwordError');
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                passwordErrorDiv.innerText = data.errorMessage;
+                                passwordErrorDiv.style.display = 'block';
+                            }
+                        });
+                };
+            }
+        });
     </script>
 }

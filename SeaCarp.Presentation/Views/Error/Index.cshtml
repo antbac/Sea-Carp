@@ -1,0 +1,8 @@
+﻿@model SeaCarp.Presentation.Models.ViewModels.ErrorViewModel
+
+<h1>An error occurred</h1>
+@if (Model is not null)
+{
+    <p>@Model.Message</p>
+    <pre>@Model.StackTrace</pre>
+}

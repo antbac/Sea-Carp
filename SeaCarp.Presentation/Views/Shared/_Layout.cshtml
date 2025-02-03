@@ -13,61 +13,105 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" />
-                    Sea Carp
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
-                        @if (RequestContext.Instance.CurrentUser.Value != null)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Identity" asp-action="Register">Register</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Identity" asp-action="Login">Login</a>
-                            </li>
-                        }
-                    </ul>
-
+        <nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <a class="navbar-brand me-3" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
+                        Sea Carp
+                    </a>
                     <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index), nameof(SearchController).RemoveControllerSuffix())" method="get">
-                        <input class="form-control rounded-pill me-2"
+                        <input class="form-control rounded-pill"
                                type="search"
                                placeholder="Search"
                                aria-label="Search"
                                style="width: 200px;"
-                               name="q"/>
-                        <button class="btn btn-outline-light rounded-pill" type="submit">
-                            Search
-                        </button>
+                               name="q" />
                     </form>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light rounded-circle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                            @if (RequestContext.Instance.CurrentUser.Value != null)
+                        {
+                            <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
+                                </li>
+                            <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
+                                </li>
+                        }
+                        else
+                        {
+                            <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Login">Login</a>
+                                </li>
+                            <li>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Register">Register</a>
+                                </li>
+                        }
+                            <li id="top_menu_dropdown_divider">
+                                <hr class="dropdown-divider" />
+                            </li>
+                            <li id="top_menu_dropdown_cart">
+                                <a class="dropdown-item" href="/@nameof(CartController).RemoveControllerSuffix()">
+                                    Cart
+                                    <span id="cartBadge" class="badge bg-secondary ms-1"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container" id="flag-container"></div>
     <div class="container">
         <main role="main" class="pb-3">
+            <pre id="error" style="display: none; color: red"></pre>
             @RenderBody()
         </main>
     </div>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (RequestContext.Instance.CurrentUser.Value is null)
+        {
+            <text>
+                localStorage.removeItem("cartItems");
+                </text>
+        }
+            setInterval(() => {
+                const cartBadge = document.getElementById("cartBadge");
+                let cartItems = localStorage.getItem("cartItems");
+                if (cartItems) {
+                    document.getElementById("top_menu_dropdown_divider").style.display = 'list-item';
+                    document.getElementById("top_menu_dropdown_cart").style.display = 'list-item';
+                    try {
+                        const items = JSON.parse(cartItems);
+                        if (items && items.length > 0) {
+                            cartBadge.innerText = items.length;
+                            cartBadge.style.display = 'inline-block';
+                        } else {
+                            cartBadge.style.display = 'none';
+                        }
+                    } catch (error) {
+                        console.error("Error parsing cartItems:", error);
+                        cartBadge.style.display = 'none';
+                    }
+                } else {
+                    cartBadge.style.display = 'none';
+                    document.getElementById("top_menu_dropdown_divider").style.display = 'none';
+                    document.getElementById("top_menu_dropdown_cart").style.display = 'none';
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>

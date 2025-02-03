@@ -12,7 +12,7 @@ internal static class Database
     /// <summary>
     /// Gets (and if necessary, creates) the single in-memory DB connection.
     /// </summary>
-    internal static SQLiteConnection GetConnection()
+    public static SQLiteConnection GetConnection()
     {
         if (_connection == null)
         {
@@ -34,7 +34,7 @@ internal static class Database
     /// <summary>
     /// Close and dispose the current in-memory DB (destroying all data).
     /// </summary>
-    internal static void ResetDatabase()
+    public static void ResetDatabase()
     {
         lock (_lock)
         {
@@ -113,18 +113,18 @@ internal static class Database
                         {nameof(Domain.Models.User.Email)},
                         {nameof(Domain.Models.User.IsAdmin)}
                     ) VALUES
-                        ('admin',   'EEA96FB6F677C9B0A9D226B199A3BEAD3AE93279', 'frank@fishmail.com',   1),  -- Admin user
-                        ('alice',   '81F500B3A7941D4E56FFB3BCE9C200C62AFB3A9F', 'alice@fishmail.com',   0),
-                        ('bob',     '06317FBFEFC618C6C732FDA29D503C569D85AC1F', 'bob@fishmail.com',     0),
-                        ('charlie', '654E857508988777D73CF013DB87A0ADCCD7311E', 'charlie@fishmail.com', 0),
-                        ('dave',    '17194FD5B5CC7F66944E9D20F5D851D5C1292907', 'dave@fishmail.com',    0),
-                        ('eve',     '2EF969DBC2B63BF55CAEEA63FEAE05273022F2D8', 'eve@fishmail.com',     0),
-                        ('grace',   'EF1D78A26A6634525F69A47E31F5B9719456C261', 'grace@fishmail.com',   0),
-                        ('heidi',   '8AC91DB267CCD2F1D7DA0642CE198601DE605F4A', 'heidi@fishmail.com',   0),
-                        ('ivan',    '9DBAAA5CA14ADDE0809CFF911E305DCE1670CB97', 'ivan@fishmail.com',    0),
-                        ('judy',    '8B9850527DA623DF5789E78AAC36701DA7DAB89C', 'judy@fishmail.com',    0),
-                        ('mallory', 'D079A50C98D5EB8DC86DC9369FC37D9B5939EACA', 'mallory@fishmail.com', 0),
-                        ('peggy',   '8319538B9D350CBBFBFDF3154D4ABB525087F6CA', 'peggy@fishmail.com',   0);
+                        ('admin',   'AF8978B1797B72ACFFF9595A5A2A373EC3D9106D', 'frank@fishmail.com',   1),  -- Admin user
+                        ('alice',   '23F2916E01209D6282F226BE9677AFFAEC44A8D6', 'alice@fishmail.com',   0),
+                        ('bob',     'A0F4EA7D91495DF92BBAC2E2149DFB850FE81396', 'bob@fishmail.com',     0),
+                        ('charlie', 'A94A8FE5CCB19BA61C4C0873D391E987982FBBD3', 'charlie@fishmail.com', 0),
+                        ('dave',    '5BC1824930FFBBAFC27E7EB204260A4017859A35', 'dave@fishmail.com',    0),
+                        ('eve',     '9EC4236A09D01395A838F2E774923B4E8548FD19', 'eve@fishmail.com',     0),
+                        ('grace',   '7AFAA0A74C41394C7122FE61723DDC365F322A55', 'grace@fishmail.com',   0),
+                        ('heidi',   '85F940C72D551AB70C79A22134A14DC2838D31AB', 'heidi@fishmail.com',   0),
+                        ('ivan',    '1E41C981637834CAEC149B4D33F7F8566076DDFA', 'ivan@fishmail.com',    0),
+                        ('judy',    '9EBE299167D341A6B3D1822ABA32E3F32398969F', 'judy@fishmail.com',    0),
+                        ('mallory', '28A53C6E447B21677C8C074344909950B6B41AA1', 'mallory@fishmail.com', 0),
+                        ('peggy',   '3A71E089191E419148237A3C0BEAE597C4BD8DBD', 'peggy@fishmail.com',   0);
                 ";
             cmd.ExecuteNonQuery();
         }

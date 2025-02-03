@@ -15,8 +15,8 @@
     <h2 class="text-center">Featured Products</h2>
     <div class="row">
         @foreach (var product in Model.FeaturedProducts)
-        {
-            <div class="col-md-4">
+{
+    <div class="col-md-4">
                 <div class="card">
                     <img src="/images/products/@(product.ProductName).png" class="card-img-top" alt="@(product.ProductName)">
                     <div class="card-body">
@@ -26,6 +26,6 @@
                     </div>
                 </div>
             </div>
-        }
+}
     </div>
 </div>

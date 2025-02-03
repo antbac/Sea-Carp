@@ -1,19 +1,24 @@
 ﻿<div class="container">
     <main>
-        <p id="error" style="display: none; color: red"></p>
         <h1>Register</h1>
         <br />
 
         <div class="row">
             <div class="col-md-4">
-                <form id="register_form" method="post" action="/Identity/Register" novalidate="novalidate">
+                <form id="register_form" method="post" action="/Identity/Register">
                     <h2>Create a new account.</h2>
+
+                    <div id="error" class="alert alert-danger" style="display:none"></div>
+
                     <hr />
                     <div class="form-floating mb-3">
                         <input class="form-control"
+                               required
                                aria-required="true"
                                placeholder="username"
                                type="text"
+                               pattern="^[a-zA-Z0-9]{4,12}$"
+                               title="Username must be alphanumeric and between 4 and 12 characters."
                                data-val-required="The Username field is required."
                                id="Username"
                                name="Username"
@@ -22,10 +27,11 @@
                         <span class="text-danger field-validation-valid"
                               data-valmsg-for="Username"
                               data-valmsg-replace="true"></span>
-                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                     </div>
+
                     <div class="form-floating mb-3">
                         <input class="form-control"
+                               required
                                aria-required="true"
                                placeholder="name@example.com"
                                type="email"
@@ -37,13 +43,16 @@
                         <span class="text-danger field-validation-valid"
                               data-valmsg-for="Email"
                               data-valmsg-replace="true"></span>
-                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                     </div>
+
                     <div class="form-floating mb-3">
                         <input class="form-control"
+                               required
                                aria-required="true"
                                placeholder="password"
                                type="password"
+                               pattern="^.{4,}$"
+                               title="Password must be at least 4 characters long."
                                data-val-required="The Password field is required."
                                id="Password"
                                name="Password">
@@ -51,8 +60,8 @@
                         <span class="text-danger field-validation-valid"
                               data-valmsg-for="Password"
                               data-valmsg-replace="true"></span>
-                        <div style="position: relative !important; height: 0px !important; width: 0px !important; float: left !important;"></div>
                     </div>
+
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                 </form>
             </div>
@@ -60,7 +69,6 @@
                 <section>
                     <h3>Join the #1 Community for Sea Carp Gear, Tips & More</h3>
                     <hr />
-
                     <div>
                         <img src="/images/SeaCarpDrawing.png"
                              width="256"

@@ -1,4 +1,5 @@
 ﻿using SeaCarp.Domain.Abstractions;
+using SeaCarp.Presentation.Models.Responses;
 
 namespace SeaCarp.Presentation.Controllers;
 

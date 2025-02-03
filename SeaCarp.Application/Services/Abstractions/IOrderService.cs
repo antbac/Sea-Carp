@@ -1,8 +1,8 @@
 ﻿using SeaCarp.Domain.Models;
 
-namespace SeaCarp.Domain.Abstractions;
+namespace SeaCarp.Application.Services.Abstractions;
 
-public interface IOrderRepository
+public interface IOrderService
 {
     Task CreateOrder(Order order);
 
