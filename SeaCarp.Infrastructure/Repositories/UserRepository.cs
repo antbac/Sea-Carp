@@ -17,11 +17,13 @@ public class UserRepository : IUserRepository
                 {nameof(User.Username)},
                 {nameof(User.Password)},
                 {nameof(User.Email)},
+                {nameof(User.ProfilePicture)},
                 {nameof(User.IsAdmin)}
             ) VALUES (
                 '{user.Username}',
                 '{user.Password}',
                 '{user.Email}',
+                '{user.ProfilePicture}',
                 {user.IsAdmin.ToInt()});
         ", @"\s+", " ");
         await cmd.ExecuteNonQueryAsync();
@@ -58,6 +60,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
@@ -70,8 +73,8 @@ public class UserRepository : IUserRepository
             {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
             {nameof(Product).ToPlural()}.{nameof(Product.Price)}
         FROM {nameof(User).ToPlural()}
-        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.{nameof(Order.User)}Id = {nameof(User).ToPlural()}.{nameof(User.Id)}
-        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.[{nameof(Order.User)}Id] = {nameof(User).ToPlural()}.{nameof(User.Id)}
+        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.[{nameof(OrderItem.Order)}Id] = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
         LEFT JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
         WHERE
             {nameof(User).ToPlural()}.{nameof(User.Username)} = '{username}'
@@ -92,6 +95,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
@@ -104,8 +108,8 @@ public class UserRepository : IUserRepository
             {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
             {nameof(Product).ToPlural()}.{nameof(Product.Price)}
         FROM {nameof(User).ToPlural()}
-        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.{nameof(Order.User)}Id = {nameof(User).ToPlural()}.{nameof(User.Id)}
-        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.[{nameof(Order.User)}Id] = {nameof(User).ToPlural()}.{nameof(User.Id)}
+        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.[{nameof(OrderItem.Order)}Id] = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
         LEFT JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
         WHERE {nameof(User).ToPlural()}.{nameof(User.Id)} = {id};
     ", @"\s+", " ");
@@ -124,6 +128,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
             {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
@@ -136,8 +141,8 @@ public class UserRepository : IUserRepository
             {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
             {nameof(Product).ToPlural()}.{nameof(Product.Price)}
         FROM {nameof(User).ToPlural()}
-        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.{nameof(Order.User)}Id = {nameof(User).ToPlural()}.{nameof(User.Id)}
-        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+        LEFT JOIN {nameof(Order).ToPlural()} ON {nameof(Order).ToPlural()}.[{nameof(Order.User)}Id] = {nameof(User).ToPlural()}.{nameof(User.Id)}
+        LEFT JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.[{nameof(OrderItem.Order)}Id] = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
         LEFT JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
         WHERE {nameof(User).ToPlural()}.{nameof(User.Username)} = '{username}';
     ", @"\s+", " ");
@@ -195,6 +200,7 @@ public class UserRepository : IUserRepository
                 {nameof(User.Username)} = '{user.Username}',
                 {nameof(User.Password)} = '{user.Password}',
                 {nameof(User.Email)} = '{user.Email}',
+                {nameof(User.ProfilePicture)} = '{user.ProfilePicture}',
                 {nameof(User.IsAdmin)} = {user.IsAdmin.ToInt()}
             WHERE {nameof(User.Id)} = {user.Id};
         ", @"\s+", " ");
@@ -215,39 +221,40 @@ public class UserRepository : IUserRepository
                 Username = reader.GetString(1),
                 Password = reader.GetString(2),
                 Email = reader.GetString(3),
-                IsAdmin = reader.GetBoolean(4),
+                ProfilePicture = reader.GetString(4),
+                IsAdmin = reader.GetBoolean(5),
                 Orders = []
             };
 
-            if (!reader.IsDBNull(5))
+            if (!reader.IsDBNull(6))
             {
-                var orderId = reader.GetInt32(5);
+                var orderId = reader.GetInt32(6);
                 if (!ordersDict.TryGetValue(orderId, out var order))
                 {
                     order = new Order
                     {
                         Id = orderId,
-                        OrderDate = reader.GetDateTime(6),
-                        Status = Enum.Parse<OrderStatus>(reader.GetString(7)),
-                        DeliveryAddress = reader.GetString(8),
+                        OrderDate = reader.GetDateTime(7),
+                        Status = Enum.Parse<OrderStatus>(reader.GetString(8)),
+                        DeliveryAddress = reader.GetString(9),
                         OrderItems = []
                     };
                     ordersDict.Add(orderId, order);
                     user.Orders.Add(order);
                 }
 
-                if (!reader.IsDBNull(9))
+                if (!reader.IsDBNull(10))
                 {
                     var orderItem = new OrderItem
                     {
-                        Id = reader.GetInt32(9),
-                        Quantity = reader.GetInt32(10),
-                        UnitPrice = reader.GetDecimal(11),
+                        Id = reader.GetInt32(10),
+                        Quantity = reader.GetInt32(11),
+                        UnitPrice = reader.GetDecimal(12),
                         Product = new Product
                         {
-                            Id = reader.GetInt32(12),
-                            ProductName = reader.GetString(13),
-                            Price = reader.GetDecimal(14)
+                            Id = reader.GetInt32(13),
+                            ProductName = reader.GetString(14),
+                            Price = reader.GetDecimal(15)
                         }
                     };
 

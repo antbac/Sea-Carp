@@ -1,4 +1,4 @@
-﻿using SeaCarp.Domain.Abstractions;
+﻿using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.Presentation.Extensions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
@@ -8,11 +8,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class ProfilesController : BaseController
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUserService _userService;
 
-    public ProfilesController(IUserRepository userRepository)
+    public ProfilesController(IUserService userService)
     {
-        _userRepository = userRepository;
+        _userService = userService;
     }
 
     [Route("/Profiles", Name = "GetProfile")]
@@ -31,12 +31,12 @@ public class ProfilesController : BaseController
         var user = int.TryParse(identifier, out var id)
             ? CurrentUser?.Id == id
                 ? CurrentUser
-                : await _userRepository.GetUser(id)
+                : await _userService.GetUser(id)
             : CurrentUser?.Username == identifier
                 ? CurrentUser
-                : await _userRepository.GetUser(identifier);
+                : await _userService.GetUser(identifier);
 
-        user = await _userRepository.GetUser(user.Id);
+        user = await _userService.GetUser(user.Id);
 
         return user is null
             ? NotFound($"No user with identifier {identifier} found")
@@ -53,11 +53,11 @@ public class ProfilesController : BaseController
         }
 
         var user = int.TryParse(identifier, out var id)
-            ? await _userRepository.GetUser(id)
-            : await _userRepository.GetUser(identifier);
+            ? await _userService.GetUser(id)
+            : await _userService.GetUser(identifier);
 
         user.UpdateEmail(request.Email);
-        await _userRepository.UpdateUser(user);
+        await _userService.UpdateUser(user);
 
         CurrentUser = user;
 
@@ -74,11 +74,31 @@ public class ProfilesController : BaseController
         }
 
         var user = int.TryParse(identifier, out var id)
-            ? await _userRepository.GetUser(id)
-            : await _userRepository.GetUser(identifier);
+            ? await _userService.GetUser(id)
+            : await _userService.GetUser(identifier);
 
         user.UpdatePassword(request.Password);
-        await _userRepository.UpdateUser(user);
+        await _userService.UpdateUser(user);
+
+        CurrentUser = user;
+
+        return Json(new GenericResponse() { Success = true });
+    }
+
+    [Route("/Profiles/{identifier}/Picture")]
+    [HttpPut]
+    public async Task<IActionResult> UpdateProfilePicture(string identifier, [FromBody] UpdateProfilePictureRequest request)
+    {
+        if (CurrentUser is null)
+        {
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your profile picture" });
+        }
+
+        var user = int.TryParse(identifier, out var id)
+            ? await _userService.GetUser(id)
+            : await _userService.GetUser(identifier);
+
+        await _userService.UpdateProfilePicture(user, request.Url);
 
         CurrentUser = user;
 

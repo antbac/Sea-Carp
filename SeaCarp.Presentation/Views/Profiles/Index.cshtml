@@ -8,18 +8,23 @@
                     Account Details
                 </a>
                 @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
-            {
-                <a class="list-group-item list-group-item-action" id="list-email-list" data-bs-toggle="list" href="#list-email" role="tab">
+                {
+                    <a class="list-group-item list-group-item-action" id="list-email-list" data-bs-toggle="list" href="#list-email" role="tab">
                         Update Email
                     </a>
-                    
-                <a class="list-group-item list-group-item-action" id="list-password-list" data-bs-toggle="list" href="#list-password" role="tab">
+
+                    <a class="list-group-item list-group-item-action" id="list-password-list" data-bs-toggle="list" href="#list-password" role="tab">
                         Update Password
                     </a>
-            }
-                <a class="list-group-item list-group-item-action" id="list-orders-list" data-bs-toggle="list" href="#list-orders" role="tab">
-                    Order History
-                </a>
+
+                    <a class="list-group-item list-group-item-action" id="list-profile-picture-list" data-bs-toggle="list" href="#list-profile-picture" role="tab">
+                        Update Profile picture
+                    </a>
+
+                    <a class="list-group-item list-group-item-action" id="list-orders-list" data-bs-toggle="list" href="#list-orders" role="tab">
+                        Order History
+                    </a>
+                }
             </div>
         </div>
 
@@ -31,6 +36,12 @@
                             Account Details
                         </div>
                         <div class="card-body">
+                            <div class="mb-3">
+                                <img src="@Model.ProfilePicture"
+                                     alt="Profile Picture"
+                                     class="img-fluid rounded-circle"
+                                     style="width: 150px; height: 150px; object-fit: cover;" />
+                            </div>
                             <p><strong>Username:</strong> @Model.Username</p>
                             <p><strong>Email:</strong> @Model.Email</p>
                         </div>
@@ -38,8 +49,8 @@
                 </div>
 
                 @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
-            {
-                <div class="tab-pane fade" id="list-email" role="tabpanel">
+                {
+                    <div class="tab-pane fade" id="list-email" role="tabpanel">
                         <div class="card shadow mb-4">
                             <div class="card-header">
                                 Update Email
@@ -57,7 +68,7 @@
                         </div>
                     </div>
 
-                <div class="tab-pane fade" id="list-password" role="tabpanel">
+                    <div class="tab-pane fade" id="list-password" role="tabpanel">
                         <div class="card shadow mb-4">
                             <div class="card-header">
                                 Update Password
@@ -74,106 +85,155 @@
                             </div>
                         </div>
                     </div>
-            }
 
-                <div class="tab-pane fade" id="list-orders" role="tabpanel">
-                    <div class="card shadow mb-4">
-                        <div class="card-header">
-                            Order History
-                        </div>
-                        <div class="card-body">
-                            @if (Model.Orders != null && Model.Orders.Any())
-                        {
-                            <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Order #</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Delivery address</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in Model.Orders)
-                                        {
-                                            <tr>
-                                                <td><a href="/@nameof(OrdersController).RemoveControllerSuffix()/@order.OrderNumber">@order.OrderNumber</a></td>
-                                                <td>@order.OrderDate</td>
-                                                <td>@order.Status</td>
-                                                <td>@order.DeliveryAddress</td>
-                                                <td>$@order.Total</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                        }
-                        else
-                        {
-                            <p class="text-muted">You have not placed any orders yet.</p>
-                        }
+                    <div class="tab-pane fade" id="list-profile-picture" role="tabpanel">
+                        <div class="card shadow mb-4">
+                            <div class="card-header">
+                                Update Profile picture
+                            </div>
+                            <div class="card-body">
+                                <form id="update_profile_picture_form" method="post" novalidate="novalidate">
+                                    <div id="profilePictureError" class="alert alert-danger" style="display:none"></div>
+                                    <div class="mb-3">
+                                        <label for="ProfilePicture" class="form-label">New Profile picture</label>
+                                        <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture" placeholder="Enter URL to profile picture" />
+                                    </div>
+                                    <button id="profile-picture-submit" type="submit" class="btn btn-primary">Update Profile picture</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <div class="tab-pane fade" id="list-orders" role="tabpanel">
+                        <div class="card shadow mb-4">
+                            <div class="card-header">
+                                Order History
+                            </div>
+                            <div class="card-body">
+                                @if (Model.Orders != null && Model.Orders.Any())
+                                {
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Delivery Address</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.Orders)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <a href="/@nameof(OrdersController).RemoveControllerSuffix()/@order.OrderNumber">@order.OrderNumber</a>
+                                                    </td>
+                                                    <td>@order.OrderDate</td>
+                                                    <td>@order.Status</td>
+                                                    <td>@order.DeliveryAddress</td>
+                                                    <td>$@order.Total</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">You have not placed any orders yet.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const emailForm = document.querySelector('#update_email_form');
-            if (emailForm) {
-                emailForm.onsubmit = (e) => {
-                    e.preventDefault();
-                    fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            Email: document.querySelector('#Email').value
+    @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+    {
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const emailForm = document.querySelector('#update_email_form');
+                if (emailForm) {
+                    emailForm.onsubmit = (e) => {
+                        e.preventDefault();
+                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                Email: document.querySelector('#Email').value
+                            })
                         })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            const emailErrorDiv = document.querySelector('#emailError');
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                emailErrorDiv.innerText = data.errorMessage;
-                                emailErrorDiv.style.display = 'block';
-                            }
-                        });
-                };
-            }
+                            .then(response => response.json())
+                            .then(data => {
+                                const emailErrorDiv = document.querySelector('#emailError');
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    emailErrorDiv.innerText = data.errorMessage;
+                                    emailErrorDiv.style.display = 'block';
+                                }
+                            });
+                    };
+                }
 
-            const passwordForm = document.querySelector('#update_password_form');
-            if (passwordForm) {
-                passwordForm.onsubmit = (e) => {
-                    e.preventDefault();
-                    fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            Password: document.querySelector('#Password').value
+                const passwordForm = document.querySelector('#update_password_form');
+                if (passwordForm) {
+                    passwordForm.onsubmit = (e) => {
+                        e.preventDefault();
+                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                Password: document.querySelector('#Password').value
+                            })
                         })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            const passwordErrorDiv = document.querySelector('#passwordError');
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                passwordErrorDiv.innerText = data.errorMessage;
-                                passwordErrorDiv.style.display = 'block';
-                            }
-                        });
-                };
-            }
-        });
-    </script>
+                            .then(response => response.json())
+                            .then(data => {
+                                const passwordErrorDiv = document.querySelector('#passwordError');
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    passwordErrorDiv.innerText = data.errorMessage;
+                                    passwordErrorDiv.style.display = 'block';
+                                }
+                            });
+                    };
+                }
+
+                const profilePictureForm = document.querySelector('#update_profile_picture_form');
+                if (profilePictureForm) {
+                    profilePictureForm.onsubmit = (e) => {
+                        e.preventDefault();
+                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                Url: document.querySelector('#ProfilePicture').value
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                const profilePictureErrorDiv = document.querySelector('#profilePictureError');
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    profilePictureErrorDiv.innerText = data.errorMessage;
+                                    profilePictureErrorDiv.style.display = 'block';
+                                }
+                            });
+                    };
+                }
+            });
+        </script>
+    }
 }
