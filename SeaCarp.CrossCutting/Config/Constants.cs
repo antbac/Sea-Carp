@@ -1,4 +1,4 @@
-﻿namespace SeaCarp.Presentation.Config;
+﻿namespace SeaCarp.CrossCutting.Config;
 
 public static class Constants
 {

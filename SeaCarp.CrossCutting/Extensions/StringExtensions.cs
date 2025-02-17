@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using SeaCarp.CrossCutting.Config;
+using System.Text.RegularExpressions;
 
 namespace SeaCarp.CrossCutting.Extensions;
 
@@ -82,6 +83,14 @@ public static class StringExtensions
     }
 
     /// <summary>
+    /// Removes the word "Controller" from the end of strings.
+    /// </summary>
+    public static string RemoveControllerSuffix(this string controllerName) =>
+    controllerName.EndsWith(Constants.ControllerSuffix)
+        ? controllerName[..^Constants.ControllerSuffix.Length]
+        : controllerName;
+
+    /// <summary>
     /// Helper method to preserve the capitalization style of the original noun (simple approach).
     /// </summary>
     private static string MatchCapitalization(string original, string pluralForm)
@@ -91,7 +100,7 @@ public static class StringExtensions
             return pluralForm.ToUpper();
         }
 
-        if (char.IsUpper(original[0]) && original.Substring(1).ToLower() == original.Substring(1))
+        if (char.IsUpper(original[0]) && original[1..].Equals(original, StringComparison.CurrentCultureIgnoreCase))
         {
             return char.ToUpper(pluralForm[0]) + pluralForm.Substring(1).ToLower();
         }

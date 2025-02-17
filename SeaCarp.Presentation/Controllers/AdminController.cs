@@ -1,6 +1,6 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
-using SeaCarp.Domain.Abstractions;
-using SeaCarp.Presentation.Extensions;
+using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 
@@ -8,16 +8,17 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class AdminController : BaseController
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUserService _userService;
     private readonly IProductService _productService;
     private readonly IOrderService _orderService;
 
     public AdminController(
-        IUserRepository userRepository,
+        IUserService userService,
         IProductService productService,
-        IOrderService orderService)
+        IOrderService orderService,
+        IJwtService jwtService) : base(jwtService)
     {
-        _userRepository = userRepository;
+        _userService = userService;
         _productService = productService;
         _orderService = orderService;
     }
@@ -33,7 +34,7 @@ public class AdminController : BaseController
 
         return View(new Models.ViewModels.AdminViewModel
         {
-            Users = (await _userRepository.GetAllUsers()).Select(user => new Models.ViewModels.UserViewModel(user)),
+            Users = (await _userService.GetAllUsers()).Select(user => new Models.ViewModels.UserViewModel(user)),
             Products = (await _productService.GetProducts()).Select(product => new Models.ViewModels.ProductViewModel(product)),
         });
     }
@@ -44,7 +45,7 @@ public class AdminController : BaseController
     {
         if (int.TryParse(identifier, out var id))
         {
-            await _userRepository.RemoveUser(id); ;
+            await _userService.RemoveUser(id); ;
             return Json(new GenericResponse { Success = true });
         }
 
@@ -57,14 +58,14 @@ public class AdminController : BaseController
     {
         if (int.TryParse(identifier, out var id))
         {
-            var user = await _userRepository.GetUser(id);
+            var user = await _userService.GetUser(id);
             if (user is null)
             {
                 return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to find the user" });
             }
 
             user.UpdatePassword("pass");
-            await _userRepository.UpdateUser(user);
+            await _userService.UpdateUser(user);
 
             return Json(new GenericResponse { Success = true });
         }

@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
 public class ErrorController : BaseController
 {
+    public ErrorController(IJwtService jwtService) : base(jwtService)
+    {
+    }
+
     [Route("/Error", Name = "ErrorIndex")]
     public IActionResult Index()
     {

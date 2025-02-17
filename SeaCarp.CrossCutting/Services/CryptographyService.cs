@@ -1,24 +1,24 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Extensions.Options;
+using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Services.Abstractions;
+using System.Security.Cryptography;
 
 namespace SeaCarp.CrossCutting.Services;
 
-public class CryptographyService
+public class CryptographyService : ICryptographyService
 {
-    public static string GenerateSalt(int length)
+    private readonly CryptographySettings _cryptographySettings;
+
+    public CryptographyService(IOptions<CryptographySettings> options)
     {
-        using var rng = RandomNumberGenerator.Create();
-        var randomBytes = new byte[length / 2];
-        rng.GetBytes(randomBytes);
-        return BitConverter.ToString(randomBytes).Replace("-", "").ToLower();
+        _cryptographySettings = options.Value;
     }
 
-    public static string Hash(string salt, string message) => Hash(salt + message);
-
-    public static string Hash(string message)
+    public string HashPassword(string password)
     {
-        var messageBytes = System.Text.Encoding.ASCII.GetBytes(message);
+        var messageBytes = System.Text.Encoding.ASCII.GetBytes(_cryptographySettings.PasswordSalt + password);
         var hashBytes = SHA256.HashData(messageBytes);
 
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToUpper();
     }
 }

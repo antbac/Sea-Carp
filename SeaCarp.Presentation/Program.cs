@@ -1,7 +1,11 @@
-﻿using SeaCarp.Presentation.Config;
+﻿using SeaCarp.CrossCutting;
+using SeaCarp.CrossCutting.Config;
+using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
 
 // Add services to the container.
 builder.Services.AddDistributedMemoryCache();
@@ -35,6 +39,8 @@ builder.Services
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+ServiceLocator.Instance = app.Services;
 
 app.UseHsts();
 

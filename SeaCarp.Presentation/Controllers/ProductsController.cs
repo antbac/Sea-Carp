@@ -1,4 +1,5 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
@@ -10,7 +11,9 @@ public class ProductsController : BaseController
 {
     private readonly IProductService _productService;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(
+        IProductService productService,
+        IJwtService jwtService) : base(jwtService)
     {
         _productService = productService;
     }

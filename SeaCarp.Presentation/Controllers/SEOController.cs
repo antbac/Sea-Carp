@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using SeaCarp.Presentation.Extensions;
+using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using System.Globalization;
 using System.Xml;
 
 namespace SeaCarp.Presentation.Controllers
 {
-    public class SEOController : Controller
+    public class SEOController : BaseController
     {
         private readonly IActionDescriptorCollectionProvider _provider;
 
-        public SEOController(IActionDescriptorCollectionProvider provider)
+        public SEOController(
+            IActionDescriptorCollectionProvider provider,
+            IJwtService jwtService) : base(jwtService)
         {
             _provider = provider;
         }

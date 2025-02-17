@@ -1,5 +1,7 @@
-﻿using SeaCarp.Application.Services.Abstractions;
-using SeaCarp.Application.Services;
+﻿using SeaCarp.Application.Services;
+using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Services;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Infrastructure.Repositories;
 
@@ -10,12 +12,21 @@ public class IocSetup
     public static void ConfigureIoc(IServiceCollection services)
     {
         services
-            .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<IProductRepository, ProductRepository>()
-            .AddScoped<IOrderRepository, OrderRepository>()
-            .AddScoped<IAdminRepository, AdminRepository>()
-            .AddScoped<IProductService, ProductService>()
+            // CrossCutting
+            .AddScoped<IHttpService, HttpService>()
+            .AddScoped<ICryptographyService, CryptographyService>()
+            .AddScoped<IJwtService, JwtService>()
+
+            // Application
+            .AddScoped<IAdminService, AdminService>()
             .AddScoped<IOrderService, OrderService>()
-            .AddScoped<IUserService, UserService>();
+            .AddScoped<IProductService, ProductService>()
+            .AddScoped<IUserService, UserService>()
+
+            // Infrastructure
+            .AddScoped<IAdminRepository, AdminRepository>()
+            .AddScoped<IOrderRepository, OrderRepository>()
+            .AddScoped<IProductRepository, ProductRepository>()
+            .AddScoped<IUserRepository, UserRepository>();
     }
 }

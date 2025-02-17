@@ -1,6 +1,7 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
-using SeaCarp.Presentation.Extensions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
@@ -12,7 +13,10 @@ public class OrdersController : BaseController
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
 
-    public OrdersController(IOrderService orderService, IProductService productService)
+    public OrdersController(
+        IOrderService orderService,
+        IProductService productService,
+        IJwtService jwtService) : base(jwtService)
     {
         _orderService = orderService;
         _productService = productService;

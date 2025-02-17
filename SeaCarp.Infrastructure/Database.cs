@@ -7,7 +7,7 @@ namespace SeaCarp.Infrastructure;
 internal static class Database
 {
     private static readonly object _lock = new();
-    private static SQLiteConnection? _connection;
+    private static SQLiteConnection _connection;
     private const string _connectionString = "Data Source=:memory:;Version=3;New=True;";
 
     /// <summary>

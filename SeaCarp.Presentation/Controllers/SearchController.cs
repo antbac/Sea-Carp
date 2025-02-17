@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
@@ -8,7 +9,9 @@ public class SearchController : BaseController
 {
     private readonly IProductService _productService;
 
-    public SearchController(IProductService productService)
+    public SearchController(
+        IProductService productService,
+        IJwtService jwtService) : base(jwtService)
     {
         _productService = productService;
     }

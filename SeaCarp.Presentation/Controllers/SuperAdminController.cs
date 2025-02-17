@@ -1,14 +1,18 @@
-﻿using SeaCarp.Domain.Abstractions;
+﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Domain.Abstractions;
 
 namespace SeaCarp.Presentation.Controllers;
 
 public class SuperAdminController : BaseController
 {
-    private readonly IAdminRepository _adminRepository;
+    private readonly IAdminService _adminService;
 
-    public SuperAdminController(IAdminRepository adminRepository)
+    public SuperAdminController(
+        IAdminService adminService,
+        IJwtService jwtService) : base(jwtService)
     {
-        _adminRepository = adminRepository;
+        _adminService = adminService;
     }
 
     [Route("/SuperAdmin", Name = "SuperAdminIndex")]
@@ -27,7 +31,7 @@ public class SuperAdminController : BaseController
     [HttpPost]
     public async Task<IActionResult> ResetDatabase()
     {
-        await _adminRepository.ResetDatabase();
+        await _adminService.ResetDatabase();
         return View("Index");
     }
 

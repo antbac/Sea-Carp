@@ -1,11 +1,19 @@
-﻿using SeaCarp.Presentation.Config;
+﻿using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Services;
 
 namespace SeaCarp.Presentation.Controllers;
 
 public abstract class BaseController : Controller
 {
-    protected Domain.Models.User? CurrentUser
+    private readonly IJwtService _jwtService;
+
+    protected BaseController(IJwtService jwtService)
+    {
+        _jwtService = jwtService;
+    }
+
+    protected Domain.Models.User CurrentUser
     {
         get => RequestContext.Instance.CurrentUser.Value;
         set
@@ -17,7 +25,13 @@ public abstract class BaseController : Controller
             }
             else
             {
-                Response.Cookies.Append(Constants.JWT, JwtService.GenerateJwt(value.Id, value.Username, value.Password, value.Email, value.IsAdmin), new CookieOptions
+                Response.Cookies.Append(Constants.JWT, _jwtService.GenerateJwt(
+                    (nameof(value.Id), value.Id.ToString()),
+                    (nameof(value.Username), value.Username),
+                    (nameof(value.Password), value.Password),
+                    (nameof(value.Email), value.Email),
+                    (nameof(value.IsAdmin), value.IsAdmin.ToString())
+                ), new CookieOptions
                 {
                     HttpOnly = false,
                 });

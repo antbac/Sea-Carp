@@ -1,5 +1,6 @@
-﻿using SeaCarp.Domain.Abstractions;
-using SeaCarp.Presentation.Extensions;
+﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 
@@ -7,11 +8,13 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class IdentityController : BaseController
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUserService _userService;
 
-    public IdentityController(IUserRepository userRepository)
+    public IdentityController(
+        IUserService userService,
+        IJwtService jwtService) : base(jwtService)
     {
-        _userRepository = userRepository;
+        _userService = userService;
     }
 
     [HttpGet("Identity/Register", Name = "IdentityIndex")]
@@ -26,12 +29,13 @@ public class IdentityController : BaseController
         try
         {
             var user = Domain.Models.User.Create(
-                registration.Username,
-                registration.Email,
-                registration.Password,
-                registration.IsAdmin);
+                username: registration.Username,
+                email: registration.Email,
+                password: registration.Password,
+                profilePicture: registration.ProfilePicture,
+                isAdmin: registration.IsAdmin);
 
-            await _userRepository.CreateUser(user);
+            await _userService.CreateUser(user);
 
             return Json(new GenericResponse { Success = true });
         }
@@ -52,8 +56,7 @@ public class IdentityController : BaseController
     [HttpPost("Identity/Login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginRequest login)
     {
-        var user = Domain.Models.User.Create(login.Username, null, login.Password, false);
-        user = await _userRepository.GetUser(user.Username, user.Password);
+        var user = await _userService.GetUser(login.Username, login.Password);
         if (user is null)
         {
             return Json(new GenericResponse { Success = false, ErrorMessage = "No user found with that username and password." });
