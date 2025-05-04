@@ -5,21 +5,14 @@ using SeaCarp.Domain.Models;
 
 namespace SeaCarp.Application.Services;
 
-public class UserService : IUserService
+public class UserService(
+    IHttpService httpService,
+    IUserRepository userRepository,
+    ICryptographyService cryptographyService) : IUserService
 {
-    private readonly IHttpService _httpService;
-    private readonly IUserRepository _userRepository;
-    private readonly ICryptographyService _cryptographyService;
-
-    public UserService(
-        IHttpService httpService,
-        IUserRepository userRepository,
-        ICryptographyService cryptographyService)
-    {
-        _httpService = httpService;
-        _userRepository = userRepository;
-        _cryptographyService = cryptographyService;
-    }
+    private readonly IHttpService _httpService = httpService;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICryptographyService _cryptographyService = cryptographyService;
 
     public Task CreateUser(User user) => _userRepository.CreateUser(user);
 

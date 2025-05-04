@@ -2,3 +2,4 @@
 *.ncrunch*
 **/bin/*
 **/obj/*
+injections.txt

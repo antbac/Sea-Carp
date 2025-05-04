@@ -3,14 +3,9 @@ using SeaCarp.Domain.Abstractions;
 
 namespace SeaCarp.Application.Services;
 
-public class AdminService : IAdminService
+public class AdminService(IAdminRepository adminRepository) : IAdminService
 {
-    private readonly IAdminRepository _adminRepository;
-
-    public AdminService(IAdminRepository adminRepository)
-    {
-        _adminRepository = adminRepository;
-    }
+    private readonly IAdminRepository _adminRepository = adminRepository;
 
     public Task ResetDatabase() => _adminRepository.ResetDatabase();
 }

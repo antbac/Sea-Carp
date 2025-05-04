@@ -7,16 +7,11 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class ProfilesController : BaseController
+public class ProfilesController(
+    IUserService userService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IUserService _userService;
-
-    public ProfilesController(
-        IUserService userService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _userService = userService;
-    }
+    private readonly IUserService _userService = userService;
 
     [Route("/Profiles", Name = "GetProfile")]
     [HttpGet]

@@ -6,14 +6,9 @@ using SeaCarp.CrossCutting.Services.Abstractions;
 
 namespace SeaCarp.CrossCutting.Services;
 
-public class CryptographyService : ICryptographyService
+public class CryptographyService(IOptions<CryptographySettings> options) : ICryptographyService
 {
-    private readonly CryptographySettings _cryptographySettings;
-
-    public CryptographyService(IOptions<CryptographySettings> options)
-    {
-        _cryptographySettings = options.Value;
-    }
+    private readonly CryptographySettings _cryptographySettings = options.Value;
 
     public string HashPassword(string password)
     {

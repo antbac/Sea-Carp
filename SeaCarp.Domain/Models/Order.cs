@@ -3,7 +3,7 @@
 public class Order
 {
     public int Id { get; set; }
-    public string OrderNumber => $"SC{Id.ToString().PadLeft(8, '0')}";
+    public string OrderNumber => $"ON{Id.ToString().PadLeft(8, '0')}";
     public string User { get; set; }
     public DateTime OrderDate { get; set; }
     public OrderStatus Status { get; set; }

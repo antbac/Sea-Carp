@@ -7,16 +7,11 @@ using System.Xml;
 
 namespace SeaCarp.Presentation.Controllers
 {
-    public class SEOController : BaseController
+    public class SEOController(
+        IActionDescriptorCollectionProvider provider,
+        IJwtService jwtService) : BaseController(jwtService)
     {
-        private readonly IActionDescriptorCollectionProvider _provider;
-
-        public SEOController(
-            IActionDescriptorCollectionProvider provider,
-            IJwtService jwtService) : base(jwtService)
-        {
-            _provider = provider;
-        }
+        private readonly IActionDescriptorCollectionProvider _provider = provider;
 
         [HttpGet]
         [Route("robots.txt")]
@@ -24,7 +19,7 @@ namespace SeaCarp.Presentation.Controllers
         public IActionResult RobotsTxt()
         {
             return Uri.TryCreate(Url.ActionLink(nameof(AdminController.Index), nameof(AdminController).RemoveControllerSuffix()), UriKind.Absolute, out var hiddenUrl)
-                ? Content($"User-agent: *\r\nDisallow: {hiddenUrl.AbsolutePath}", "text/plain")
+                ? Content($"User-agent: *\r\nDisallow: {hiddenUrl.AbsolutePath}\r\nDisallow: /files", "text/plain")
                 : Content($"User-agent: *", "text/plain");
         }
 

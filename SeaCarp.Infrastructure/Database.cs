@@ -23,6 +23,8 @@ internal static class Database
                 {
                     _connection = new SQLiteConnection(_connectionString);
                     _connection.Open();
+                    _connection.EnableExtensions(true);
+                    _connection.LoadExtension(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibs", "sqlean.dll"));
 
                     InitializeDatabase(_connection);
                 }
@@ -75,7 +77,7 @@ internal static class Database
 
                     CREATE TABLE IF NOT EXISTS {nameof(Order).ToPlural()} (
                         {nameof(Order.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(User)}Id INTEGER,
+                        {nameof(User)}{nameof(User.Id)} INTEGER,
                         {nameof(Order.OrderDate)} TEXT,
                         {nameof(Order.Status)} TEXT,
                         {nameof(Order.DeliveryAddress)} TEXT
@@ -83,19 +85,27 @@ internal static class Database
 
                     CREATE TABLE IF NOT EXISTS {nameof(OrderItem).ToPlural()} (
                         {nameof(OrderItem.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Order)}Id INTEGER,
-                        {nameof(Product)}Id INTEGER,
+                        {nameof(Order)}{nameof(Order.Id)} INTEGER,
+                        {nameof(Product)}{nameof(Product.Id)} INTEGER,
                         {nameof(OrderItem.Quantity)} INTEGER,
                         {nameof(OrderItem.UnitPrice)} REAL
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(Review).ToPlural()} (
                         {nameof(Review.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Product)}Id INTEGER,
-                        {nameof(User)}Id INTEGER,
+                        {nameof(Product)}{nameof(Product.Id)} INTEGER,
+                        {nameof(User)}{nameof(User.Id)} INTEGER,
                         {nameof(Review.Rating)} INTEGER,
                         {nameof(Review.Comment)} TEXT,
                         {nameof(Review.CreatedDate)} TEXT
+                    );
+
+                    CREATE TABLE IF NOT EXISTS {nameof(SupportCase).ToPlural()} (
+                        {nameof(SupportCase.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+                        {nameof(SupportCase.Order)}{nameof(SupportCase.Order.Id)} INTEGER,
+                        {nameof(SupportCase.Description)} TEXT,
+                        {nameof(SupportCase.Image)} TEXT,
+                        {nameof(SupportCase.CreatedDate)} TEXT
                     );
 
                     CREATE TABLE IF NOT EXISTS Categories (
@@ -184,7 +194,7 @@ internal static class Database
             cmd.CommandText = @$"
                     INSERT INTO {nameof(Order).ToPlural()}
                     (
-                        {nameof(User)}Id,
+                        {nameof(User)}{nameof(User.Id)},
                         {nameof(Order.OrderDate)},
                         {nameof(Order.Status)},
                         {nameof(Order.DeliveryAddress)}
@@ -210,8 +220,8 @@ internal static class Database
             cmd.CommandText = @$"
                     INSERT INTO {nameof(OrderItem).ToPlural()}
                     (
-                        {nameof(Order)}Id,
-                        {nameof(Product)}Id,
+                        {nameof(Order)}{nameof(Order.Id)},
+                        {nameof(Product)}{nameof(Product.Id)},
                         {nameof(OrderItem.Quantity)},
                         {nameof(OrderItem.UnitPrice)}
                     ) VALUES
@@ -236,8 +246,8 @@ internal static class Database
             cmd.CommandText = @$"
                     INSERT INTO {nameof(Review).ToPlural()}
                     (
-                        {nameof(Product)}Id,
-                        {nameof(User)}Id,
+                        {nameof(Product)}{nameof(Product.Id)},
+                        {nameof(User)}{nameof(User.Id)},
                         {nameof(Review.Rating)},
                         {nameof(Review.Comment)},
                         {nameof(Review.CreatedDate)}

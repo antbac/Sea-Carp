@@ -3,7 +3,7 @@
 <h2>Order Details</h2>
 <p><strong>Order Date:</strong> @Model.OrderDate</p>
 <p><strong>Status:</strong> @Model.Status</p>
-<p><strong>Delivery address:</strong> @Model.DeliveryAddress</p>
+<p><strong>Delivery Address:</strong> @Model.DeliveryAddress</p>
 <p><strong>Order Number:</strong> @Model.OrderNumber</p>
 
 <h3>Order Items</h3>
@@ -34,3 +34,79 @@
 </table>
 
 <h4>Total Amount: $@Model.Total</h4>
+
+<br />
+<hr />
+<br />
+
+<form id="create_support_case_form" action="/@nameof(SupportController).RemoveControllerSuffix()/Cases" method="post">
+    <h3>Report an Issue</h3>
+    <p>If your product arrived damaged or with any defects, please let us know:</p>
+
+    <div>
+        <label for="IssueDescription">Issue Description:</label><br />
+        <textarea id="IssueDescription" name="IssueDescription" rows="4" cols="50"></textarea>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <label for="ProductImage">Upload a .png Image (optional):</label><br />
+        <input type="file" id="ProductImage" name="ProductImage" accept=".png" />
+    </div>
+
+    <div style="margin-top: 10px;">
+        <button id="submitSupportCase">Submit Support Case</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.querySelector('#create_support_case_form').addEventListener("submit", e => {
+            e.preventDefault();
+
+            const description = document.querySelector('#IssueDescription').value;
+            const fileInput = document.querySelector('#ProductImage');
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+            const imageName = file ? file.name : null;
+
+            const data = {
+                OrderId: "@Model.Id",
+                IssueDescription: description,
+                ImageName: imageName,
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    data.ProductImage = reader.result.split(",")[1];
+                    sendRequest(data);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                sendRequest(data);
+            }
+
+            function sendRequest(requestData) {
+                fetch(document.querySelector('#create_support_case_form').action, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        document.querySelector('#error-box').style.display = 'block';
+                        document.querySelector('#error-message').textContent = data.errorMessage;
+                        return;
+                    }
+                    window.location.href = data.redirectUrl;
+                })
+                .catch(error => {
+                    document.querySelector('#error-box').style.display = 'block';
+                    document.querySelector('#error-message').textContent = "Error submitting support case: " + error.message;
+                });
+            }
+        });
+    </script>
+}

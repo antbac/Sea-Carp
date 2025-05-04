@@ -13,6 +13,7 @@ public class IocSetup
     {
         services
             // CrossCutting
+            .AddScoped<IFileService, FileService>()
             .AddScoped<IHttpService, HttpService>()
             .AddScoped<ICryptographyService, CryptographyService>()
             .AddScoped<IJwtService, JwtService>()
@@ -21,12 +22,14 @@ public class IocSetup
             .AddScoped<IAdminService, AdminService>()
             .AddScoped<IOrderService, OrderService>()
             .AddScoped<IProductService, ProductService>()
+            .AddScoped<ISupportCaseService, SupportCaseService>()
             .AddScoped<IUserService, UserService>()
 
             // Infrastructure
             .AddScoped<IAdminRepository, AdminRepository>()
             .AddScoped<IOrderRepository, OrderRepository>()
             .AddScoped<IProductRepository, ProductRepository>()
+            .AddScoped<ISupportCaseRepository, SupportCaseRepository>()
             .AddScoped<IUserRepository, UserRepository>();
     }
 }

@@ -4,14 +4,9 @@ using SeaCarp.Domain.Models;
 
 namespace SeaCarp.Application.Services;
 
-public class ProductService : IProductService
+public class ProductService(IProductRepository productRepository) : IProductService
 {
-    private readonly IProductRepository _productRepository;
-
-    public ProductService(IProductRepository productRepository)
-    {
-        _productRepository = productRepository;
-    }
+    private readonly IProductRepository _productRepository = productRepository;
 
     public Task AddReview(int productId, Review review, User user) => _productRepository.AddReview(productId, review, user);
 

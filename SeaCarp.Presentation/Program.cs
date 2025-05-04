@@ -1,4 +1,8 @@
-﻿using SeaCarp.CrossCutting;
+﻿using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json;
+using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
@@ -20,21 +24,29 @@ IocSetup.ConfigureIoc(builder.Services);
 
 builder.Services
     .AddControllersWithViews()
-    .AddJsonOptions(jsonOptions => { })
+    .AddRazorRuntimeCompilation()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.TypeNameHandling = TypeNameHandling.All;
+    })
     .AddMvcOptions(options =>
     {
+        // Modify the existing Newtonsoft.Json formatter to accept all media types
         var jsonFormatter = options.InputFormatters
-            .OfType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>()
+            .OfType<NewtonsoftJsonInputFormatter>()
             .FirstOrDefault();
 
-        options.InputFormatters.Clear();
         if (jsonFormatter != null)
         {
             jsonFormatter.SupportedMediaTypes.Clear();
             jsonFormatter.SupportedMediaTypes.Add("*/*");
-            options.InputFormatters.Add(jsonFormatter);
         }
     });
+
+builder.Services.Configure<RazorViewEngineOptions>(options =>
+{
+    options.ViewLocationFormats.Add("~/wwwroot/Views/{0}" + RazorViewEngine.ViewExtension);
+});
 
 builder.Services.AddRazorPages();
 
@@ -45,7 +57,19 @@ ServiceLocator.Instance = app.Services;
 app.UseHsts();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+    RequestPath = "/files",
+    ServeUnknownFileTypes = true,
+    DefaultContentType = "application/octet-stream"
+});
+
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+    RequestPath = "/files"
+});
 
 app.UseRouting();
 

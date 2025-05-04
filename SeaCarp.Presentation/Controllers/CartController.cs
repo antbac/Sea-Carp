@@ -2,12 +2,8 @@
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class CartController : BaseController
+public class CartController(IJwtService jwtService) : BaseController(jwtService)
 {
-    public CartController(IJwtService jwtService) : base(jwtService)
-    {
-    }
-
     [Route("/Cart", Name = "CartIndex")]
     [HttpGet]
     public IActionResult Index()

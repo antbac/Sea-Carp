@@ -4,16 +4,11 @@ using SeaCarp.Domain.Abstractions;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class SuperAdminController : BaseController
+public class SuperAdminController(
+    IAdminService adminService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IAdminService _adminService;
-
-    public SuperAdminController(
-        IAdminService adminService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _adminService = adminService;
-    }
+    private readonly IAdminService _adminService = adminService;
 
     [Route("/SuperAdmin", Name = "SuperAdminIndex")]
     [HttpGet]

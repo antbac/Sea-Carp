@@ -128,7 +128,7 @@ public class OrderRepository : IOrderRepository
 
     public async Task<Order> GetOrder(string orderNumber)
     {
-        var orderId = int.Parse(orderNumber.Replace("SC", string.Empty));
+        var orderId = int.Parse(orderNumber.Replace("ON", string.Empty));
         using var cmd = Database.GetConnection().CreateCommand();
         cmd.CommandText = Regex.Replace(@$"
             SELECT

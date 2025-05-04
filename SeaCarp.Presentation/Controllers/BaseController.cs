@@ -4,14 +4,9 @@ using SeaCarp.Presentation.Services;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public abstract class BaseController : Controller
+public abstract class BaseController(IJwtService jwtService) : Controller
 {
-    private readonly IJwtService _jwtService;
-
-    protected BaseController(IJwtService jwtService)
-    {
-        _jwtService = jwtService;
-    }
+    private readonly IJwtService _jwtService = jwtService;
 
     protected Domain.Models.User CurrentUser
     {

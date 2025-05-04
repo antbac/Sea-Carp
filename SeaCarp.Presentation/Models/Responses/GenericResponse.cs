@@ -5,4 +5,5 @@ public class GenericResponse
     public bool Success { get; set; }
     public string ErrorMessage { get; set; }
     public string RedirectUrl { get; set; }
+    public string Content { get; set; }
 }

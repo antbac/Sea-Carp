@@ -6,37 +6,27 @@ using SeaCarp.Presentation.Models.Responses;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class AdminController : BaseController
+public class AdminController(
+    IUserService userService,
+    IProductService productService,
+    IOrderService orderService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IUserService _userService;
-    private readonly IProductService _productService;
-    private readonly IOrderService _orderService;
-
-    public AdminController(
-        IUserService userService,
-        IProductService productService,
-        IOrderService orderService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _userService = userService;
-        _productService = productService;
-        _orderService = orderService;
-    }
+    private readonly IUserService _userService = userService;
+    private readonly IProductService _productService = productService;
+    private readonly IOrderService _orderService = orderService;
 
     [Route("/AdminHiddenXYZ", Name = "AdminIndex")]
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        if (!(CurrentUser?.IsAdmin ?? false))
-        {
-            return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).RemoveControllerSuffix());
-        }
-
-        return View(new Models.ViewModels.AdminViewModel
-        {
-            Users = (await _userService.GetAllUsers()).Select(user => new Models.ViewModels.UserViewModel(user)),
-            Products = (await _productService.GetProducts()).Select(product => new Models.ViewModels.ProductViewModel(product)),
-        });
+        return !(CurrentUser?.IsAdmin ?? false)
+            ? RedirectToAction(nameof(HomeController.Index), nameof(HomeController).RemoveControllerSuffix())
+            : View(new Models.ViewModels.AdminViewModel
+            {
+                Users = (await _userService.GetAllUsers()).Select(user => new Models.ViewModels.UserViewModel(user)),
+                Products = (await _productService.GetProducts()).Select(product => new Models.ViewModels.ProductViewModel(product)),
+            });
     }
 
     [Route("/AdminHiddenXYZ/Users/{identifier}", Name = "RemoveUser")]
@@ -45,7 +35,7 @@ public class AdminController : BaseController
     {
         if (int.TryParse(identifier, out var id))
         {
-            await _userService.RemoveUser(id); ;
+            await _userService.RemoveUser(id);
             return Json(new GenericResponse { Success = true });
         }
 
@@ -107,7 +97,7 @@ public class AdminController : BaseController
             return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to find the order" });
         }
 
-        if (int.TryParse(identifier.Replace("SC", string.Empty), out var id))
+        if (int.TryParse(identifier.Replace("ON", string.Empty), out var id))
         {
             order.Status = Domain.Models.OrderStatus.Cancelled;
 

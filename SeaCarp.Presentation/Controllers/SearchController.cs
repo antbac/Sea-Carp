@@ -5,16 +5,11 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class SearchController : BaseController
+public class SearchController(
+    IProductService productService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IProductService _productService;
-
-    public SearchController(
-        IProductService productService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _productService = productService;
-    }
+    private readonly IProductService _productService = productService;
 
     [Route("/Search", Name = "SearchIndex")]
     [HttpGet]

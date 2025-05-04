@@ -6,16 +6,11 @@ using SeaCarp.Presentation.Models.Responses;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class IdentityController : BaseController
+public class IdentityController(
+    IUserService userService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IUserService _userService;
-
-    public IdentityController(
-        IUserService userService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _userService = userService;
-    }
+    private readonly IUserService _userService = userService;
 
     [HttpGet("Identity/Register", Name = "IdentityIndex")]
     public IActionResult Index()

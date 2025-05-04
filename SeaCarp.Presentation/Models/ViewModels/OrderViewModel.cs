@@ -5,6 +5,7 @@ namespace SeaCarp.Presentation.Models.ViewModels;
 
 public class OrderViewModel
 {
+    public int Id { get; set; }
     public HtmlString OrderDate { get; set; }
     public HtmlString Status { get; set; }
     public HtmlString DeliveryAddress { get; set; }
@@ -19,6 +20,7 @@ public class OrderViewModel
 
         if (order is null)
         {
+            Id = 0;
             OrderDate = new(string.Empty);
             Status = new(string.Empty);
             DeliveryAddress = new(string.Empty);
@@ -27,6 +29,7 @@ public class OrderViewModel
             return;
         }
 
+        Id = order.Id;
         OrderDate = new(order.OrderDate.ToString("yyyy-MM-dd"));
         Status = new(order.Status.ToString());
         DeliveryAddress = new(order.DeliveryAddress);

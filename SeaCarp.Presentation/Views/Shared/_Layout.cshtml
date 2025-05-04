@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sea Carp</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/files/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/files/css/site.css" asp-append-version="true" />
+    <script src="~/files/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/files/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/files/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
     <header>
@@ -17,7 +17,7 @@
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <a class="navbar-brand me-3" asp-area="" asp-controller="Home" asp-action="Index">
-                        <img src="/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
+                        <img src="~/files/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
                         Sea Carp
                     </a>
                     <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index), nameof(SearchController).RemoveControllerSuffix())" method="get">
@@ -73,7 +73,9 @@
     <div class="container" id="flag-container"></div>
     <div class="container">
         <main role="main" class="pb-3">
-            <pre id="error" style="display: none; color: red"></pre>
+            <div id="error-box" style="display: none;" class="error-box">
+                <p id="error-message"></p>
+            </div>
             @RenderBody()
         </main>
     </div>

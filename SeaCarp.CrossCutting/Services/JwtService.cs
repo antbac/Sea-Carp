@@ -8,14 +8,9 @@ using System.Text;
 
 namespace SeaCarp.CrossCutting.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<CryptographySettings> options) : IJwtService
 {
-    private readonly CryptographySettings _cryptographySettings;
-
-    public JwtService(IOptions<CryptographySettings> options)
-    {
-        _cryptographySettings = options.Value;
-    }
+    private readonly CryptographySettings _cryptographySettings = options.Value;
 
     public string GenerateJwt(params (string key, string value)[] claims)
     {

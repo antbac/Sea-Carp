@@ -8,19 +8,13 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class OrdersController : BaseController
+public class OrdersController(
+    IOrderService orderService,
+    IProductService productService,
+    IJwtService jwtService) : BaseController(jwtService)
 {
-    private readonly IOrderService _orderService;
-    private readonly IProductService _productService;
-
-    public OrdersController(
-        IOrderService orderService,
-        IProductService productService,
-        IJwtService jwtService) : base(jwtService)
-    {
-        _orderService = orderService;
-        _productService = productService;
-    }
+    private readonly IOrderService _orderService = orderService;
+    private readonly IProductService _productService = productService;
 
     [Route("/Orders/{orderNumber}", Name = "GetOrder")]
     [HttpGet]
