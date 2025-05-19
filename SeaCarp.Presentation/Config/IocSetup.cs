@@ -13,9 +13,11 @@ public class IocSetup
     {
         services
             // CrossCutting
+            .AddScoped<ICryptographyService, CryptographyService>()
+            .AddSingleton<IEnvironmentInformationService, EnvironmentInformationService>()
+            .AddSingleton<IExternalLibsService, ExternalLibsService>()
             .AddScoped<IFileService, FileService>()
             .AddScoped<IHttpService, HttpService>()
-            .AddScoped<ICryptographyService, CryptographyService>()
             .AddScoped<IJwtService, JwtService>()
 
             // Application

@@ -1,6 +1,9 @@
-﻿using SeaCarp.CrossCutting.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
 using System.Data.SQLite;
+using System.Runtime.InteropServices;
 
 namespace SeaCarp.Infrastructure;
 
@@ -24,7 +27,9 @@ internal static class Database
                     _connection = new SQLiteConnection(_connectionString);
                     _connection.Open();
                     _connection.EnableExtensions(true);
-                    _connection.LoadExtension(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibs", "sqlean.dll"));
+
+                    var sqleanPath = GetSqleanLibraryPath();
+                    _connection.LoadExtension(sqleanPath);
 
                     InitializeDatabase(_connection);
                 }
@@ -32,6 +37,19 @@ internal static class Database
         }
 
         return _connection;
+    }
+
+    /// <summary>
+    /// Determines the correct sqlean library file to load based on OS and architecture.
+    /// </summary>
+    private static string GetSqleanLibraryPath()
+    {
+        var externalLibsService = CrossCutting.ServiceLocator.Instance.GetRequiredService<IExternalLibsService>();
+
+        var externalLibsPath = externalLibsService.GetExternalLibsFilepath();
+        var externalLibsFileEndings = externalLibsService.GetExternalLibsFileEndings();
+
+        return Path.Combine(externalLibsPath, $"sqlean{externalLibsFileEndings}");
     }
 
     /// <summary>

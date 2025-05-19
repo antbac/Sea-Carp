@@ -1,10 +1,9 @@
-﻿namespace SeaCarp.CrossCutting
+﻿namespace SeaCarp.CrossCutting;
+
+public enum OutputType
 {
-    public enum OutputType
-    {
-        Unknown = 0,
-        String = 1,
-        Binary = 2,
-        Base64 = 3,
-    }
+    Unknown = 0,
+    String = 1,
+    Binary = 2,
+    Base64 = 3,
 }

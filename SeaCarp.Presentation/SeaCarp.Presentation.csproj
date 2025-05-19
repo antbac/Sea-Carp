@@ -64,7 +64,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="ExternalLibs\linux-arm64\sqlean.so">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ExternalLibs\linux-x86\sqlean.so">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ExternalLibs\macos-arm64\sqlean.dylib">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ExternalLibs\macos-x86\sqlean.dylib">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="ExternalLibs\sqlean.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ExternalLibs\win-x64\sqlean.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="ExternalLibs\win-x86\sqlean.dll">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
