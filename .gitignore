@@ -3,3 +3,4 @@
 **/bin/*
 **/obj/*
 injections.txt
+/SeaCarp.Presentation/wwwroot/bom.json
