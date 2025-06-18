@@ -11,7 +11,11 @@ namespace SeaCarp.Presentation.Controllers;
 public class OrdersController(
     IOrderService orderService,
     IProductService productService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IOrderService _orderService = orderService;
     private readonly IProductService _productService = productService;

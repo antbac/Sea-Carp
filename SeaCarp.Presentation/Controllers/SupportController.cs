@@ -9,7 +9,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class SupportController(
     ISupportCaseService supportCaseService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly ISupportCaseService _supportCaseService = supportCaseService;
 

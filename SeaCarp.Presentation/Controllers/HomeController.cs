@@ -7,7 +7,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class HomeController(
     IProductService productService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IProductService _productService = productService;
 

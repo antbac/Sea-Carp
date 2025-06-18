@@ -10,7 +10,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class ProductsController(
     IProductService productService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IProductService _productService = productService;
 
@@ -60,7 +64,7 @@ public class ProductsController(
     [HttpPost]
     public async Task<IActionResult> FilterProducts([FromBody] FilterProductsRequest request)
     {
-        var temp = JsonConvert.SerializeObject(new FilterProductsRequest { Filters = new Dictionary<string, object>{ { "Category", "Rods" } } }, Formatting.None, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+        var temp = JsonConvert.SerializeObject(new FilterProductsRequest { Filters = new Dictionary<string, object> { { "Category", "Rods" } } }, Formatting.None, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
 
         var products = await _productService.GetProducts();
 

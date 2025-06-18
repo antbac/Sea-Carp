@@ -10,7 +10,11 @@ public class AdminController(
     IUserService userService,
     IProductService productService,
     IOrderService orderService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IUserService _userService = userService;
     private readonly IProductService _productService = productService;

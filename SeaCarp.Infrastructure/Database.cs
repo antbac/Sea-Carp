@@ -3,13 +3,12 @@ using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
 using System.Data.SQLite;
-using System.Runtime.InteropServices;
 
 namespace SeaCarp.Infrastructure;
 
 internal static class Database
 {
-    private static readonly object _lock = new();
+    private static readonly Lock _lock = new();
     private static SQLiteConnection _connection;
     private const string _connectionString = "Data Source=:memory:;Version=3;New=True;";
 

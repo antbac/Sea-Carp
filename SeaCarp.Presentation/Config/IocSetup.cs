@@ -19,6 +19,8 @@ public class IocSetup
             .AddScoped<IFileService, FileService>()
             .AddScoped<IHttpService, HttpService>()
             .AddScoped<IJwtService, JwtService>()
+            .AddScoped<ILogService, LogService>()
+            .AddScoped<ITimeService, TimeService>()
 
             // Application
             .AddScoped<IAdminService, AdminService>()

@@ -9,7 +9,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class SEOController(
     IActionDescriptorCollectionProvider provider,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IActionDescriptorCollectionProvider _provider = provider;
 

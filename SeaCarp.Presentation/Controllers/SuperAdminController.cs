@@ -6,7 +6,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class SuperAdminController(
     IAdminService adminService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IAdminService _adminService = adminService;
 

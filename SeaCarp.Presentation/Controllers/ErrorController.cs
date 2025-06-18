@@ -4,7 +4,12 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class ErrorController(IJwtService jwtService) : BaseController(jwtService)
+public class ErrorController(
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     [Route("/Error", Name = "ErrorIndex")]
     public IActionResult Index()

@@ -9,7 +9,11 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class ProfilesController(
     IUserService userService,
-    IJwtService jwtService) : BaseController(jwtService)
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     private readonly IUserService _userService = userService;
 

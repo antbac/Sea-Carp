@@ -2,7 +2,12 @@
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class CartController(IJwtService jwtService) : BaseController(jwtService)
+public class CartController(
+    IJwtService jwtService,
+    ILogService logService)
+    : BaseController(
+        jwtService,
+        logService)
 {
     [Route("/Cart", Name = "CartIndex")]
     [HttpGet]
