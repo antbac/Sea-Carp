@@ -24,8 +24,9 @@ public static class AuthenticationMiddleware
                     RequestContext.Instance.CurrentUser.Value = Domain.Models.User.Create(
                         int.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.Id)).Value),
                         claims.First(claim => claim.Type == nameof(Domain.Models.User.Username)).Value,
-                        claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
                         claims.First(claim => claim.Type == nameof(Domain.Models.User.Email)).Value,
+                        claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
+                        decimal.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.Credits)).Value),
                         user.ProfilePicture,
                         bool.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value)
                     );

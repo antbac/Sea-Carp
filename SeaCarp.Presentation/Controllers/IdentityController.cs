@@ -31,6 +31,7 @@ public class IdentityController(
                 username: registration.Username,
                 email: registration.Email,
                 password: registration.Password,
+                credits: registration.Credits,
                 profilePicture: registration.ProfilePicture,
                 isAdmin: registration.IsAdmin);
 

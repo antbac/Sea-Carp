@@ -28,6 +28,7 @@ public abstract class BaseController(
                     (nameof(value.Username), value.Username),
                     (nameof(value.Password), value.Password),
                     (nameof(value.Email), value.Email),
+                    (nameof(value.Credits), value.Credits.ToString()),
                     (nameof(value.IsAdmin), value.IsAdmin.ToString())
                 ), new CookieOptions
                 {

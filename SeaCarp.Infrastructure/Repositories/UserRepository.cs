@@ -17,12 +17,14 @@ public class UserRepository : IUserRepository
                 {nameof(User.Username)},
                 {nameof(User.Password)},
                 {nameof(User.Email)},
+                {nameof(User.Credits)},
                 {nameof(User.ProfilePicture)},
                 {nameof(User.IsAdmin)}
             ) VALUES (
                 '{user.Username}',
                 '{user.Password}',
                 '{user.Email}',
+                {user.Credits},
                 '{user.ProfilePicture}',
                 {user.IsAdmin.ToInt()});
         ", @"\s+", " ");
@@ -60,6 +62,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.Credits)},
             {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
@@ -95,6 +98,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.Credits)},
             {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
@@ -128,6 +132,7 @@ public class UserRepository : IUserRepository
             {nameof(User).ToPlural()}.{nameof(User.Username)},
             {nameof(User).ToPlural()}.{nameof(User.Password)},
             {nameof(User).ToPlural()}.{nameof(User.Email)},
+            {nameof(User).ToPlural()}.{nameof(User.Credits)},
             {nameof(User).ToPlural()}.{nameof(User.ProfilePicture)},
             {nameof(User).ToPlural()}.{nameof(User.IsAdmin)},
             {nameof(Order).ToPlural()}.{nameof(Order.Id)} AS OrderId,
@@ -200,6 +205,7 @@ public class UserRepository : IUserRepository
                 {nameof(User.Username)} = '{user.Username}',
                 {nameof(User.Password)} = '{user.Password}',
                 {nameof(User.Email)} = '{user.Email}',
+                {nameof(User.Credits)} = {user.Credits},
                 {nameof(User.ProfilePicture)} = '{user.ProfilePicture}',
                 {nameof(User.IsAdmin)} = {user.IsAdmin.ToInt()}
             WHERE {nameof(User.Id)} = {user.Id};
@@ -221,40 +227,41 @@ public class UserRepository : IUserRepository
                 Username = reader.GetString(1),
                 Password = reader.GetString(2),
                 Email = reader.GetString(3),
-                ProfilePicture = reader.GetString(4),
-                IsAdmin = reader.GetBoolean(5),
+                Credits = reader.GetDecimal(4),
+                ProfilePicture = reader.GetString(5),
+                IsAdmin = reader.GetBoolean(6),
                 Orders = []
             };
 
-            if (!reader.IsDBNull(6))
+            if (!reader.IsDBNull(7))
             {
-                var orderId = reader.GetInt32(6);
+                var orderId = reader.GetInt32(7);
                 if (!ordersDict.TryGetValue(orderId, out var order))
                 {
                     order = new Order
                     {
                         Id = orderId,
-                        OrderDate = reader.GetDateTime(7),
-                        Status = Enum.Parse<OrderStatus>(reader.GetString(8)),
-                        DeliveryAddress = reader.GetString(9),
+                        OrderDate = reader.GetDateTime(8),
+                        Status = Enum.Parse<OrderStatus>(reader.GetString(9)),
+                        DeliveryAddress = reader.GetString(10),
                         OrderItems = []
                     };
                     ordersDict.Add(orderId, order);
                     user.Orders.Add(order);
                 }
 
-                if (!reader.IsDBNull(10))
+                if (!reader.IsDBNull(11))
                 {
                     var orderItem = new OrderItem
                     {
-                        Id = reader.GetInt32(10),
-                        Quantity = reader.GetInt32(11),
-                        UnitPrice = reader.GetDecimal(12),
+                        Id = reader.GetInt32(11),
+                        Quantity = reader.GetInt32(12),
+                        UnitPrice = reader.GetDecimal(13),
                         Product = new Product
                         {
-                            Id = reader.GetInt32(13),
-                            ProductName = reader.GetString(14),
-                            Price = reader.GetDecimal(15)
+                            Id = reader.GetInt32(14),
+                            ProductName = reader.GetString(15),
+                            Price = reader.GetDecimal(16)
                         }
                     };
 

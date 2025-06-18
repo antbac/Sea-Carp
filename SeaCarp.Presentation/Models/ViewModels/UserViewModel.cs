@@ -8,6 +8,7 @@ public class UserViewModel
     public HtmlString Username { get; set; }
     public HtmlString Password { get; set; }
     public HtmlString Email { get; set; }
+    public HtmlString Credits { get; set; }
     public HtmlString ProfilePicture { get; set; }
     public bool IsAdmin { get; set; }
     public IEnumerable<OrderViewModel> Orders { get; set; }
@@ -19,6 +20,7 @@ public class UserViewModel
             Username = new(string.Empty);
             Password = new(string.Empty);
             Email = new(string.Empty);
+            Credits = new(string.Empty);
             ProfilePicture = new(string.Empty);
             Orders = Enumerable.Empty<OrderViewModel>();
             return;
@@ -28,6 +30,7 @@ public class UserViewModel
         Username = new(user.Username);
         Password = new(user.Password);
         Email = new(user.Email);
+        Credits = new(user.Credits.ToString().Replace(",", "."));
         ProfilePicture = new(user.ProfilePicture);
         IsAdmin = user.IsAdmin;
         Orders = (user.Orders ?? []).Select(order => new OrderViewModel(order, user));
