@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using SeaCarp.Application.Jobs;
 using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.Presentation;
@@ -44,6 +45,8 @@ builder.Services
             jsonFormatter.SupportedMediaTypes.Add("*/*");
         }
     });
+
+builder.Services.AddHostedService<RestockingJob>();
 
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {

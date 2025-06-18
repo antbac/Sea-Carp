@@ -10,6 +10,8 @@ public interface IProductRepository
 
     Task<Product> GetProduct(int id);
 
+    Task<List<Product>> GetAllProducts();
+
     Task<List<Product>> GetProducts(string[] searchTerms);
 
     Task<List<Product>> GetProductsByCategory(string[] categories);

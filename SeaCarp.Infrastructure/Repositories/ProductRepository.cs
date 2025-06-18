@@ -30,6 +30,31 @@ public class ProductRepository : IProductRepository
         await cmd.ExecuteNonQueryAsync();
     }
 
+    public async Task<List<Product>> GetAllProducts()
+    {
+        var connection = Database.GetConnection();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = Regex.Replace(@$"
+            SELECT
+                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
+                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
+                Categories.Category,
+                {nameof(User).ToPlural()}.{nameof(User.Username)},
+                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
+                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
+                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
+            FROM {nameof(Product).ToPlural()}
+            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
+            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
+            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id;
+        ", @"\s+", " ");
+
+        return await InstantiateProducts(cmd);
+    }
+
     public async Task<List<Product>> GetBestSellers(int numberOfProducts)
     {
         var connection = Database.GetConnection();
@@ -40,6 +65,7 @@ public class ProductRepository : IProductRepository
                 {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Description)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
                 Categories.Category,
                 {nameof(User).ToPlural()}.{nameof(User.Username)},
                 {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
@@ -73,6 +99,7 @@ public class ProductRepository : IProductRepository
                 {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Description)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
                 Categories.Category,
                 {nameof(User).ToPlural()}.{nameof(User.Username)},
                 {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
@@ -103,6 +130,7 @@ public class ProductRepository : IProductRepository
                 {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Description)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
                 Categories.Category,
                 {nameof(User).ToPlural()}.{nameof(User.Username)},
                 {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
@@ -132,6 +160,7 @@ public class ProductRepository : IProductRepository
                 {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Description)},
                 {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
                 Categories.Category,
                 {nameof(User).ToPlural()}.{nameof(User.Username)},
                 {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
@@ -169,6 +198,7 @@ public class ProductRepository : IProductRepository
                     {nameof(Product.ProductName)} = '{product.ProductName}',
                     {nameof(Product.Description)} = '{product.Description}',
                     {nameof(Product.Price)} = {product.Price.ToString().Replace(",", ".")},
+                    {nameof(Product.Stock)} = {product.Stock},
                     {nameof(Product.Category)}Id = (SELECT Categories.Id FROM Categories WHERE Categories.Category = '{product.Category}')
                 WHERE {nameof(Product.Id)} = {id};
             ", @"\s+", " ");
@@ -200,11 +230,12 @@ public class ProductRepository : IProductRepository
             var productName = reader.GetString(1);
             var description = reader.GetString(2);
             var price = reader.GetDecimal(3);
-            var category = reader.GetString(4);
-            var username = reader.IsDBNull(5) ? default : reader.GetString(5);
-            var rating = reader.IsDBNull(6) ? default : reader.GetInt32(6);
-            var comment = reader.IsDBNull(7) ? default : reader.GetString(7);
-            var createdDate = reader.IsDBNull(8) ? default : reader.GetDateTime(8);
+            var stock = reader.GetInt32(4);
+            var category = reader.GetString(5);
+            var username = reader.IsDBNull(6) ? default : reader.GetString(6);
+            var rating = reader.IsDBNull(7) ? default : reader.GetInt32(7);
+            var comment = reader.IsDBNull(8) ? default : reader.GetString(8);
+            var createdDate = reader.IsDBNull(9) ? default : reader.GetDateTime(9);
 
             if (!productsDict.TryGetValue(productId, out var product))
             {
@@ -214,6 +245,7 @@ public class ProductRepository : IProductRepository
                     ProductName = productName,
                     Description = description,
                     Price = price,
+                    Stock = stock,
                     Category = category,
                     Reviews = []
                 };

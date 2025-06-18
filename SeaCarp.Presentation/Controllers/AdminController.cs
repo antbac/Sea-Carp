@@ -83,7 +83,8 @@ public class AdminController(
                 request.ProductName,
                 request.Description,
                 request.Price,
-                request.Category));
+                request.Category,
+                request.Stock));
 
             return Json(new GenericResponse { Success = true });
         }

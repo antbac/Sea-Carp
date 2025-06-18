@@ -90,6 +90,7 @@ internal static class Database
                         {nameof(Product.ProductName)} TEXT NOT NULL UNIQUE,
                         {nameof(Product.Description)} TEXT,
                         {nameof(Product.Price)} REAL NOT NULL,
+                        {nameof(Product.Stock)} INTEGER,
                         {nameof(Product.Category)}Id INTEGER
                     );
 
@@ -190,20 +191,21 @@ internal static class Database
                         {nameof(Product.ProductName)},
                         {nameof(Product.Description)},
                         {nameof(Product.Price)},
+                        {nameof(Product.Stock)},
                         {nameof(Product.Category)}Id
                     ) VALUES
-                        ('Bass Pro Spinning Rod', 'A sturdy spinning rod for freshwater fishing', 49.99, 1),
-                        ('Fly Fishing Starter Kit', 'Includes rod, reel, line, and flies for beginners', 89.95, 2),
-                        ('Salmon Roe Bait', 'High-quality salmon roe for trout and salmon fishing', 14.50, 3),
-                        ('Walleye Lure Set', 'Assorted lures designed for walleye fishing', 24.99, 3),
-                        ('Trout Spoon Lures', 'Pack of 9 colorful spoon lures for trout', 9.99, 3),
-                        ('Saltwater Reel', 'Durable reel for saltwater big game fishing', 129.95, 4),
-                        ('Shrimp Scented Soft Baits', 'Soft plastic baits with shrimp scent for inshore fishing', 8.49, 3),
-                        ('Catfish Circle Hooks', 'Pack of 25 circle hooks for catfish', 5.99, 5),
-                        ('Minnow Bucket', 'Insulated bucket to keep live minnows fresh', 12.99, 6),
-                        ('Fish Finder Sonar', 'Portable sonar fish finder for small boats', 199.00, 7),
-                        ('Fishing Hat with Sun Protection', 'Wide-brim hat with UPF 50+ rating', 17.99, 8),
-                        ('Fishing Tackle Backpack', 'Large, waterproof backpack with multiple compartments', 39.99, 9);
+                        ('Bass Pro Spinning Rod', 'A sturdy spinning rod for freshwater fishing', 49.99, 43, 1),
+                        ('Fly Fishing Starter Kit', 'Includes rod, reel, line, and flies for beginners', 89.95, 7, 2),
+                        ('Salmon Roe Bait', 'High-quality salmon roe for trout and salmon fishing', 14.50, 29, 3),
+                        ('Walleye Lure Set', 'Assorted lures designed for walleye fishing', 24.99, 12, 3),
+                        ('Trout Spoon Lures', 'Pack of 9 colorful spoon lures for trout', 9.99, 50, 3),
+                        ('Saltwater Reel', 'Durable reel for saltwater big game fishing', 129.95, 3, 4),
+                        ('Shrimp Scented Soft Baits', 'Soft plastic baits with shrimp scent for inshore fishing', 8.49, 18, 3),
+                        ('Catfish Circle Hooks', 'Pack of 25 circle hooks for catfish', 5.99, 55, 5),
+                        ('Minnow Bucket', 'Insulated bucket to keep live minnows fresh', 12.99, 26, 6),
+                        ('Fish Finder Sonar', 'Portable sonar fish finder for small boats', 199.00, 9, 7),
+                        ('Fishing Hat with Sun Protection', 'Wide-brim hat with UPF 50+ rating', 17.99, 34, 8),
+                        ('Fishing Tackle Backpack', 'Large, waterproof backpack with multiple compartments', 39.99, 0, 9);
                 ";
             cmd.ExecuteNonQuery();
         }

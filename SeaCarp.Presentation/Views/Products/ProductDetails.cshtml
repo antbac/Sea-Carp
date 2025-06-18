@@ -15,6 +15,9 @@
             <p>
                 <strong>Description:</strong> @Model.Description
             </p>
+            <p>
+                <strong>Stock:</strong> @Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>")
+            </p>
 
             <h3 class="mt-4 text-primary">$@Model.Price</h3>
 

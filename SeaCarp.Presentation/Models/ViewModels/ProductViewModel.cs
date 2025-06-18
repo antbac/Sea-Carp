@@ -8,6 +8,7 @@ public class ProductViewModel
     public HtmlString ProductName { get; set; }
     public HtmlString Description { get; set; }
     public decimal Price { get; set; }
+    public int Stock { get; set; }
     public HtmlString Category { get; set; }
     public IEnumerable<ProductReviewViewModel> Reviews { get; set; }
     public IEnumerable<ProductViewModel> RelatedProducts { get; set; }
@@ -28,6 +29,7 @@ public class ProductViewModel
         ProductName = new(product.ProductName);
         Description = new(product.Description);
         Price = product.Price;
+        Stock = product.Stock;
         Category = new(product.Category);
         Reviews = (product.Reviews ?? []).Select(review => new ProductReviewViewModel(review));
         RelatedProducts = (relatedProducts ?? []).Select(relatedProduct => new ProductViewModel(relatedProduct));

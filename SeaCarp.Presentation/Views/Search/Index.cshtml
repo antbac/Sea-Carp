@@ -14,6 +14,7 @@
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@product.ProductName</h5>
                         <p class="card-text flex-grow-1">@product.Description</p>
+                        <p class="card-text flex-grow-1">@(product.Stock == 0 ? Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>") : $"{product.Stock} items in stock")</p>
                         <a href="/@nameof(ProductsController).RemoveControllerSuffix()/@product.Id" class="btn btn-primary mt-auto">
                             View Details
                         </a>
