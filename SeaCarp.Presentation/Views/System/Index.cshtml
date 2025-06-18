@@ -1,0 +1,26 @@
+﻿@model SeaCarp.Presentation.Models.ViewModels.SystemViewModel
+@{
+    ViewData["Title"] = "System information";
+}
+
+<div class="container mt-4">
+    <h2>System Information</h2>
+    <p>This page provides useful endpoints and information for system administrators and developers.</p>
+    <ul>
+        <li>
+            <strong>System Logs:</strong> <code>/system/logs</code><br />
+            <span>Access and review the application logs for diagnostics and troubleshooting.</span>
+        </li>
+        <li>
+            <strong>SBOM (Software Bill of Materials):</strong> <code>/system/sbom</code><br />
+            <span>Download the current Software Bill of Materials for compliance and security review.</span>
+        </li>
+    </ul>
+    <h3>Other Information</h3>
+    <ul>
+        <li>Application version: <span>@Model.CurrentVersion</span></li>
+        <li>Environment: <span>Production</span></li>
+        <li>Last deployment: <span>@Model.LastDeployment.ToString("u")</span></li>
+    </ul>
+    <p>For more details, contact your system administrator @Model.AdminEmail or refer to the project documentation on <a href="@Model.RepositoryUrl">GitHub</a></p>
+</div>

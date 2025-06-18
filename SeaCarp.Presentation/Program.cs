@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
+using SeaCarp.Presentation;
 using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
 
@@ -21,6 +22,7 @@ builder.Services.AddSession(options =>
 });
 
 IocSetup.ConfigureIoc(builder.Services);
+SystemInformation.LastStarted = DateTime.Now;
 
 builder.Services
     .AddControllersWithViews()
