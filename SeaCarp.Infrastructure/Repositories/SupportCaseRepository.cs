@@ -5,8 +5,10 @@ using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
 
-public class SupportCaseRepository : ISupportCaseRepository
+public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportCaseRepository
 {
+    private readonly IOrderRepository _orderRepository = orderRepository;
+
     public async Task<SupportCase> CreateSupportCase(int orderId, string description, string image)
     {
         {
@@ -28,59 +30,67 @@ public class SupportCaseRepository : ISupportCaseRepository
             await cmd.ExecuteNonQueryAsync();
         }
 
-        {
-            //using var cmd = Database.GetConnection().CreateCommand();
-            //cmd.CommandText = Regex.Replace(@$"
-            //    SELECT
-            //        {nameof(Order).ToPlural()}.{nameof(Order.Id)},
-            //        {nameof(User).ToPlural()}.{nameof(User.Username)},
-            //        {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
-            //        {nameof(Order).ToPlural()}.{nameof(Order.Status)},
-            //        {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
-            //        {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
-            //        {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
-            //        {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-            //        Categories.Category
-            //    FROM {nameof(Order).ToPlural()}
-            //    INNER JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Order).ToPlural()}.{nameof(Order.User)}Id
-            //    INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
-            //    INNER JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
-            //    INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
-            //    WHERE {nameof(Order).ToPlural()}.{nameof(Order.Id)} = {orderId};
-            //", @"\s+", " ");
+        var supportCase = await GetNewestSupportCase();
+        supportCase.Order = await _orderRepository.GetOrderBySupportCaseId(supportCase.Id);
 
-            //using var reader = await cmd.ExecuteReaderAsync();
-            //Order order = null;
-            //while (await reader.ReadAsync())
-            //{
-            //    order ??= new()
-            //    {
-            //        Id = reader.GetInt32(0),
-            //        User = reader.GetString(1),
-            //        OrderDate = reader.GetDateTime(2),
-            //        Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
-            //        DeliveryAddress = reader.GetString(4),
-            //        OrderItems = [],
-            //    };
-
-            //    order.AddItems([new OrderItem
-            //    {
-            //        Quantity = reader.GetInt32(5),
-            //        UnitPrice = reader.GetDecimal(6),
-            //        Product = new Product
-            //        {
-            //            ProductName = reader.GetString(7),
-            //            Category = reader.GetString(8),
-            //        }
-            //    }]);
-            //}
-
-            //return order;
-            throw new NotImplementedException();
-        }
+        return supportCase;
     }
 
-    public Task<SupportCase> GetCaseByCaseNumber(string identifier) => throw new NotImplementedException();
+    public async Task<SupportCase> GetCaseByCaseNumber(string identifier)
+    {
+        var supportCase = await GetCaseById(int.Parse(identifier.Replace("SC", string.Empty)));
+        supportCase.Order = await _orderRepository.GetOrderBySupportCaseId(supportCase.Id);
 
-    public Task<SupportCase> GetCaseById(int id) => throw new NotImplementedException();
+        return supportCase;
+    }
+
+    public async Task<SupportCase> GetCaseById(int id)
+    {
+        SupportCase supportCase = null;
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                SELECT
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)},
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Description)},
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Image)},
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.CreatedDate)}
+                FROM {nameof(SupportCase).ToPlural()}
+                WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)} = {id};
+
+            ", @"\s+", " ");
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                supportCase = new SupportCase
+                {
+                    Id = reader.GetInt32(0),
+                    Description = reader.GetString(1),
+                    Image = reader.IsDBNull(2) ? null : reader.GetString(2),
+                    CreatedDate = reader.GetDateTime(3),
+                };
+            }
+        }
+
+        supportCase.Order = await _orderRepository.GetOrderBySupportCaseId(id);
+
+        return supportCase;
+    }
+
+    private async Task<SupportCase> GetNewestSupportCase()
+    {
+        var supportCaseId = -1;
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = $"SELECT MAX({nameof(SupportCase.Id)}) FROM {nameof(SupportCase).ToPlural()};";
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                supportCaseId = reader.GetInt32(0);
+            }
+        }
+
+        return await GetCaseById(supportCaseId);
+    }
 }

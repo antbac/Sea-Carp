@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Attributes;
 using System.Globalization;
 using System.Xml;
 
@@ -23,7 +24,7 @@ public class SEOController(
     public IActionResult RobotsTxt()
     {
         return Uri.TryCreate(Url.ActionLink(nameof(AdminController.Index), nameof(AdminController).RemoveControllerSuffix()), UriKind.Absolute, out var hiddenUrl)
-            ? Content($"User-agent: *\r\nDisallow: {hiddenUrl.AbsolutePath}\r\nDisallow: /files", "text/plain")
+            ? Content($"User-agent: *\r\nDisallow: {hiddenUrl.AbsolutePath}\r\nDisallow: /file-manager", "text/plain")
             : Content($"User-agent: *", "text/plain");
     }
 
@@ -39,11 +40,17 @@ public class SEOController(
         {
             if (descriptor is ControllerActionDescriptor cad)
             {
-                bool hasHttpGet = cad.MethodInfo
+                var hasHttpGet = cad.MethodInfo
                     .GetCustomAttributes(typeof(HttpGetAttribute), inherit: true)
                     .Any();
 
-                if (!hasHttpGet || cad.ControllerName == nameof(SuperAdminController))
+                var isApiEndpoint = cad.MethodInfo
+                    .GetCustomAttributes(typeof(ApiEndpointAttribute), inherit: true)
+                    .Any();
+
+                var isApiController = typeof(ApiController).IsAssignableFrom(cad.ControllerTypeInfo);
+
+                if (isApiController || isApiEndpoint || !hasHttpGet || cad.ControllerName == nameof(SuperAdminController))
                 {
                     continue;
                 }
@@ -55,15 +62,9 @@ public class SEOController(
                     routeValues[param.Name] = "<identifier>";
                 }
 
-                string url;
-                if (cad.AttributeRouteInfo != null && !string.IsNullOrEmpty(cad.AttributeRouteInfo.Name))
-                {
-                    url = Url.RouteUrl(cad.AttributeRouteInfo.Name, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
-                }
-                else
-                {
-                    url = Url.Action(cad.ActionName, cad.ControllerName, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
-                }
+                var url = cad.AttributeRouteInfo != null && !string.IsNullOrEmpty(cad.AttributeRouteInfo.Name)
+                    ? Url.RouteUrl(cad.AttributeRouteInfo.Name, routeValues.Count > 0 ? routeValues : null, Request.Scheme)
+                    : Url.Action(cad.ActionName, cad.ControllerName, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
 
                 if (!string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 {

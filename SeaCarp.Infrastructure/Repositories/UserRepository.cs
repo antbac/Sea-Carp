@@ -24,7 +24,7 @@ public class UserRepository : IUserRepository
                 '{user.Username}',
                 '{user.Password}',
                 '{user.Email}',
-                {user.Credits},
+                {user.Credits.ToString().Replace(',', '.')},
                 '{user.ProfilePicture}',
                 {user.IsAdmin.ToInt()});
         ", @"\s+", " ");

@@ -35,6 +35,8 @@ public class ProductsController(
             })
             .ToList();
 
+        LogService.Information($"Retrieved {products.Count} products with category '{category}' and price range '{priceRange}'.");
+
         return View(products.Select(product => new ProductViewModel(product)));
     }
 
@@ -43,7 +45,21 @@ public class ProductsController(
     public async Task<IActionResult> GetProductDetails(int id)
     {
         var product = await _productService.GetProduct(id);
+        if (product is null)
+        {
+            LogService.Warning($"Product with ID {id} not found.");
+            return RedirectToAction("Index", "Home");
+        }
+
         var relatedProducts = await _productService.GetProductsByCategory(product.Category);
+        if (relatedProducts is null || !relatedProducts.Any())
+        {
+            LogService.Warning($"No related products found for product ID {id} in category '{product.Category}'.");
+            return View("ProductDetails", new ProductViewModel(product, []));
+        }
+
+        LogService.Information($"Product details retrieved for product ID {id}: {product.ProductName}");
+
         return View("ProductDetails", new ProductViewModel(product, relatedProducts.Where(relatedProduct => relatedProduct.Id != product.Id).Take(3)));
     }
 
@@ -53,10 +69,14 @@ public class ProductsController(
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to add a review without being logged in.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to add a review" });
         }
 
         await _productService.AddReview(id, Review.Create(CurrentUser.Username, request.Rating, request.Comment, DateTime.Today), CurrentUser);
+
+        LogService.Information($"Review added for product ID {id} by user {CurrentUser.Username}.");
+
         return Json(new GenericResponse { Success = true });
     }
 
@@ -64,13 +84,13 @@ public class ProductsController(
     [HttpPost]
     public async Task<IActionResult> FilterProducts([FromBody] FilterProductsRequest request)
     {
-        var temp = JsonConvert.SerializeObject(new FilterProductsRequest { Filters = new Dictionary<string, object> { { "Category", "Rods" } } }, Formatting.None, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
-
         var products = await _productService.GetProducts();
 
         var supportedFilters = new string[] { "Category", "PriceRange" };
         if (request.Filters.Keys.Any(key => !supportedFilters.Contains(key)))
         {
+            LogService.Warning($"Unsupported filters provided: {string.Join(", ", request.Filters.Keys.Where(key => !supportedFilters.Contains(key)))}");
+
             return Json(new GenericResponse
             {
                 Success = false,
@@ -89,6 +109,8 @@ public class ProductsController(
                 _ => true
             })
             .ToList();
+
+        LogService.Information($"Filtered products based on provided filters: {JsonConvert.SerializeObject(request.Filters)}. Found {products.Count} products.");
 
         return Json(new GenericResponse { Success = true, Content = JsonConvert.SerializeObject(products) });
     }

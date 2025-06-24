@@ -6,14 +6,17 @@ namespace SeaCarp.Domain.Models;
 
 public class User
 {
-    public int Id { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public string Email { get; set; }
-    public decimal Credits { get; set; }
-    public string ProfilePicture { get; set; }
-    public bool IsAdmin { get; set; }
-    public List<Order> Orders { get; set; } = [];
+    internal User()
+    { }
+
+    public int Id { get; internal set; }
+    public string Username { get; internal set; }
+    public string Password { get; internal set; }
+    public string Email { get; internal set; }
+    public decimal Credits { get; internal set; }
+    public string ProfilePicture { get; internal set; }
+    public bool IsAdmin { get; internal set; }
+    public List<Order> Orders { get; internal set; } = [];
 
     public static User Create(
         int id = 0,

@@ -3,6 +3,7 @@
 public static class SystemInformation
 {
     private static DateTime? _lastStarted;
+    private static string _passwordSalt;
 
     public static DateTime LastStarted
     {
@@ -26,4 +27,10 @@ public static class SystemInformation
             "Jawfish",
         }[new Random().Next(10)]
         + ")";
+
+    public static string PasswordSalt
+    {
+        get => _passwordSalt;
+        set => _passwordSalt ??= value;
+    }
 }

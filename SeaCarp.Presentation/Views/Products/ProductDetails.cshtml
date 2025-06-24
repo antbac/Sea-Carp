@@ -3,7 +3,7 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-6 mb-3">
-            <img src="~/files/images/products/@(Model.ProductName).png"
+            <img src="~/images/products/@(Model.ProductName).png"
                  alt="@Model.ProductName"
                  class="img-fluid rounded shadow-sm"
                  style="max-height: 400px; object-fit: contain;" />
@@ -16,7 +16,7 @@
                 <strong>Description:</strong> @Model.Description
             </p>
             <p>
-                <strong>Stock:</strong> @Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>")
+                <strong>Stock:</strong> @(Model.Stock > 0 ? $"{Model.Stock} in stock" : Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>"))
             </p>
 
             <h3 class="mt-4 text-primary">$@Model.Price</h3>
@@ -47,6 +47,11 @@
                     <button id="add_to_cart_btn" class="btn btn-primary rounded-pill px-4" type="button">
                         Add to Cart
                     </button>
+                    <a id="go_to_cart_link" style="display: none" href="@Url.ActionLink(nameof(CartController.Index), nameof(CartController).RemoveControllerSuffix())">
+                        <button id="go_to_cart_btn" class="btn btn-warning rounded-pill px-4" type="button">
+                            Go to Cart
+                        </button>
+                    </a>
                 }
             </div>
         </div>
@@ -151,7 +156,7 @@
                             <div class="card" style="max-width: 600px;">
                                 <div class="row g-0 align-items-center">
                                     <div class="col-auto">
-                                        <img src="~/files/images/products/@(relatedProduct.ProductName).png"
+                                        <img src="~/images/products/@(relatedProduct.ProductName).png"
                                              alt="@relatedProduct.ProductName"
                                              class="img-fluid p-2"
                                              style="height: 120px; object-fit: contain;" />
@@ -182,6 +187,10 @@
 {
     <script>
         window.addEventListener('DOMContentLoaded', () => {
+            if (JSON.parse(localStorage.getItem('cartItems'))) {
+                document.querySelector('#go_to_cart_link').style.display = 'block';
+            }
+
             const reviewForm = document.querySelector('#add_review_form');
             if (reviewForm) {
                 reviewForm.onsubmit = (e) => {
@@ -255,6 +264,8 @@
                     `;
 
                     alertContainer.appendChild(alertElement);
+
+                    document.querySelector('#go_to_cart_link').style.display = 'block';
 
                     setTimeout(() => {
                         if (typeof bootstrap !== 'undefined') {

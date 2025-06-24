@@ -16,11 +16,23 @@
             <span>Download the current Software Bill of Materials for compliance and security review.</span>
         </li>
     </ul>
+
     <h3>Other Information</h3>
     <ul>
         <li>Application version: <span>@Model.CurrentVersion</span></li>
         <li>Environment: <span>Production</span></li>
         <li>Last deployment: <span>@Model.LastDeployment.ToString("u")</span></li>
     </ul>
-    <p>For more details, contact your system administrator @Model.AdminEmail or refer to the project documentation on <a href="@Model.RepositoryUrl">GitHub</a></p>
+
+    <h2>Password Security</h2>
+    <p>
+        We take security seriously. All user passwords are stored in a hashed format using a unique salt for our application.
+        The hashing algorithm used is <strong>@Model.HashAlgorithm</strong>, and the unique salt for this application is <strong>@Model.PasswordSalt</strong>.
+        This approach helps protect user credentials and ensures compliance with modern security best practices.
+    </p>
+
+    <h2>Additional support</h2>
+    <p>
+        For more details, contact your system administrator @Model.AdminEmail or refer to the project documentation on <a href="@Model.RepositoryUrl">GitHub</a>
+    </p>
 </div>

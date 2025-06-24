@@ -27,7 +27,7 @@ public class SupportCaseViewModel
         Id = supportCase.Id;
         Order = new OrderViewModel(supportCase.Order);
         Description = new(supportCase.Description);
-        Image = new(supportCase.Image);
+        Image = string.IsNullOrWhiteSpace(supportCase.Image) ? new(string.Empty) : new("/" + supportCase.Image.Replace("wwwroot", "files").Replace("\\", "/"));
         CreatedDate = new(supportCase.CreatedDate.ToString("yyyy-MM-dd"));
     }
 }

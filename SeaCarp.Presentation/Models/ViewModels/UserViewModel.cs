@@ -12,9 +12,12 @@ public class UserViewModel
     public HtmlString ProfilePicture { get; set; }
     public bool IsAdmin { get; set; }
     public IEnumerable<OrderViewModel> Orders { get; set; }
+    public List<(string FileName, byte[] FileContent)> UserFiles { get; set; }
 
-    public UserViewModel(Domain.Models.User user = null)
+    public UserViewModel(Domain.Models.User user = null, List<(string FileName, byte[] FileContent)> userFiles = null)
     {
+        UserFiles = userFiles ?? [];
+
         if (user is null)
         {
             Username = new(string.Empty);
@@ -22,7 +25,7 @@ public class UserViewModel
             Email = new(string.Empty);
             Credits = new(string.Empty);
             ProfilePicture = new(string.Empty);
-            Orders = Enumerable.Empty<OrderViewModel>();
+            Orders = [];
             return;
         }
 

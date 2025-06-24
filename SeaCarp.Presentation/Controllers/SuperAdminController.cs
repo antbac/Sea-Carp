@@ -20,6 +20,7 @@ public class SuperAdminController(
     {
         if (!AuthenticateUser())
         {
+            LogService.Warning("Unauthorized access attempt to SuperAdmin area.");
             return NotFound();
         }
 
@@ -31,12 +32,26 @@ public class SuperAdminController(
     public async Task<IActionResult> ResetDatabase()
     {
         await _adminService.ResetDatabase();
+
+        LogService.Information("Database reset by SuperAdmin.");
+
         return View("Index");
     }
 
     private bool AuthenticateUser()
     {
         var cookieName = "SuperAdminAuthentication";
-        return Request.Cookies.TryGetValue(cookieName, out string cookieValue) && cookieValue == "efaAkzYhtvYkOT3q3om#Nov%v22mC8b4";
+        var isSuperAdmin = Request.Cookies.TryGetValue(cookieName, out string cookieValue) && cookieValue == "efaAkzYhtvYkOT3q3om#Nov%v22mC8b4";
+
+        if (isSuperAdmin)
+        {
+            LogService.Information("SuperAdmin authentication successful.");
+        }
+        else
+        {
+            LogService.Warning("SuperAdmin authentication failed.");
+        }
+
+        return isSuperAdmin;
     }
 }

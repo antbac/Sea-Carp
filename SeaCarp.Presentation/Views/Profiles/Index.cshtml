@@ -38,13 +38,42 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <img src="@Model.ProfilePicture"
-                                     alt="Profile Picture"
-                                     class="img-fluid rounded-circle"
-                                     style="width: 150px; height: 150px; object-fit: cover;" />
+                                alt="Profile Picture"
+                                class="img-fluid rounded-circle"
+                                style="width: 150px; height: 150px; object-fit: cover;" />
                             </div>
                             <p><strong>Username:</strong> @Model.Username</p>
                             <p><strong>Email:</strong> @Model.Email</p>
                             <p><strong>Current credits:</strong> $@(Model.Credits)</p>
+                            <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#creditsPurchaseModal">
+                                Buy Credits
+                            </button>
+                            @if (Model.UserFiles.Any())
+                            {
+                                <div class="mt-4">
+                                    <h6>Your Uploaded Files</h6>
+                                    <div class="list-group">
+                                        @foreach (var (fileName, fileContent) in Model.UserFiles)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="bi bi-file-earmark"></i> @fileName
+                                                </span>
+                                                <div>
+                                                    <span class="badge bg-primary rounded-pill me-2">
+                                                        @(Math.Round((double)fileContent.Length / 1024, 2)) KB
+                                                    </span>
+                                                    <button class="btn btn-sm btn-outline-secondary download-file"
+                                                            data-filename="@fileName"
+                                                            data-filecontent="@Convert.ToBase64String(fileContent)">
+                                                        <i class="bi bi-download"></i> Download
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -152,6 +181,27 @@
     </div>
 </div>
 
+<div class="modal fade" id="creditsPurchaseModal" tabindex="-1" aria-labelledby="creditsPurchaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="creditsPurchaseModalLabel">Credits Purchase</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    We're currently experiencing issues with our credits purchasing functionality.
+                    Please check back later. We apologize for any inconvenience.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
     {
@@ -236,5 +286,37 @@
                 }
             });
         </script>
+        @if (Model.UserFiles.Any()) {
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    const downloadButtons = document.querySelectorAll('.download-file');
+                    if (downloadButtons) {
+                        downloadButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                const fileName = this.getAttribute('data-filename');
+                                const base64Content = this.getAttribute('data-filecontent');
+
+                                const downloadLink = document.createElement('a');
+
+                                let mimeType = 'application/octet-stream';
+
+                                if (fileName.endsWith('.pdf')) mimeType = 'application/pdf';
+                                else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) mimeType = 'image/jpeg';
+                                else if (fileName.endsWith('.png')) mimeType = 'image/png';
+                                else if (fileName.endsWith('.txt')) mimeType = 'text/plain';
+                                else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) mimeType = 'application/msword';
+
+                                downloadLink.href = `data:${mimeType};base64,${base64Content}`;
+                                downloadLink.download = fileName;
+
+                                document.body.appendChild(downloadLink);
+                                downloadLink.click();
+                                document.body.removeChild(downloadLink);
+                            });
+                        });
+                    }
+                });
+            </script>
+        }
     }
 }

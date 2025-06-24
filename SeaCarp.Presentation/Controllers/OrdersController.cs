@@ -26,14 +26,20 @@ public class OrdersController(
     {
         if (string.IsNullOrWhiteSpace(orderNumber))
         {
+            LogService.Warning("Attempted to access an order without a valid order number.");
             return RedirectToAction("Index", "Home");
         }
 
         var order = await _orderService.GetOrder(orderNumber);
+        if (order is null)
+        {
+            LogService.Warning($"Order with number {orderNumber} not found.");
+            return RedirectToAction("Index", "Home");
+        }
 
-        return order is null
-            ? RedirectToAction("Index", "Home")
-            : View("Index", new OrderViewModel(order));
+        LogService.Information($"Order {orderNumber} retrieved successfully for user {CurrentUser.Username ?? "N/A"}.");
+
+        return View("Index", new OrderViewModel(order));
     }
 
     [Route("/Orders", Name = "PlaceOrder")]
@@ -42,11 +48,13 @@ public class OrdersController(
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to place an order without being logged in.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to place an order" });
         }
 
         if (request.Items.Count == 0)
         {
+            LogService.Warning("Attempted to place an order without specifying any products.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must specify at least 1 product to buy" });
         }
 
@@ -85,8 +93,14 @@ public class OrdersController(
         await _orderService.CreateOrder(orderToPlace);
         var order = await _orderService.GetNewestOrder();
 
-        return order is null
-            ? Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred while placing the order" })
-            : Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(OrdersController).RemoveControllerSuffix()}/{order.OrderNumber}" });
+        if (order is null)
+        {
+            LogService.Error("Failed to retrieve the newly created order after placing it.");
+            return Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred while placing the order" });
+        }
+
+        LogService.Information($"Order {order.OrderNumber} placed successfully by user {CurrentUser.Username}.");
+
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(OrdersController).RemoveControllerSuffix()}/{order.OrderNumber}" });
     }
 }

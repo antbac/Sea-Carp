@@ -8,13 +8,15 @@ public class SystemController(
     IFileService fileService,
     IJwtService jwtService,
     ILogService logService,
-    IUserRepository userRepository)
+    IUserRepository userRepository,
+    ICryptographyService cryptographyService)
     : BaseController(
         jwtService,
         logService)
 {
     private readonly IFileService _fileService = fileService;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICryptographyService _cryptographyService = cryptographyService;
 
     [Route("/System", Name = "SystemIndex")]
     [HttpGet]
@@ -29,14 +31,16 @@ public class SystemController(
             RepositoryUrl = SystemInformation.RepositoryUrl,
             LastDeployment = SystemInformation.LastStarted,
             CurrentVersion = SystemInformation.CurrentVersion,
+            PasswordSalt = SystemInformation.PasswordSalt,
+            HashAlgorithm = _cryptographyService.CurrentHashAlgorithm(),
         });
     }
 
-    [Route("/System/logs", Name = "SystemLogs")]
+    [Route("/System/logs/{pageNumber}", Name = "SystemLogs")]
     [HttpGet]
-    public IActionResult Logs()
+    public IActionResult Logs([FromRoute] int pageNumber = 1)
     {
-        return Content(LogService.GetLogs(), "text/plain");
+        return Content(LogService.GetLogs(pageNumber), "text/plain");
     }
 
     [Route("/System/sbom", Name = "SystemSbom")]

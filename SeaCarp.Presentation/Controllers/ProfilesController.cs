@@ -9,6 +9,7 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class ProfilesController(
     IUserService userService,
+    IFileService fileService,
     IJwtService jwtService,
     ILogService logService)
     : BaseController(
@@ -16,14 +17,21 @@ public class ProfilesController(
         logService)
 {
     private readonly IUserService _userService = userService;
+    private readonly IFileService _fileService = fileService;
 
     [Route("/Profiles", Name = "GetProfile")]
     [HttpGet]
     public IActionResult GetProfile()
     {
-        return CurrentUser is null
-            ? RedirectToAction("Login", "Identity")
-            : RedirectToAction(CurrentUser.Id.ToString(), nameof(ProfilesController).RemoveControllerSuffix());
+        if (CurrentUser is null)
+        {
+            LogService.Warning("Attempted to access profile without being logged in.");
+            return RedirectToAction("Login", "Identity");
+        }
+
+        LogService.Information($"User {CurrentUser.Username} accessed their profile.");
+
+        return RedirectToAction(CurrentUser.Id.ToString(), nameof(ProfilesController).RemoveControllerSuffix());
     }
 
     [Route("/Profiles/{identifier}", Name = "GetProfilePageById")]
@@ -39,10 +47,24 @@ public class ProfilesController(
                 : await _userService.GetUser(identifier);
 
         user = await _userService.GetUser(user.Id);
+        if (user is null)
+        {
+            LogService.Warning($"No user found with identifier {identifier}.");
+            return NotFound($"No user with identifier {identifier} found");
+        }
 
-        return user is null
-            ? NotFound($"No user with identifier {identifier} found")
-            : View("Index", new UserViewModel(user));
+        if (user.Id != (CurrentUser?.Id ?? -1))
+        {
+            LogService.Information($"User profile for {user.Username} retrieved successfully.");
+
+            return View("Index", new UserViewModel(user));
+        }
+
+        var userFiles = await _fileService.GetUserFiles(CurrentUser.Username);
+
+        LogService.Information($"User profile for current user {user.Username} retrieved successfully.");
+
+        return View("Index", new UserViewModel(user, userFiles));
     }
 
     [Route("/Profiles/{identifier}/Email", Name = "UpdateEmail")]
@@ -51,6 +73,7 @@ public class ProfilesController(
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to update email without being logged in.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to update your email" });
         }
 
@@ -63,6 +86,8 @@ public class ProfilesController(
 
         CurrentUser = user;
 
+        LogService.Information($"User {user.Username} updated their email to {request.Email}.");
+
         return Json(new GenericResponse { Success = true });
     }
 
@@ -72,6 +97,7 @@ public class ProfilesController(
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to update password without being logged in.");
             return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your password" });
         }
 
@@ -84,6 +110,8 @@ public class ProfilesController(
 
         CurrentUser = user;
 
+        LogService.Information($"User {user.Username} updated their password to {request.Password}.");
+
         return Json(new GenericResponse() { Success = true });
     }
 
@@ -93,6 +121,7 @@ public class ProfilesController(
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to update profile picture without being logged in.");
             return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your profile picture" });
         }
 
@@ -103,6 +132,8 @@ public class ProfilesController(
         await _userService.UpdateProfilePicture(user, request.Url);
 
         CurrentUser = user;
+
+        LogService.Information($"User {user.Username} updated their profile picture to {request.Url}.");
 
         return Json(new GenericResponse() { Success = true });
     }

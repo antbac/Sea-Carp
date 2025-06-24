@@ -10,5 +10,7 @@ public interface IOrderRepository
 
     Task<Order> GetOrder(string orderNumber);
 
+    Task<Order> GetOrderBySupportCaseId(int supportCaseId);
+
     Task UpdateOrder(int id, Order order);
 }

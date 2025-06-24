@@ -10,24 +10,20 @@
 <table>
     <thead>
         <tr>
-            <th>Product</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Quantity</th>
-            <th>Unit Price</th>
-            <th>Total</th>
+            <th style="padding-right: 25px">Product</th>
+            <th style="padding-right: 25px">Quantity</th>
+            <th style="padding-right: 25px">Unit Price</th>
+            <th style="padding-right: 25px">Total</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var orderItem in Model.OrderItems)
         {
             <tr>
-                <td>@orderItem.Product.ProductName</td>
-                <td>@orderItem.Product.Description</td>
-                <td>@orderItem.Product.Category</td>
-                <td>@orderItem.Quantity</td>
-                <td>$@orderItem.UnitPrice</td>
-                <td>$@(orderItem.Quantity * orderItem.UnitPrice)</td>
+                <td style="padding-right: 25px">@orderItem.Product.ProductName</td>
+                <td style="padding-right: 25px">@orderItem.Quantity</td>
+                <td style="padding-right: 25px">$@orderItem.UnitPrice</td>
+                <td style="padding-right: 25px">$@(orderItem.Quantity * orderItem.UnitPrice)</td>
             </tr>
         }
     </tbody>

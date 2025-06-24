@@ -37,7 +37,7 @@ public class IdentityController(
 
             await _userService.CreateUser(user);
 
-            LogService.Log(LogLevel.Information, $"Successfully registered user {registration.Username} : {registration.Password}");
+            LogService.Information($"Successfully registered user {registration.Username} : {registration.Password}");
 
             return Json(new GenericResponse { Success = true });
         }
@@ -61,12 +61,12 @@ public class IdentityController(
         var user = await _userService.GetUser(login.Username, login.Password);
         if (user is null)
         {
-            LogService.Log(LogLevel.Warning, $"Username or password was incorrect {login.Username} : {login.Password}");
+            LogService.Warning($"Username or password was incorrect {login.Username} : {login.Password}");
 
             return Json(new GenericResponse { Success = false, ErrorMessage = "No user found with that username and password." });
         }
 
-        LogService.Log(LogLevel.Information, $"User {login.Username} logged in");
+        LogService.Information($"User {login.Username} logged in");
 
         CurrentUser = user;
         return Json(new GenericResponse { Success = true });
@@ -79,11 +79,11 @@ public class IdentityController(
 
         if (user is null)
         {
-            LogService.Log(LogLevel.Warning, $"Unable to log out unknown user");
+            LogService.Warning($"Unable to log out unknown user");
             return RedirectToAction("Index", "Home");
         }
 
-        LogService.Log(LogLevel.Information, $"User {user.Username} logged out");
+        LogService.Information($"User {user.Username} logged out");
         CurrentUser = null;
 
         return RedirectToAction("Index", "Home");

@@ -4,7 +4,15 @@ namespace SeaCarp.CrossCutting.Services.Abstractions;
 
 public interface ILogService
 {
-    string GetLogs();
+    string GetLogs(int page = 1);
 
-    void Log(LogLevel logLevel, string message);
+    void Debug(string message);
+
+    void Information(string message);
+
+    void Warning(string message);
+
+    void Error(string message);
+
+    void Critical(string message);
 }

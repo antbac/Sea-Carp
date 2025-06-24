@@ -13,6 +13,8 @@ public class CartController(
     [HttpGet]
     public IActionResult Index()
     {
+        LogService.Information("Cart Index accessed.");
+
         return View();
     }
 }

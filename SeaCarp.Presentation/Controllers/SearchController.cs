@@ -21,10 +21,21 @@ public class SearchController(
     {
         if (string.IsNullOrWhiteSpace(q))
         {
+            LogService.Warning("Search query is empty or null.");
             return RedirectToAction("Index", "Home");
         }
 
         var matchingProducts = await _productService.GetProducts(q.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray());
+
+        if (matchingProducts.Any())
+        {
+            LogService.Information($"Found {matchingProducts.Count} products matching the search query '{q}'.");
+        }
+        else
+        {
+            LogService.Warning($"No products found matching the search query '{q}'.");
+        }
+
         return View(new SearchViewModel
         {
             SeachQuery = new HtmlString(q),

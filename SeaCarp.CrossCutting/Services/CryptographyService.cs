@@ -10,6 +10,8 @@ public class CryptographyService(IOptions<CryptographySettings> options) : ICryp
 {
     private readonly CryptographySettings _cryptographySettings = options.Value;
 
+    public string CurrentHashAlgorithm() => "MD5";
+
     public string HashPassword(string password)
     {
         using MD5 md5 = MD5.Create();

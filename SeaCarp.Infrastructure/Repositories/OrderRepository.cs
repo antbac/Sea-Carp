@@ -178,6 +178,58 @@ public class OrderRepository : IOrderRepository
         return order;
     }
 
+    public async Task<Order> GetOrderBySupportCaseId(int supportCaseId)
+    {
+        using var cmd = Database.GetConnection().CreateCommand();
+        cmd.CommandText = Regex.Replace(@$"
+            SELECT
+                {nameof(Order).ToPlural()}.{nameof(Order.Id)},
+                {nameof(User).ToPlural()}.{nameof(User.Username)},
+                {nameof(Order).ToPlural()}.{nameof(Order.OrderDate)},
+                {nameof(Order).ToPlural()}.{nameof(Order.Status)},
+                    {nameof(Order).ToPlural()}.{nameof(Order.DeliveryAddress)},
+                {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Quantity)},
+                {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.UnitPrice)},
+                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
+                Categories.Category
+            FROM {nameof(Order).ToPlural()}
+            INNER JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Order).ToPlural()}.{nameof(Order.User)}Id
+            INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+            INNER JOIN {nameof(Product).ToPlural()} ON {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {nameof(OrderItem).ToPlural()}.{nameof(OrderItem.Product)}Id
+            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
+            INNER JOIN {nameof(SupportCase).ToPlural()} ON {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Order)}Id = {nameof(Order).ToPlural()}.{nameof(Order.Id)}
+            WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)} = {supportCaseId};
+        ", @"\s+", " ");
+
+        using var reader = await cmd.ExecuteReaderAsync();
+        Order order = null;
+        while (await reader.ReadAsync())
+        {
+            order ??= new()
+            {
+                Id = reader.GetInt32(0),
+                User = reader.GetString(1),
+                OrderDate = reader.GetDateTime(2),
+                Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
+                DeliveryAddress = reader.GetString(4),
+                OrderItems = [],
+            };
+
+            order.AddItems([new OrderItem
+            {
+                Quantity = reader.GetInt32(5),
+                UnitPrice = reader.GetDecimal(6),
+                Product = new Product
+                {
+                    ProductName = reader.GetString(7),
+                    Category = reader.GetString(8),
+                }
+            }]);
+        }
+
+        return order;
+    }
+
     public async Task UpdateOrder(int id, Order order)
     {
         using var cmd = Database.GetConnection().CreateCommand();
