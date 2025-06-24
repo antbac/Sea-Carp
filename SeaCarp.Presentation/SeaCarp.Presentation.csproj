@@ -53,6 +53,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="ClientApp\src\Views\" />
 		<Folder Include="ExternalLibs\" />
 		<Folder Include="wwwroot\images\" />
 	</ItemGroup>
@@ -93,9 +94,5 @@
 		<NoWarn>NU1903</NoWarn>
 		<NoWarn>NU1904</NoWarn>
 	</PropertyGroup>
-
-	<Target Name="GenerateCycloneDXSBOM" AfterTargets="Build">
-		<Exec Command="dotnet CycloneDX &quot;$(MSBuildProjectFullPath)&quot; -o &quot;$(ProjectDir)wwwroot&quot; --json" IgnoreExitCode="false" ContinueOnError="false" />
-	</Target>
 
 </Project>
