@@ -33,7 +33,7 @@ const ProductDetail = ({...productDetail}: Product) => {
 
     const p : Product = {
       id: 1,
-      Name: "test",
+      ProductName: "test",
       Description: "test2",
       Stock: 2,
       Price: 2,
@@ -55,7 +55,18 @@ const ProductDetail = ({...productDetail}: Product) => {
       </Col>
 
       <Col>
-      test
+
+
+        <h1>{product.ProductName}</h1>
+
+        <p>{product.Category}</p>
+
+        <p>Description: {product.Description}</p>
+
+        <p><strong>Stock:</strong></p>{product.Stock}
+
+        ...
+
       </Col>
 
     </Row>
