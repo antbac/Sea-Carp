@@ -19,16 +19,35 @@ public class FileManagerController(
     private readonly IConnector _connector = connector;
     private readonly IDriver _driver = driver;
 
+    #region Index
+
     [HttpGet]
-    [Route("/file-manager")]
-    public IActionResult Index() => View();
+    [Route("/file-manager", Name = $"{nameof(FileManagerController)}/{nameof(Index)}")]
+    public IActionResult Index()
+    {
+        if (CurrentUser is null || !CurrentUser.IsAdmin)
+        {
+            return Unauthorized();
+        }
+
+        return View();
+    }
+
+    #endregion Index
+
+    #region Connector
 
     [HttpGet]
     [HttpPost]
     [ApiEndpoint]
-    [Route("/api/files/connector")]
+    [Route("/api/v1/files/connector", Name = $"{nameof(FileManagerController)}/{nameof(Connector)}")]
     public async Task<IActionResult> Connector()
     {
+        if (CurrentUser is null || !CurrentUser.IsAdmin)
+        {
+            return Unauthorized();
+        }
+
         await SetupConnectorAsync();
         var cmd = ConnectorHelper.ParseCommand(Request);
         var ccTokenSource = ConnectorHelper.RegisterCcTokenSource(HttpContext);
@@ -37,16 +56,29 @@ public class FileManagerController(
         return actionResult;
     }
 
+    #endregion Connector
+
+    #region Thumb
+
     [HttpGet]
     [ApiEndpoint]
-    [Route("/api/files/thumb/{target}")]
+    [Route("/api/v1/files/thumb/{target}", Name = $"{nameof(FileManagerController)}/{nameof(Thumb)}")]
     public async Task<IActionResult> Thumb(string target)
     {
+        if (CurrentUser is null || !CurrentUser.IsAdmin)
+        {
+            return Unauthorized();
+        }
+
         await SetupConnectorAsync();
         var thumb = await _connector.GetThumbAsync(target, HttpContext.RequestAborted);
         var actionResult = ConnectorHelper.GetThumbResult(thumb);
         return actionResult;
     }
+
+    #endregion Thumb
+
+    #region Private help functions
 
     private async Task SetupConnectorAsync()
     {
@@ -60,4 +92,6 @@ public class FileManagerController(
         _connector.AddVolume(volume);
         await volume.Driver.SetupVolumeAsync(volume);
     }
+
+    #endregion Private help functions
 }

@@ -1,5 +1,4 @@
-﻿
-namespace SeaCarp.Presentation.Attributes;
+﻿namespace SeaCarp.Presentation.Attributes;
 
 internal class ApiEndpointAttribute : Attribute
 {

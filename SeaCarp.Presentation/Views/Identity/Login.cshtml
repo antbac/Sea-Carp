@@ -7,8 +7,6 @@
             <div class="col-md-4">
                 <section>
                     <form id="login_form" method="post">
-                        <div id="error" class="alert alert-danger" style="display:none"></div>
-
                         <div class="form-floating mb-3">
                             <input class="form-control"
                                    required
@@ -89,7 +87,7 @@
                 }
 
                 e.preventDefault();
-                fetch('@Url.ActionLink(nameof(IdentityController.LoginUser), nameof(IdentityController).RemoveControllerSuffix())', {
+                fetch('@Url.Action(nameof(IdentityController.Login), nameof(IdentityController).RemoveControllerSuffix())', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -99,23 +97,21 @@
                         'Password': document.querySelector('#Password').value,
                     })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const params = new URL(document.location.toString()).searchParams;
-                            const returnUrl = params.get("returnUrl");
-                            if (returnUrl) {
-                                window.location = returnUrl;
-                            } else {
-                                window.location = '@Url.ActionLink(nameof(ProfilesController.GetProfile), nameof(ProfilesController).RemoveControllerSuffix())';
-                            }
-                            return;
-                        }
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        handleException(data);
+                        return;
+                    }
 
-                        const errorDiv = document.querySelector('#error');
-                        errorDiv.innerText = data.errorMessage;
-                        errorDiv.style.display = 'block';
-                    });
+                    const params = new URL(document.location.toString()).searchParams;
+                    const returnUrl = params.get("returnUrl");
+                    if (returnUrl) {
+                        window.location = returnUrl;
+                    } else {
+                        window.location = '@Url.ActionLink(nameof(ProfilesController.GetProfile), nameof(ProfilesController).RemoveControllerSuffix())';
+                    }
+                });
             };
         });
     </script>

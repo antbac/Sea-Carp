@@ -1,6 +1,7 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
@@ -20,7 +21,7 @@ public class OrderRepository : IOrderRepository
                     {nameof(Order.DeliveryAddress)}
                 ) VALUES (
                     (SELECT {nameof(User.Id)} FROM {nameof(User).ToPlural()} WHERE {nameof(User.Username)} = '{order.User}'),
-                    '{order.OrderDate:yyyy-MM-dd}',
+                    '{order.OrderDate:yyyy-MM-dd:HH:mm:ss:fff}',
                     '{order.Status}',
                     '{order.DeliveryAddress}'
                 );
@@ -104,7 +105,7 @@ public class OrderRepository : IOrderRepository
                 {
                     Id = reader.GetInt32(0),
                     User = reader.GetString(1),
-                    OrderDate = reader.GetDateTime(2),
+                    OrderDate = DateTime.ParseExact(reader.GetString(2), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
                     Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
                     DeliveryAddress = reader.GetString(4),
                     OrderItems = [],
@@ -157,7 +158,7 @@ public class OrderRepository : IOrderRepository
             {
                 Id = reader.GetInt32(0),
                 User = reader.GetString(1),
-                OrderDate = reader.GetDateTime(2),
+                OrderDate = DateTime.ParseExact(reader.GetString(2), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
                 Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
                 DeliveryAddress = reader.GetString(4),
                 OrderItems = [],
@@ -209,7 +210,7 @@ public class OrderRepository : IOrderRepository
             {
                 Id = reader.GetInt32(0),
                 User = reader.GetString(1),
-                OrderDate = reader.GetDateTime(2),
+                OrderDate = DateTime.ParseExact(reader.GetString(2), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
                 Status = Enum.Parse<OrderStatus>(reader.GetString(3)),
                 DeliveryAddress = reader.GetString(4),
                 OrderItems = [],
@@ -236,7 +237,7 @@ public class OrderRepository : IOrderRepository
         cmd.CommandText = Regex.Replace(@$"
             UPDATE {nameof(Order).ToPlural()}
             SET
-                {nameof(Order.OrderDate)} = '{order.OrderDate:yyyy-MM-dd}',
+                {nameof(Order.OrderDate)} = '{order.OrderDate:yyyy-MM-dd:HH:mm:ss:fff}',
                 {nameof(Order.Status)} = '{order.Status}',
                 {nameof(Order.DeliveryAddress)} = '{order.DeliveryAddress}'
             WHERE {nameof(Order).ToPlural()}.{nameof(Order.Id)} = {id};

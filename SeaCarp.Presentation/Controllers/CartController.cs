@@ -9,12 +9,16 @@ public class CartController(
         jwtService,
         logService)
 {
-    [Route("/Cart", Name = "CartIndex")]
+    #region Index
+
     [HttpGet]
+    [Route("/cart", Name = $"{nameof(CartController)}/{nameof(Index)}")]
     public IActionResult Index()
     {
         LogService.Information("Cart Index accessed.");
 
         return View();
     }
+
+    #endregion Index
 }

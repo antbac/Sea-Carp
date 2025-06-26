@@ -1,7 +1,9 @@
-﻿namespace SeaCarp.Presentation.Models.ViewModels;
+﻿using Microsoft.AspNetCore.Html;
 
-public class ErrorViewModel
+namespace SeaCarp.Presentation.Models.ViewModels;
+
+public class ErrorViewModel(Api.v1.Error error)
 {
-    public string Message { get; set; }
-    public string StackTrace { get; set; }
+    public HtmlString Message { get; private set; } = string.IsNullOrWhiteSpace(error?.Message) ? new(string.Empty) : new(error.Message);
+    public HtmlString StackTrace { get; private set; } = string.IsNullOrWhiteSpace(error?.StackTrace) ? new(string.Empty) : new(error.StackTrace);
 }

@@ -13,8 +13,6 @@
                 <form id="register_form" method="post" action="/Identity/Register">
                     <h2>Create a new account.</h2>
 
-                    <div id="error" class="alert alert-danger" style="display:none"></div>
-
                     <hr />
                     <div class="form-floating mb-3">
                         <input class="form-control"
@@ -102,7 +100,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#register_form').onsubmit = (e) => {
                 e.preventDefault();
-                fetch('@Url.ActionLink(nameof(IdentityController.CreateAccount), nameof(IdentityController).RemoveControllerSuffix())', {
+                fetch('@Url.Action(nameof(IdentityController.CreateAccount), nameof(IdentityController).RemoveControllerSuffix())', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -116,13 +114,12 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        window.location = '@Url.ActionLink(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix())';
+                    if (!data.success) {
+                        handleException(data);
                         return;
                     }
 
-                    document.querySelector('#error').innerText = data.errorMessage;
-                    document.querySelector('#error').style.display = 'inline';
+                    window.location.href = data.redirectUrl;
                 });
             };
         }, false);

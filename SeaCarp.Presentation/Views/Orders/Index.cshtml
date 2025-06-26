@@ -35,7 +35,7 @@
 <hr />
 <br />
 
-<form id="create_support_case_form" action="/@nameof(SupportController).RemoveControllerSuffix()/Cases" method="post">
+<form id="create_support_case_form" action="@Url.ActionLink(nameof(SupportController.CreateSupportCase), nameof(SupportController).RemoveControllerSuffix())" method="post">
     <h3>Report an Issue</h3>
     <p>If your product arrived damaged or with any defects, please let us know:</p>
 

@@ -24,7 +24,23 @@ public class Product
 
     public Product AddStock(int addedStock)
     {
+        if (addedStock <= 0)
+        {
+            throw new ArgumentException("Added stock must be greater than 0", nameof(addedStock));
+        }
+
         Stock += addedStock;
+        return this;
+    }
+
+    public Product RemoveStock(int stockToRemove)
+    {
+        if (stockToRemove <= 0)
+        {
+            throw new ArgumentException("Stock to remove must be greater than 0", nameof(stockToRemove));
+        }
+
+        Stock -= stockToRemove;
         return this;
     }
 }

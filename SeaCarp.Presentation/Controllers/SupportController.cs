@@ -1,6 +1,8 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
+using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
@@ -9,6 +11,7 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class SupportController(
     ISupportCaseService supportCaseService,
+    IFileService fileService,
     IJwtService jwtService,
     ILogService logService)
     : BaseController(
@@ -16,10 +19,32 @@ public class SupportController(
         logService)
 {
     private readonly ISupportCaseService _supportCaseService = supportCaseService;
+    private readonly IFileService _fileService = fileService;
 
-    [Route("/Support/{identifier}", Name = "SupportCase")]
+    #region GetCase
+
     [HttpGet]
-    public async Task<IActionResult> GetCase(string identifier)
+    [Route("/support/{identifier}", Name = $"{nameof(SupportController)}/{nameof(GetCase_MVC)}")]
+    public async Task<IActionResult> GetCase_MVC(string identifier)
+    {
+        var supportCase = await GetCase_Common(identifier);
+        return supportCase is null
+            ? NotFound($"Support case with identifier '{identifier}' not found.")
+            : View("Index", new SupportCaseViewModel(supportCase));
+    }
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/support/{identifier}", Name = $"{nameof(SupportController)}/{nameof(GetCase_SPA)}")]
+    public async Task<IActionResult> GetCase_SPA(string identifier)
+    {
+        var supportCase = await GetCase_Common(identifier);
+        return supportCase is null
+            ? NotFound($"Support case with identifier '{identifier}' not found.")
+            : Json(supportCase);
+    }
+
+    private async Task<Models.Api.v1.SupportCase> GetCase_Common(string identifier)
     {
         SupportCase supportCase;
 
@@ -30,28 +55,41 @@ public class SupportController(
             if (supportCase is null)
             {
                 LogService.Warning($"Support case with ID {id} not found.");
-                return NotFound($"No support case with ID {id} found");
+                return null;
             }
 
             LogService.Information($"Support case with ID {id} retrieved successfully for user {CurrentUser?.Username ?? "N/A"}.");
 
-            return View("Index", new SupportCaseViewModel(supportCase));
+            return new Models.Api.v1.SupportCase(
+                supportCase,
+                string.IsNullOrWhiteSpace(CurrentUser?.Username)
+                    ? null
+                    : _fileService.GetUserFilePath(CurrentUser?.Username));
         }
 
         supportCase = await _supportCaseService.GetCaseByCaseNumber(identifier);
         if (supportCase is null)
         {
             LogService.Warning($"Support case with case number {identifier} not found.");
-            return NotFound($"No support case with case number {identifier} found");
+            return null;
         }
 
         LogService.Information($"Support case with case number {identifier} retrieved successfully for user {CurrentUser?.Username ?? "N/A"}.");
 
-        return View("Index", new SupportCaseViewModel(supportCase));
+        return new Models.Api.v1.SupportCase(
+            supportCase,
+                string.IsNullOrWhiteSpace(CurrentUser?.Username)
+                    ? null
+                    : _fileService.GetUserFilePath(CurrentUser?.Username));
     }
 
-    [Route("/Support/Cases", Name = "CreateSupportCase")]
+    #endregion GetCase
+
+    #region CreateSupportCase
+
     [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/support/cases", Name = $"{nameof(SupportController)}/{nameof(CreateSupportCase)}")]
     public async Task<IActionResult> CreateSupportCase([FromBody] CreateSupportCaseRequest request)
     {
         if (CurrentUser is null)
@@ -86,6 +124,8 @@ public class SupportController(
 
         LogService.Information($"Support case created successfully with case number {supportCase.CaseNumber} for user {CurrentUser?.Username ?? "N/A"}.");
 
-        return Json(new GenericResponse { Success = true, RedirectUrl = $"/Support/{supportCase.CaseNumber}" });
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(SupportController).RemoveControllerSuffix()}/{supportCase.CaseNumber}" });
     }
+
+    #endregion CreateSupportCase
 }

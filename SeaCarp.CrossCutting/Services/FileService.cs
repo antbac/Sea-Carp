@@ -21,6 +21,27 @@ public class FileService : IFileService
         RootDirectory = rootDirectory;
     }
 
+    public string GetUserFilePath(string username)
+    {
+        if (string.IsNullOrWhiteSpace(RootDirectory))
+        {
+            throw new Exception($"Root directory is not configured. Please call the {nameof(ConfigureRoot)} method first.");
+        }
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            throw new ArgumentNullException(nameof(username), "Username cannot be null or empty.");
+        }
+
+        var path = Path.Combine(RootDirectory, "uploads", username);
+        if (!File.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        return path;
+    }
+
     public async Task<List<(string FileName, byte[] FileContent)>> GetUserFiles(string username)
     {
         if (string.IsNullOrWhiteSpace(RootDirectory))

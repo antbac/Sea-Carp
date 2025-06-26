@@ -8,7 +8,7 @@ public class HttpService : IHttpService
 {
     public async Task<object> FetchContentAsync(string url, OutputType outputType)
     {
-        WebRequest request = WebRequest.Create(url);
+        var request = WebRequest.Create(url);
 
         using var response = await request.GetResponseAsync();
         using var stream = response.GetResponseStream();
@@ -17,21 +17,21 @@ public class HttpService : IHttpService
         switch (outputType)
         {
             case OutputType.String:
-                {
-                    return await reader.ReadToEndAsync();
-                }
+            {
+                return await reader.ReadToEndAsync();
+            }
             case OutputType.Binary:
-                {
-                    using var memoryStream = new MemoryStream();
-                    await stream.CopyToAsync(memoryStream);
-                    return memoryStream.ToArray();
-                }
+            {
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
             case OutputType.Base64:
-                {
-                    using var memoryStream = new MemoryStream();
-                    await stream.CopyToAsync(memoryStream);
-                    return Convert.ToBase64String(memoryStream.ToArray());
-                }
+            {
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                return Convert.ToBase64String(memoryStream.ToArray());
+            }
 
             default:
                 throw new ArgumentException("Can not generate output of unknown output type", nameof(outputType));

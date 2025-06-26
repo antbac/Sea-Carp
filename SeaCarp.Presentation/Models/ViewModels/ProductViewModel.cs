@@ -2,36 +2,14 @@
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class ProductViewModel
+public class ProductViewModel(Api.v1.Product product)
 {
-    public int Id { get; set; }
-    public HtmlString ProductName { get; set; }
-    public HtmlString Description { get; set; }
-    public decimal Price { get; set; }
-    public int Stock { get; set; }
-    public HtmlString Category { get; set; }
-    public IEnumerable<ProductReviewViewModel> Reviews { get; set; }
-    public IEnumerable<ProductViewModel> RelatedProducts { get; set; }
-
-    public ProductViewModel(Domain.Models.Product product = null, IEnumerable<Domain.Models.Product> relatedProducts = null)
-    {
-        if (product is null)
-        {
-            ProductName = new(string.Empty);
-            Description = new(string.Empty);
-            Category = new(string.Empty);
-            Reviews = [];
-            RelatedProducts = [];
-            return;
-        }
-
-        Id = product.Id;
-        ProductName = new(product.ProductName);
-        Description = new(product.Description);
-        Price = product.Price;
-        Stock = product.Stock;
-        Category = new(product.Category);
-        Reviews = (product.Reviews ?? []).Select(review => new ProductReviewViewModel(review));
-        RelatedProducts = (relatedProducts ?? []).Select(relatedProduct => new ProductViewModel(relatedProduct));
-    }
+    public int Id { get; private set; } = product?.Id ?? default;
+    public HtmlString ProductName { get; private set; } = new(string.IsNullOrWhiteSpace(product?.ProductName) ? string.Empty : product.ProductName);
+    public HtmlString Description { get; private set; } = new(string.IsNullOrWhiteSpace(product?.Description) ? string.Empty : product.Description);
+    public decimal Price { get; private set; } = product?.Price ?? default;
+    public int Stock { get; private set; } = product?.Stock ?? default;
+    public HtmlString Category { get; private set; } = new(string.IsNullOrWhiteSpace(product?.Category) ? string.Empty : product.Category);
+    public IEnumerable<ProductReviewViewModel> Reviews { get; private set; } = (product?.Reviews ?? []).Select(review => new ProductReviewViewModel(review));
+    public IEnumerable<ProductViewModel> RelatedProducts { get; private set; } = (product?.RelatedProducts ?? []).Select(relatedProduct => new ProductViewModel(relatedProduct));
 }

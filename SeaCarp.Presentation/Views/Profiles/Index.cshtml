@@ -7,7 +7,7 @@
                 <a class="list-group-item list-group-item-action active" id="list-details-list" data-bs-toggle="list" href="#list-details" role="tab">
                     Account Details
                 </a>
-                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+                @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
                 {
                     <a class="list-group-item list-group-item-action" id="list-email-list" data-bs-toggle="list" href="#list-email" role="tab">
                         Update Email
@@ -61,11 +61,11 @@
                                                 </span>
                                                 <div>
                                                     <span class="badge bg-primary rounded-pill me-2">
-                                                        @(Math.Round((double)fileContent.Length / 1024, 2)) KB
+                                                        @(Math.Round((double)(Convert.FromBase64String(fileContent.Value)).Length / 1024, 2)) KB
                                                     </span>
                                                     <button class="btn btn-sm btn-outline-secondary download-file"
-                                                            data-filename="@fileName"
-                                                            data-filecontent="@Convert.ToBase64String(fileContent)">
+                                                    data-filename="@fileName"
+                                                    data-filecontent="@fileContent">
                                                         <i class="bi bi-download"></i> Download
                                                     </button>
                                                 </div>
@@ -78,7 +78,7 @@
                     </div>
                 </div>
 
-                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+                @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
                 {
                     <div class="tab-pane fade" id="list-email" role="tabpanel">
                         <div class="card shadow mb-4">
@@ -87,7 +87,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_email_form" method="post" novalidate="novalidate">
-                                    <div id="emailError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="Email" class="form-label">Email</label>
                                         <input type="email" class="form-control" required id="Email" name="Email" value="@Model.Email" />
@@ -105,7 +104,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_password_form" method="post" novalidate="novalidate">
-                                    <div id="passwordError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="Password" class="form-label">New Password</label>
                                         <input type="password" class="form-control" required id="Password" name="Password" placeholder="Enter new password" />
@@ -123,7 +121,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_profile_picture_form" method="post" novalidate="novalidate">
-                                    <div id="profilePictureError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="ProfilePicture" class="form-label">New Profile picture</label>
                                         <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture" placeholder="Enter URL to profile picture" />
@@ -150,6 +147,10 @@
                                                 <th>Status</th>
                                                 <th>Delivery Address</th>
                                                 <th>Total</th>
+                                                @if (Model.Orders.Any(order => order.SupportCases.Any()))
+                                                {
+                                                    <th>Support cases</th>
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -163,6 +164,22 @@
                                                     <td>@order.Status</td>
                                                     <td>@order.DeliveryAddress</td>
                                                     <td>$@order.Total</td>
+                                                    @if (Model.Orders.Any(o => o.SupportCases.Any()))
+                                                    {
+                                                        if (order.SupportCases.Any())
+                                                        {
+                                                            <th>
+                                                                @foreach (var supportCase in order.SupportCases)
+                                                                {
+                                                                    <p><a href="/@(nameof(SupportController).RemoveControllerSuffix())/@(@supportCase.CaseNumber)">@supportCase.CaseNumber</a></p>
+                                                                }
+                                                            </th>
+                                                        }
+                                                        else
+                                                        {
+                                                            <th></th>
+                                                        }
+                                                    }
                                                 </tr>
                                             }
                                         </tbody>
@@ -203,7 +220,7 @@
 </div>
 
 @section Scripts {
-    @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+    @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
     {
         <script>
             window.addEventListener('DOMContentLoaded', () => {
@@ -211,7 +228,7 @@
                 if (emailForm) {
                     emailForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -222,7 +239,7 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const emailErrorDiv = document.querySelector('#emailError');
+                                const emailErrorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
@@ -237,7 +254,7 @@
                 if (passwordForm) {
                     passwordForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -248,12 +265,12 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const passwordErrorDiv = document.querySelector('#passwordError');
+                                const errorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
-                                    passwordErrorDiv.innerText = data.errorMessage;
-                                    passwordErrorDiv.style.display = 'block';
+                                    errorDiv.innerText = data.errorMessage;
+                                    errorDiv.style.display = 'block';
                                 }
                             });
                     };
@@ -263,7 +280,7 @@
                 if (profilePictureForm) {
                     profilePictureForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -274,12 +291,12 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const profilePictureErrorDiv = document.querySelector('#profilePictureError');
+                                const errorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
-                                    profilePictureErrorDiv.innerText = data.errorMessage;
-                                    profilePictureErrorDiv.style.display = 'block';
+                                    errorDiv.innerText = data.errorMessage;
+                                    errorDiv.style.display = 'block';
                                 }
                             });
                     };

@@ -1,22 +1,8 @@
-﻿using SeaCarp.Domain.Models;
+﻿namespace SeaCarp.Presentation.Models.ViewModels;
 
-namespace SeaCarp.Presentation.Models.ViewModels;
-
-public class OrderItemViewModel
+public class OrderItemViewModel(Api.v1.OrderItem orderItem)
 {
-    public ProductViewModel Product { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-
-    public OrderItemViewModel(OrderItem orderItem)
-    {
-        if (orderItem is null)
-        {
-            return;
-        }
-
-        Product = new(orderItem.Product);
-        Quantity = orderItem.Quantity;
-        UnitPrice = orderItem.UnitPrice;
-    }
+    public ProductViewModel Product { get; private set; } = new(orderItem?.Product);
+    public int Quantity { get; private set; } = orderItem?.Quantity ?? default;
+    public decimal UnitPrice { get; private set; } = orderItem?.UnitPrice ?? default;
 }

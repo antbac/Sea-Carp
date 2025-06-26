@@ -1,141 +1,162 @@
-﻿using SeaCarp.Application.Services.Abstractions;
+﻿using Microsoft.Extensions.Options;
+using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
+using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
 public class AdminController(
-    IUserService userService,
-    IProductService productService,
-    IOrderService orderService,
+    IOptions<CryptographySettings> options,
+    ICryptographyService cryptographyService,
     IJwtService jwtService,
     ILogService logService)
     : BaseController(
         jwtService,
         logService)
 {
-    private readonly IUserService _userService = userService;
-    private readonly IProductService _productService = productService;
-    private readonly IOrderService _orderService = orderService;
+    public static string AdminAuthenticationCookieName { get; } = "AdminAuthentication";
 
-    [Route("/AdminHiddenXYZ", Name = "AdminIndex")]
+    private readonly IOptions<CryptographySettings> _options = options;
+    private readonly ICryptographyService _cryptographyService = cryptographyService;
+
+    #region Index
+
     [HttpGet]
-    public async Task<IActionResult> Index()
+    [Route("/admin", Name = $"{nameof(AdminController)}/{nameof(Index_MVC)}")]
+    public IActionResult Index_MVC() => View("Index", new AdminViewModel(Index_Common()));
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Index_SPA)}")]
+    public IActionResult Index_SPA() => Json(Index_Common());
+
+    public Models.Api.v1.Admin Index_Common()
     {
-        var isAdmin = CurrentUser?.IsAdmin ?? false;
-        if (!isAdmin)
+        if (CurrentUser is null)
         {
-            LogService.Warning($"Unauthorized access attempt to Admin area by user {CurrentUser?.Id ?? 0}");
-            return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).RemoveControllerSuffix());
+            LogService.Warning("Attempted to access Admin area without being logged in.");
+            return new Models.Api.v1.Admin("You must be logged in to access this page");
         }
 
-        LogService.Information($"Admin area accessed by user {CurrentUser?.Id ?? 0}");
-
-        return View(new Models.ViewModels.AdminViewModel
+        if (!CurrentUser.IsAdmin)
         {
-            Users = (await _userService.GetAllUsers()).Select(user => new Models.ViewModels.UserViewModel(user)),
-            Products = (await _productService.GetProducts()).Select(product => new Models.ViewModels.ProductViewModel(product)),
-        });
-    }
-
-    [Route("/AdminHiddenXYZ/Users/{identifier}", Name = "RemoveUser")]
-    [HttpDelete]
-    public async Task<IActionResult> RemoveUser(string identifier)
-    {
-        if (int.TryParse(identifier, out var id))
-        {
-            await _userService.RemoveUser(id);
-            LogService.Information($"User with ID {id} has been removed by admin {CurrentUser?.Id ?? 0}");
-            return Json(new GenericResponse { Success = true });
+            LogService.Warning($"Non admin user {CurrentUser.Username} attempted to access Admin area.");
+            return new Models.Api.v1.Admin("You must be an admin to access this page");
         }
 
-        LogService.Warning($"Removal attempt for user with invalid identifier '{identifier}' by admin {CurrentUser?.Id ?? 0}");
-
-        return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to parse identifier" });
+        return new Models.Api.v1.Admin(null);
     }
 
-    [Route("/AdminHiddenXYZ/Users/{identifier}/ResetPassword", Name = "ResetPassword")]
+    #endregion Index
+
+    #region Login
+
     [HttpPost]
-    public async Task<IActionResult> ResetPassword(string identifier)
+    [ApiEndpoint]
+    [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Login)}")]
+    public IActionResult Login([FromBody] AdminLoginRequest request)
     {
-        if (int.TryParse(identifier, out var id))
+        if (CurrentUser is null || !CurrentUser.IsAdmin)
         {
-            var user = await _userService.GetUser(id);
-            if (user is null)
-            {
-                LogService.Warning($"Password reset attempt for non-existent user with ID {id} by admin {CurrentUser?.Id ?? 0}");
-                return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to find the user" });
-            }
-
-            user.UpdatePassword("pass");
-            await _userService.UpdateUser(user);
-
-            LogService.Information($"Password for user with ID {id} has been reset by admin {CurrentUser?.Id ?? 0}");
-
-            return Json(new GenericResponse { Success = true });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an admin to access this page" });
         }
 
-        LogService.Warning($"Password reset attempt for user with invalid identifier '{identifier}' by admin {CurrentUser?.Id ?? 0}");
+        if (request.AdminAuthenticationKey != _options.Value.AdminAuthenticationKey)
+        {
+            LogService.Warning("Admin login attempt with incorrect key.");
+            return Json(new GenericResponse { Success = false, ErrorMessage = "Invalid Admin authentication key." });
+        }
 
-        return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to parse identifier" });
+        LogService.Information("Admin login successful.");
+
+        Response.Cookies.Append(AdminAuthenticationCookieName, _cryptographyService.HashPassword(request.AdminAuthenticationKey), new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(5)
+        });
+
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(AdminController).RemoveControllerSuffix()}/{nameof(Pwn)}" });
     }
 
-    [Route("/AdminHiddenXYZ/Products/{identifier}", Name = "UpdateProduct")]
-    [HttpPut]
-    public async Task<IActionResult> UpdateProduct(string identifier, [FromBody] UpdateProductInformationRequest request)
+    #endregion Login
+
+    #region PwnPage
+
+    [HttpGet]
+    [Route("/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(PwnPage)}")]
+    public IActionResult PwnPage()
     {
-        if (int.TryParse(identifier, out var id))
+        if (!AuthenticateUser())
         {
-            var product = await _productService.GetProduct(id);
-            if (product is null)
-            {
-                LogService.Warning($"Update attempt for non-existent product with ID {id} by admin {CurrentUser?.Id ?? 0}");
-                return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to find the product" });
-            }
-
-            await _productService.UpdateProduct(id, Domain.Models.Product.Create(
-                request.ProductName,
-                request.Description,
-                request.Price,
-                request.Category,
-                request.Stock));
-
-            LogService.Information($"Product with ID {id} has been updated by admin {CurrentUser?.Id ?? 0}");
-
-            return Json(new GenericResponse { Success = true });
+            LogService.Warning("Unauthorized attempt to access Pwn page.");
+            return RedirectToAction(nameof(Index_MVC));
         }
 
-        LogService.Warning($"Update attempt for product with invalid identifier '{identifier}' by admin {CurrentUser?.Id ?? 0}");
-
-        return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to parse identifier" });
+        return View();
     }
 
-    [Route("/AdminHiddenXYZ/Orders/{identifier}", Name = "CancelOrder")]
-    [HttpDelete]
-    public async Task<IActionResult> CancelOrder(string identifier)
+    #endregion PwnPage
+
+    #region Pwn
+
+    [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
+    public async Task<IActionResult> Pwn([FromBody] PwnRequest request)
     {
-        var order = await _orderService.GetOrder(identifier);
-        if (order is null)
+        if (!AuthenticateUser())
         {
-            LogService.Warning($"Cancellation attempt for non-existent order with identifier '{identifier}' by admin {CurrentUser?.Id ?? 0}");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to find the order" });
+            LogService.Warning("Unauthorized attempt to Pwn system.");
+            return Unauthorized();
         }
 
-        if (int.TryParse(identifier.Replace("ON", string.Empty), out var id))
+        if (string.IsNullOrWhiteSpace(request.Name))
         {
-            order.Cancel();
-
-            await _orderService.UpdateOrder(id, order);
-
-            LogService.Information($"Order with identifier '{identifier}' has been cancelled by admin {CurrentUser?.Id ?? 0}");
-
-            return Json(new GenericResponse { Success = true });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "Enter your name to gain eternal glory!" });
         }
 
-        LogService.Warning($"Cancellation attempt for order with invalid identifier '{identifier}' by admin {CurrentUser?.Id ?? 0}");
+        Program.SitePwnedBy = request.Name;
 
-        return Json(new GenericResponse { Success = false, ErrorMessage = "Unable to parse identifier" });
+        LogService.Information($"System Pwned by {request.Name} at {DateTime.UtcNow}");
+
+        return Json(new GenericResponse { Success = true, RedirectUrl = "/" });
     }
+
+    #endregion Pwn
+
+    #region Private help functions
+
+    private bool AuthenticateUser()
+    {
+        if (CurrentUser is null)
+        {
+            return false;
+        }
+
+        if (!CurrentUser.IsAdmin)
+        {
+            return false;
+        }
+
+        var isAdmin = Request.Cookies.TryGetValue(AdminAuthenticationCookieName, out var cookieValue) && cookieValue == _cryptographyService.HashPassword(_options.Value.AdminAuthenticationKey);
+
+        if (isAdmin)
+        {
+            LogService.Information("Admin authentication successful.");
+        }
+        else
+        {
+            LogService.Warning("Admin authentication failed.");
+        }
+
+        return isAdmin;
+    }
+
+    #endregion Private help functions
 }

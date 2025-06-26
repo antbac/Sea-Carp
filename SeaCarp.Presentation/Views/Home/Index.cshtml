@@ -10,7 +10,7 @@
     <p>Rods, reels, bait, and everything you need for your next fishing adventure.</p>
     @if (RequestContext.Instance.CurrentUser.Value != null)
     {
-        <a class="btn btn-light btn-lg" href="@Url.ActionLink(nameof(ProductsController.Index), nameof(ProductsController).RemoveControllerSuffix())">Shop Now</a>
+        <a class="btn btn-light btn-lg" href="@Url.ActionLink(nameof(ProductsController.Index_MVC), nameof(ProductsController).RemoveControllerSuffix())">Shop Now</a>
     }
     else
     {

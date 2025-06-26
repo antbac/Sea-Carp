@@ -8,11 +8,13 @@ namespace SeaCarp.Application.Services;
 public class UserService(
     IHttpService httpService,
     IUserRepository userRepository,
+    ISupportCaseRepository supportCaseRepository,
     ICryptographyService cryptographyService,
     ILogService logService) : IUserService
 {
     private readonly IHttpService _httpService = httpService;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
     private readonly ICryptographyService _cryptographyService = cryptographyService;
     private readonly ILogService _logService = logService;
 
@@ -42,6 +44,11 @@ public class UserService(
         }
 
         _logService.Information($"Retrieved user: {user.Username} (ID: {id})");
+
+        foreach (var order in user.Orders)
+        {
+            order.AppendSupportCases(await _supportCaseRepository.GetSupportCasesByOrderId(order.Id));
+        }
 
         return user;
     }

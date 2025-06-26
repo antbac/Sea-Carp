@@ -1,6 +1,7 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
@@ -24,7 +25,7 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                 {orderId},
                 '{description}',
                 {(string.IsNullOrWhiteSpace(image) ? "NULL" : $"'{image}'")},
-                '{DateTime.Today.ToString("yyyy-MM-dd")}'
+                '{DateTime.Now:yyyy-MM-dd:HH:mm:ss:fff}'
             );
         ", @"\s+", " ");
             await cmd.ExecuteNonQueryAsync();
@@ -57,7 +58,6 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                     {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.CreatedDate)}
                 FROM {nameof(SupportCase).ToPlural()}
                 WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)} = {id};
-
             ", @"\s+", " ");
 
             using var reader = await cmd.ExecuteReaderAsync();
@@ -68,7 +68,7 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                     Id = reader.GetInt32(0),
                     Description = reader.GetString(1),
                     Image = reader.IsDBNull(2) ? null : reader.GetString(2),
-                    CreatedDate = reader.GetDateTime(3),
+                    CreatedDate = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
                 };
             }
         }
@@ -76,6 +76,64 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
         supportCase.Order = await _orderRepository.GetOrderBySupportCaseId(id);
 
         return supportCase;
+    }
+
+    public async Task<List<SupportCase>> GetRecentSupportCases(DateTime openedAfter)
+    {
+        var result = new List<SupportCase>();
+
+        var recentSupportCaseIds = new List<int>();
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                SELECT
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)}
+                FROM {nameof(SupportCase).ToPlural()}
+                WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.CreatedDate)} >= '{openedAfter:yyyy-MM-dd:HH:mm:ss:fff}';
+            ", @"\s+", " ");
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                recentSupportCaseIds.Add(reader.GetInt32(0));
+            }
+        }
+
+        foreach (var supportCaseId in recentSupportCaseIds)
+        {
+            result.Add(await GetCaseById(supportCaseId));
+        }
+
+        return result;
+    }
+
+    public async Task<List<SupportCase>> GetSupportCasesByOrderId(int orderId)
+    {
+        var result = new List<SupportCase>();
+
+        var supportCaseIds = new List<int>();
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                SELECT
+                    {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)}
+                FROM {nameof(SupportCase).ToPlural()}
+                WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Order)}{nameof(SupportCase.Order.Id)} = {orderId};
+            ", @"\s+", " ");
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                supportCaseIds.Add(reader.GetInt32(0));
+            }
+        }
+
+        foreach (var supportCaseId in supportCaseIds)
+        {
+            result.Add(await GetCaseById(supportCaseId));
+        }
+
+        return result;
     }
 
     private async Task<SupportCase> GetNewestSupportCase()

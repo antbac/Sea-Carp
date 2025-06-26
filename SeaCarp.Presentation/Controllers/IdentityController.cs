@@ -1,6 +1,7 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 
@@ -16,38 +17,42 @@ public class IdentityController(
 {
     private readonly IUserService _userService = userService;
 
-    [HttpGet("Identity/Register", Name = "IdentityIndex")]
-    public IActionResult Index()
-    {
-        return View("Register");
-    }
+    #region Index
 
-    [HttpPost("Identity/Register", Name = "CreateAccount")]
+    [HttpGet]
+    [Route("/identity/register", Name = $"{nameof(IdentityController)}/{nameof(Index)}")]
+    public IActionResult Index() => View("Register");
+
+    #endregion Index
+
+    #region CreateAccount
+
+    [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/identity/register", Name = $"{nameof(IdentityController)}/{nameof(CreateAccount)}")]
     public async Task<IActionResult> CreateAccount([FromBody] AccountRegistrationRequest registration)
     {
-        try
-        {
-            var user = Domain.Models.User.Create(
-                username: registration.Username,
-                email: registration.Email,
-                password: registration.Password,
-                credits: registration.Credits,
-                profilePicture: registration.ProfilePicture,
-                isAdmin: registration.IsAdmin);
+        var user = Domain.Models.User.Create(
+            username: registration.Username,
+            email: registration.Email,
+            password: registration.Password,
+            credits: registration.Credits,
+            profilePicture: registration.ProfilePicture,
+            isAdmin: registration.IsAdmin);
 
-            await _userService.CreateUser(user);
+        await _userService.CreateUser(user);
 
-            LogService.Information($"Successfully registered user {registration.Username} : {registration.Password}");
+        LogService.Information($"Successfully registered user {registration.Username} : {registration.Password}");
 
-            return Json(new GenericResponse { Success = true });
-        }
-        catch (Exception)
-        {
-            return Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred when trying to register the account." });
-        }
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(IdentityController).RemoveControllerSuffix()}/{nameof(Login)}" });
     }
 
-    [HttpGet("Identity/Login", Name = "LoginPage")]
+    #endregion CreateAccount
+
+    #region LoginPage
+
+    [HttpGet]
+    [Route("/identity/login", Name = $"{nameof(IdentityController)}/{nameof(LoginPage)}")]
     public IActionResult LoginPage()
     {
         return CurrentUser is null
@@ -55,8 +60,14 @@ public class IdentityController(
             : RedirectToAction("Index", nameof(ProfilesController).RemoveControllerSuffix());
     }
 
-    [HttpPost("Identity/Login")]
-    public async Task<IActionResult> LoginUser([FromBody] LoginRequest login)
+    #endregion LoginPage
+
+    #region Login
+
+    [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/identity/login", Name = $"{nameof(IdentityController)}/{nameof(Login)}")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest login)
     {
         var user = await _userService.GetUser(login.Username, login.Password);
         if (user is null)
@@ -69,11 +80,16 @@ public class IdentityController(
         LogService.Information($"User {login.Username} logged in");
 
         CurrentUser = user;
-        return Json(new GenericResponse { Success = true });
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(ProfilesController).RemoveControllerSuffix()}" });
     }
 
-    [HttpGet("Identity/Logout", Name = "LogoutUser")]
-    public IActionResult LogoutUser()
+    #endregion Login
+
+    #region Logout
+
+    [HttpGet]
+    [Route("/identity/logout", Name = $"{nameof(IdentityController)}/{nameof(Logout)}")]
+    public IActionResult Logout()
     {
         var user = CurrentUser;
 
@@ -88,4 +104,6 @@ public class IdentityController(
 
         return RedirectToAction("Index", "Home");
     }
+
+    #endregion Logout
 }

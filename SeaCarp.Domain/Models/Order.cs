@@ -12,6 +12,7 @@ public class Order
     public OrderStatus Status { get; internal set; }
     public string DeliveryAddress { get; internal set; }
     public List<OrderItem> OrderItems { get; internal set; } = [];
+    public List<SupportCase> SupportCases { get; internal set; } = [];
 
     public static Order Create(string username, DateTime orderDate, OrderStatus orderStatus, string deliveryAddress, IEnumerable<OrderItem> orderItems) => new()
     {
@@ -25,6 +26,13 @@ public class Order
     public Order AddItems(IEnumerable<OrderItem> orderItems)
     {
         OrderItems.AddRange(orderItems);
+
+        return this;
+    }
+
+    public Order AppendSupportCases(IEnumerable<SupportCase> supportCases)
+    {
+        SupportCases.AddRange(supportCases);
 
         return this;
     }

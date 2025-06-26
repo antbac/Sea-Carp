@@ -2,6 +2,8 @@
 
 public interface IFileService
 {
+    string GetUserFilePath(string username);
+
     Task<List<(string FileName, byte[] FileContent)>> GetUserFiles(string username);
 
     Task<string> ReadFile(string filePath);

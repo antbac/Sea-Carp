@@ -2,6 +2,7 @@
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
 using System.Data.SQLite;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
@@ -24,7 +25,7 @@ public class ProductRepository : IProductRepository
                 {user.Id},
                 '{review.Rating}',
                 '{review.Comment}',
-                '{DateTime.Today:yyyy-MM-dd}'
+                '{DateTime.Today:yyyy-MM-dd:HH:mm:ss:fff}'
             );
         ", @"\s+", " ");
         await cmd.ExecuteNonQueryAsync();
@@ -235,7 +236,7 @@ public class ProductRepository : IProductRepository
             var username = reader.IsDBNull(6) ? default : reader.GetString(6);
             var rating = reader.IsDBNull(7) ? default : reader.GetInt32(7);
             var comment = reader.IsDBNull(8) ? default : reader.GetString(8);
-            var createdDate = reader.IsDBNull(9) ? default : reader.GetDateTime(9);
+            var createdDate = reader.IsDBNull(9) ? default : DateTime.ParseExact(reader.GetString(9), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture);
 
             if (!productsDict.TryGetValue(productId, out var product))
             {

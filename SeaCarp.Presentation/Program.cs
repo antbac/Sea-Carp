@@ -13,7 +13,7 @@ using SeaCarp.Presentation.Middlewares;
 internal class Program
 {
     public static string WebRootPath { get; private set; }
-    public static string TempPath { get; } = Path.GetTempPath();
+    public static string SitePwnedBy { get; set; }
 
     public static string MapPath(string path, string basePath = null)
     {
@@ -34,7 +34,6 @@ internal class Program
 
         builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
 
-        // Add services to the container.
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddSession(options =>
         {
@@ -65,6 +64,7 @@ internal class Program
             });
 
         builder.Services.AddHostedService<StockingJob>();
+        builder.Services.AddHostedService<SupportHandlerJob>();
 
         builder.Services
             .AddElFinderAspNetCore()
@@ -80,6 +80,8 @@ internal class Program
         }
 
         ServiceLocator.Instance = app.Services;
+
+        app.UsePwnMiddleware();
 
         app.UseHsts();
         app.UseHttpsRedirection();
@@ -98,6 +100,8 @@ internal class Program
         app.MapRazorPages();
 
         app.UseExceptionHandler("/Error");
+
+        app.UsePrettyErrorMessages();
 
         app.Run();
     }

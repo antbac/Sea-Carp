@@ -24,7 +24,12 @@ public class SupportCaseService(
             await _fileService.WriteUserFile(user.Username, imageName, imageBytes);
         }
 
-        var supportCase = await _supportCaseRepository.CreateSupportCase(orderId, issueDescription, uploadPath);
+        var supportCase = await _supportCaseRepository.CreateSupportCase(
+            orderId,
+            issueDescription,
+            string.IsNullOrWhiteSpace(imageName)
+                ? null
+                : imageName);
 
         _logService.Information($"Support case created for order {orderId} with case number {supportCase.CaseNumber}. Description: {issueDescription}");
 

@@ -195,7 +195,7 @@
             if (reviewForm) {
                 reviewForm.onsubmit = (e) => {
                     e.preventDefault();
-                    fetch('/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
+                    fetch('/api/v1/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -207,12 +207,12 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            window.location.reload();
+                        if (!data.success) {
+                            handleException(data);
                             return;
                         }
-                        document.querySelector('#error').innerText = data.errorMessage;
-                        document.querySelector('#error').style.display = 'inline';
+
+                        window.location.href = data.redirectUrl;
                     });
                 };
             }

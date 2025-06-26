@@ -1,6 +1,7 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
@@ -19,8 +20,10 @@ public class ProfilesController(
     private readonly IUserService _userService = userService;
     private readonly IFileService _fileService = fileService;
 
-    [Route("/Profiles", Name = "GetProfile")]
+    #region GetProfile
+
     [HttpGet]
+    [Route("/profiles", Name = $"{nameof(ProfilesController)}/{nameof(GetProfile)}")]
     public IActionResult GetProfile()
     {
         if (CurrentUser is null)
@@ -34,9 +37,13 @@ public class ProfilesController(
         return RedirectToAction(CurrentUser.Id.ToString(), nameof(ProfilesController).RemoveControllerSuffix());
     }
 
-    [Route("/Profiles/{identifier}", Name = "GetProfilePageById")]
+    #endregion GetProfile
+
+    #region GetProfilePageById
+
     [HttpGet]
-    public async Task<IActionResult> GetProfilePageById(string identifier)
+    [Route("/profiles/{identifier}", Name = $"{nameof(ProfilesController)}/{nameof(GetProfilePageById_MVC)}")]
+    public async Task<IActionResult> GetProfilePageById_MVC(string identifier)
     {
         var user = int.TryParse(identifier, out var id)
             ? CurrentUser?.Id == id
@@ -53,22 +60,55 @@ public class ProfilesController(
             return NotFound($"No user with identifier {identifier} found");
         }
 
+        return View("Index", new UserViewModel(await GetProfilePageById_Common(user)));
+    }
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/profiles/{identifier}", Name = $"{nameof(ProfilesController)}/{nameof(GetProfilePageById_SPA)}")]
+    public async Task<IActionResult> GetProfilePageById_SPA(string identifier)
+    {
+        var user = int.TryParse(identifier, out var id)
+            ? CurrentUser?.Id == id
+                ? CurrentUser
+                : await _userService.GetUser(id)
+            : CurrentUser?.Username == identifier
+                ? CurrentUser
+                : await _userService.GetUser(identifier);
+
+        user = await _userService.GetUser(user.Id);
+        if (user is null)
+        {
+            LogService.Warning($"No user found with identifier {identifier}.");
+            return NotFound($"No user with identifier {identifier} found");
+        }
+
+        return Json(await GetProfilePageById_Common(user));
+    }
+
+    private async Task<Models.Api.v1.User> GetProfilePageById_Common(Domain.Models.User user)
+    {
         if (user.Id != (CurrentUser?.Id ?? -1))
         {
             LogService.Information($"User profile for {user.Username} retrieved successfully.");
 
-            return View("Index", new UserViewModel(user));
+            return new Models.Api.v1.User(user);
         }
 
         var userFiles = await _fileService.GetUserFiles(CurrentUser.Username);
 
         LogService.Information($"User profile for current user {user.Username} retrieved successfully.");
 
-        return View("Index", new UserViewModel(user, userFiles));
+        return new Models.Api.v1.User(user, userFiles);
     }
 
-    [Route("/Profiles/{identifier}/Email", Name = "UpdateEmail")]
+    #endregion GetProfilePageById
+
+    #region UpdateEmail
+
     [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/profiles/{identifier}/email", Name = $"{nameof(ProfilesController)}/{nameof(UpdateEmail)}")]
     public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] UpdateEmailRequest request)
     {
         if (CurrentUser is null)
@@ -88,11 +128,16 @@ public class ProfilesController(
 
         LogService.Information($"User {user.Username} updated their email to {request.Email}.");
 
-        return Json(new GenericResponse { Success = true });
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(ProfilesController).RemoveControllerSuffix()}" });
     }
 
-    [Route("/Profiles/{identifier}/Password", Name = "UpdatePassword")]
+    #endregion UpdateEmail
+
+    #region UpdatePassword
+
     [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/profiles/{identifier}/password", Name = $"{nameof(ProfilesController)}/{nameof(UpdatePassword)}")]
     public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] UpdatePasswordRequest request)
     {
         if (CurrentUser is null)
@@ -115,8 +160,13 @@ public class ProfilesController(
         return Json(new GenericResponse() { Success = true });
     }
 
-    [Route("/Profiles/{identifier}/Picture")]
+    #endregion UpdatePassword
+
+    #region UpdateProfilePicture
+
     [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/profiles/{identifier}/picture", Name = $"{nameof(ProfilesController)}/{nameof(UpdateProfilePicture)}")]
     public async Task<IActionResult> UpdateProfilePicture(string identifier, [FromBody] UpdateProfilePictureRequest request)
     {
         if (CurrentUser is null)
@@ -137,4 +187,6 @@ public class ProfilesController(
 
         return Json(new GenericResponse() { Success = true });
     }
+
+    #endregion UpdateProfilePicture
 }
