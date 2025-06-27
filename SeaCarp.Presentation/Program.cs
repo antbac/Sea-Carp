@@ -2,6 +2,7 @@
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using elFinder.Net.Drivers.FileSystem.Helpers;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.DependencyInjection;
 using SeaCarp.Application.Jobs;
 using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
@@ -31,6 +32,16 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         WebRootPath = builder.Environment.WebRootPath;
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+            });
+        });
 
         builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
 
@@ -89,6 +100,7 @@ internal class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+        app.UseCors("AllowFrontend");
 
         app.UseSession();
         app.UseSessionAuthorization();

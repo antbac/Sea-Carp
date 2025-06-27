@@ -1,10 +1,10 @@
 export interface Product {
     id: number;
-    ProductName: string;
-    Description: string;
-    Stock: number;
-    Price: number;
-    Category: string;
-    Reviews: [];
-    RelatedProducts: [];
+    productName: string;
+    description: string;
+    stock: number;
+    price: number;
+    category: string;
+    reviews: [];
+    relatedProducts: [];
 }
