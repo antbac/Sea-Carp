@@ -2,6 +2,7 @@
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
 using System.Data.SQLite;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
@@ -24,7 +25,7 @@ public class UserRepository : IUserRepository
                 '{user.Username}',
                 '{user.Password}',
                 '{user.Email}',
-                {user.Credits},
+                {user.Credits.ToString().Replace(',', '.')},
                 '{user.ProfilePicture}',
                 {user.IsAdmin.ToInt()});
         ", @"\s+", " ");
@@ -205,7 +206,7 @@ public class UserRepository : IUserRepository
                 {nameof(User.Username)} = '{user.Username}',
                 {nameof(User.Password)} = '{user.Password}',
                 {nameof(User.Email)} = '{user.Email}',
-                {nameof(User.Credits)} = {user.Credits},
+                {nameof(User.Credits)} = {user.Credits.ToString().Replace(',', '.')},
                 {nameof(User.ProfilePicture)} = '{user.ProfilePicture}',
                 {nameof(User.IsAdmin)} = {user.IsAdmin.ToInt()}
             WHERE {nameof(User.Id)} = {user.Id};
@@ -241,7 +242,7 @@ public class UserRepository : IUserRepository
                     order = new Order
                     {
                         Id = orderId,
-                        OrderDate = reader.GetDateTime(8),
+                        OrderDate = DateTime.ParseExact(reader.GetString(8), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
                         Status = Enum.Parse<OrderStatus>(reader.GetString(9)),
                         DeliveryAddress = reader.GetString(10),
                         OrderItems = []

@@ -1,14 +1,16 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SeaCarp.CrossCutting.Services;
 
 public class CryptographyService(IOptions<CryptographySettings> options) : ICryptographyService
 {
     private readonly CryptographySettings _cryptographySettings = options.Value;
+
+    public string CurrentHashAlgorithm() => "MD5";
 
     public string HashPassword(string password)
     {

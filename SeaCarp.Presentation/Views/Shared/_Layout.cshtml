@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sea Carp</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="~/files/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/files/css/site.css" asp-append-version="true" />
-    <script src="~/files/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/files/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/files/js/site.js" asp-append-version="true"></script>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
     <header>
@@ -17,10 +17,10 @@
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <a class="navbar-brand me-3" asp-area="" asp-controller="Home" asp-action="Index">
-                        <img src="~/files/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
+                        <img src="~/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
                         Sea Carp
                     </a>
-                    <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index), nameof(SearchController).RemoveControllerSuffix())" method="get">
+                    <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index_MVC), nameof(SearchController).RemoveControllerSuffix())" method="get">
                         <input class="form-control rounded-pill"
                                type="search"
                                placeholder="Search"
@@ -48,7 +48,7 @@
                         else
                         {
                             <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Login">Login</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="LoginPage">Login</a>
                                 </li>
                             <li>
                                     <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Register">Register</a>
@@ -70,8 +70,8 @@
         </nav>
     </header>
 
-    <div class="container" id="flag-container"></div>
-    <div class="container">
+    <div class="container" style="min-height: 80vh">
+        <div id="error" class="alert alert-danger" style="display:none"></div>
         <main role="main" class="pb-3">
             <div id="error-box" style="display: none;" class="error-box">
                 <p id="error-message"></p>
@@ -80,6 +80,27 @@
         </main>
     </div>
 
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            <div class="row py-3">
+                <div class="col-md-6">
+                    &copy; @DateTime.Now.Year - Sea Carp - All rights reserved
+                </div>
+                <div class="col-md-6 text-end">
+                    <a asp-controller="System" asp-action="Index_MVC">System Information</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        const handleException = data => {
+            const errorDiv = document.querySelector('#error');
+            errorDiv.innerText = data.errorMessage;
+            errorDiv.style.display = 'block';
+        };
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         document.addEventListener("DOMContentLoaded", function () {

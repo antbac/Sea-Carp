@@ -1,7 +1,7 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Domain.Models;
+using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
@@ -10,7 +10,6 @@ namespace SeaCarp.Presentation.Controllers;
 
 public class OrdersController(
     IOrderService orderService,
-    IProductService productService,
     IJwtService jwtService,
     ILogService logService)
     : BaseController(
@@ -18,75 +17,116 @@ public class OrdersController(
         logService)
 {
     private readonly IOrderService _orderService = orderService;
-    private readonly IProductService _productService = productService;
 
-    [Route("/Orders/{orderNumber}", Name = "GetOrder")]
+    #region GetOrder
+
     [HttpGet]
-    public async Task<IActionResult> GetOrder(string orderNumber)
+    [Route("/orders/{orderNumber}", Name = $"{nameof(OrdersController)}/{nameof(GetOrder_MVC)}")]
+    public async Task<IActionResult> GetOrder_MVC([FromRoute] string orderNumber)
     {
         if (string.IsNullOrWhiteSpace(orderNumber))
         {
-            return RedirectToAction("Index", "Home");
+            LogService.Warning("Attempted to access an order without a valid order number.");
+            return BadRequest("Attempted to access an order without a valid order number.");
         }
 
         var order = await _orderService.GetOrder(orderNumber);
+        if (order is null)
+        {
+            LogService.Warning($"Order with number {orderNumber} not found.");
+            return NotFound($"Order with number {orderNumber} not found.");
+        }
 
-        return order is null
-            ? RedirectToAction("Index", "Home")
-            : View("Index", new OrderViewModel(order));
+        LogService.Information($"Order {order.OrderNumber} retrieved successfully for user {CurrentUser.Username ?? "N/A"}.");
+
+        return View("Index", new OrderViewModel(GetOrder_Common(order)));
     }
 
-    [Route("/Orders", Name = "PlaceOrder")]
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/orders/{orderNumber}", Name = $"{nameof(OrdersController)}/{nameof(GetOrder_SPA)}")]
+    public async Task<IActionResult> GetOrder_SPA(string orderNumber)
+    {
+        if (string.IsNullOrWhiteSpace(orderNumber))
+        {
+            LogService.Warning("Attempted to access an order without a valid order number.");
+            return BadRequest("Attempted to access an order without a valid order number.");
+        }
+
+        var order = await _orderService.GetOrder(orderNumber);
+        if (order is null)
+        {
+            LogService.Warning($"Order with number {orderNumber} not found.");
+            return NotFound($"Order with number {orderNumber} not found.");
+        }
+
+        LogService.Information($"Order {order.OrderNumber} retrieved successfully for user {CurrentUser.Username ?? "N/A"}.");
+
+        return Json(GetOrder_Common(order));
+    }
+
+    private static Models.Api.v1.Order GetOrder_Common(Domain.Models.Order order) => new(order);
+
+    #endregion GetOrder
+
+    #region PlaceOrder
+
     [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/orders", Name = $"{nameof(OrdersController)}/{nameof(PlaceOrder)}")]
     public async Task<IActionResult> PlaceOrder([FromBody] OrderRegistrationRequest request)
     {
         if (CurrentUser is null)
         {
+            LogService.Warning("Attempted to place an order without being logged in.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to place an order" });
         }
 
         if (request.Items.Count == 0)
         {
+            LogService.Warning("Attempted to place an order without specifying any products.");
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must specify at least 1 product to buy" });
         }
 
-        var productsToBuy = new List<Product>();
-        foreach (var item in request.Items)
+        if (request.Operation == OrderRegistrationOperation.Unknown)
         {
-            if (productsToBuy.Any(product => product.Id == item.ProductId))
-            {
-                continue;
-            }
-
-            var product = await _productService.GetProduct(item.ProductId);
-            if (product is null)
-            {
-                return Json(new GenericResponse { Success = false, ErrorMessage = "Can not find a product with Id " + item.ProductId });
-            }
-
-            productsToBuy.Add(product);
+            LogService.Warning("Attempted to place an order with an unknown operation.");
+            return Json(new GenericResponse { Success = false, ErrorMessage = "Unknown operation" });
         }
 
-        var orderToPlace = Order.Create(
-            CurrentUser.Username,
-            DateTime.Today,
-            OrderStatus.Pending,
+        if (string.IsNullOrWhiteSpace(request.DeliveryAddress))
+        {
+            LogService.Warning("Attempted to place an order without specifying a delivery address.");
+            return Json(new GenericResponse { Success = false, ErrorMessage = "You must specify a delivery address" });
+        }
+
+        var (orderPlaced, errorMessage) = await _orderService.CreateOrder(
+            CurrentUser.Id,
             request.DeliveryAddress,
-            []);
+            request.Operation == OrderRegistrationOperation.Purchase,
+            request.Items.Select(orderItem => (
+                orderItem.ProductId,
+                orderItem.Quantity,
+                orderItem.Price)));
 
-        var orderItems = request.Items.Select(orderItem => OrderItem.Create(
-            orderToPlace,
-            productsToBuy.First(product => product.Id == orderItem.ProductId),
-            orderItem.Quantity,
-            orderItem.Price));
+        if (!orderPlaced)
+        {
+            LogService.Warning("Unable to place order: " + errorMessage);
+            return Json(new GenericResponse { Success = false, ErrorMessage = errorMessage });
+        }
 
-        orderToPlace.AddItems(orderItems);
-
-        await _orderService.CreateOrder(orderToPlace);
         var order = await _orderService.GetNewestOrder();
 
-        return order is null
-            ? Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred while placing the order" })
-            : Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(OrdersController).RemoveControllerSuffix()}/{order.OrderNumber}" });
+        if (order is null)
+        {
+            LogService.Error("Failed to retrieve the newly created order after placing it.");
+            return Json(new GenericResponse { Success = false, ErrorMessage = "An unknown error occurred while placing the order" });
+        }
+
+        LogService.Information($"Order {order.OrderNumber} placed successfully by user {CurrentUser.Username}.");
+
+        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(OrdersController).RemoveControllerSuffix()}/{order.OrderNumber}" });
     }
+
+    #endregion PlaceOrder
 }

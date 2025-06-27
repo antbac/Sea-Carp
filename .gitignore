@@ -2,5 +2,5 @@
 *.ncrunch*
 **/bin/*
 **/obj/*
-injections.txt
 /SeaCarp.Presentation/wwwroot/bom.json
+/SeaCarp.Presentation/wwwroot/uploads

@@ -1,11 +1,8 @@
-﻿namespace SeaCarp.Presentation.Models.ViewModels;
+﻿using Microsoft.AspNetCore.Html;
 
-public class AdminViewModel
+namespace SeaCarp.Presentation.Models.ViewModels;
+
+public class AdminViewModel(Api.v1.Admin admin)
 {
-    public int TotalProducts => Products.Count();
-    public int TotalOrders => Orders.Count();
-    public int TotalUsers => Users.Count();
-    public IEnumerable<ProductViewModel> Products { get; set; }
-    public IEnumerable<OrderViewModel> Orders => Users.SelectMany(x => x.Orders);
-    public IEnumerable<UserViewModel> Users { get; set; }
+    public HtmlString ErrorMessage { get; private set; } = new(string.IsNullOrWhiteSpace(admin?.ErrorMessage) ? string.Empty : admin.ErrorMessage);
 }

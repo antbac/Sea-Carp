@@ -4,7 +4,7 @@ namespace SeaCarp.Application.Services.Abstractions;
 
 public interface IOrderService
 {
-    Task CreateOrder(Order order);
+    Task<(bool orderPlaced, string errorMessage)> CreateOrder(int userId, string deliveryAddress, bool purchaseNow, IEnumerable<(int ProductId, int Quantity, decimal Price)> orderItems);
 
     Task<Order> GetNewestOrder();
 

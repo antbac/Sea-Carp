@@ -1,0 +1,71 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Admin - Pwn System";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="text-center mb-0">System Pwnage Console</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Warning: You are about to pwn this system and gain eternal glory!
+                    </div>
+
+                    <form id="pwnForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Enter Your Name:</label>
+                            <input type="text" class="form-control" id="name" placeholder="Your name for the Hall of Fame" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger">Pwn The System</button>
+                        </div>
+                    </form>
+
+                    <div id="result" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('pwnForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                showResult('Please enter your name to continue.', 'danger');
+                return;
+            }
+
+            fetch('@Url.Action(nameof(AdminController.Pwn), nameof(AdminController).RemoveControllerSuffix())', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ Name: name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    handleException(data);
+                    return;
+                }
+
+                window.location.href = data.redirectUrl;
+            });;
+        });
+
+        function showResult(message, type) {
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            resultElement.style.display = 'block';
+        }
+    </script>
+}

@@ -2,26 +2,10 @@
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class ProductReviewViewModel
+public class ProductReviewViewModel(Api.v1.ProductReview productReview)
 {
-    public HtmlString User { get; set; }
-    public int Rating { get; set; }
-    public HtmlString Comment { get; set; }
-    public HtmlString CreatedDate { get; set; }
-
-    public ProductReviewViewModel(Domain.Models.Review review = null)
-    {
-        if (review is null)
-        {
-            User = new(string.Empty);
-            Comment = new(string.Empty);
-            CreatedDate = new(string.Empty);
-            return;
-        }
-
-        User = new(review.User);
-        Rating = review.Rating;
-        Comment = new(review.Comment);
-        CreatedDate = new(review.CreatedDate.ToString("yyyy-MM-dd"));
-    }
+    public HtmlString User { get; private set; } = new(string.IsNullOrWhiteSpace(productReview?.User) ? string.Empty : productReview.User);
+    public int Rating { get; private set; } = productReview?.Rating ?? default;
+    public HtmlString Comment { get; private set; } = new(string.IsNullOrWhiteSpace(productReview?.Comment) ? string.Empty : productReview.Comment);
+    public HtmlString CreatedDate { get; private set; } = new((productReview?.CreatedDate ?? default).ToString("yyyy-MM-dd:HH:mm:ss"));
 }

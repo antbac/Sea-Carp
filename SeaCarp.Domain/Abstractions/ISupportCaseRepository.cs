@@ -9,4 +9,8 @@ public interface ISupportCaseRepository
     Task<SupportCase> GetCaseByCaseNumber(string identifier);
 
     Task<SupportCase> GetCaseById(int id);
+
+    Task<List<SupportCase>> GetRecentSupportCases(DateTime openedAfter);
+
+    Task<List<SupportCase>> GetSupportCasesByOrderId(int orderId);
 }

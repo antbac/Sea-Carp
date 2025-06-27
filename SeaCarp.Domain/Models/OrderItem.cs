@@ -2,11 +2,14 @@
 
 public class OrderItem
 {
-    public int Id { get; set; }
-    public Order Order { get; set; }
-    public Product Product { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
+    internal OrderItem()
+    { }
+
+    public int Id { get; internal set; }
+    public Order Order { get; internal set; }
+    public Product Product { get; internal set; }
+    public int Quantity { get; internal set; }
+    public decimal UnitPrice { get; internal set; }
 
     public static OrderItem Create(Order order, Product product, int quantity, decimal unitPrice) => new()
     {

@@ -3,12 +3,15 @@
         <h1>Register</h1>
         <br />
 
+        <div class="alert alert-success mb-4" role="alert">
+            <h4 class="alert-heading"><i class="bi bi-gift"></i> Limited Time Offer!</h4>
+            <p class="mb-0"><strong>Register today and receive 100 FREE credits</strong> to shop for your favorite sea carp gear! New accounts only. Promotion ends soon.</p>
+        </div>
+
         <div class="row">
             <div class="col-md-4">
                 <form id="register_form" method="post" action="/Identity/Register">
                     <h2>Create a new account.</h2>
-
-                    <div id="error" class="alert alert-danger" style="display:none"></div>
 
                     <hr />
                     <div class="form-floating mb-3">
@@ -62,6 +65,8 @@
                               data-valmsg-replace="true"></span>
                     </div>
 
+                    <input type="hidden" id="Credits" name="Credits" value="100">
+
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                 </form>
             </div>
@@ -70,7 +75,7 @@
                     <h3>Join the #1 Community for Sea Carp Gear, Tips & More</h3>
                     <hr />
                     <div>
-                        <img src="~/files/images/SeaCarpDrawing.png"
+                        <img src="~/images/SeaCarpDrawing.png"
                              width="256"
                              height="256"
                              style="float: left; margin-right: 15px; margin-bottom: 15px;" />
@@ -95,7 +100,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#register_form').onsubmit = (e) => {
                 e.preventDefault();
-                fetch('@Url.ActionLink(nameof(IdentityController.CreateAccount), nameof(IdentityController).RemoveControllerSuffix())', {
+                fetch('@Url.Action(nameof(IdentityController.CreateAccount), nameof(IdentityController).RemoveControllerSuffix())', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -104,17 +109,17 @@
                         'Username': document.querySelector('#Username').value,
                         'Email': document.querySelector('#Email').value,
                         'Password': document.querySelector('#Password').value,
+                        'Credits': document.querySelector('#Credits').value,
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        window.location = '@Url.ActionLink(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix())';
+                    if (!data.success) {
+                        handleException(data);
                         return;
                     }
 
-                    document.querySelector('#error').innerText = data.errorMessage;
-                    document.querySelector('#error').style.display = 'inline';
+                    window.location.href = data.redirectUrl;
                 });
             };
         }, false);

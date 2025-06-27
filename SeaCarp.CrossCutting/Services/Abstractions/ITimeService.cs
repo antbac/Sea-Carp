@@ -3,5 +3,6 @@
 public interface ITimeService
 {
     DateTime Now();
+
     DateTime Today();
 }

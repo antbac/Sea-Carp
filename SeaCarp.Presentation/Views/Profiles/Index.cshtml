@@ -7,7 +7,7 @@
                 <a class="list-group-item list-group-item-action active" id="list-details-list" data-bs-toggle="list" href="#list-details" role="tab">
                     Account Details
                 </a>
-                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+                @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
                 {
                     <a class="list-group-item list-group-item-action" id="list-email-list" data-bs-toggle="list" href="#list-email" role="tab">
                         Update Email
@@ -38,18 +38,47 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <img src="@Model.ProfilePicture"
-                                     alt="Profile Picture"
-                                     class="img-fluid rounded-circle"
-                                     style="width: 150px; height: 150px; object-fit: cover;" />
+                                alt="Profile Picture"
+                                class="img-fluid rounded-circle"
+                                style="width: 150px; height: 150px; object-fit: cover;" />
                             </div>
                             <p><strong>Username:</strong> @Model.Username</p>
                             <p><strong>Email:</strong> @Model.Email</p>
                             <p><strong>Current credits:</strong> $@(Model.Credits)</p>
+                            <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#creditsPurchaseModal">
+                                Buy Credits
+                            </button>
+                            @if (Model.UserFiles.Any())
+                            {
+                                <div class="mt-4">
+                                    <h6>Your Uploaded Files</h6>
+                                    <div class="list-group">
+                                        @foreach (var (fileName, fileContent) in Model.UserFiles)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="bi bi-file-earmark"></i> @fileName
+                                                </span>
+                                                <div>
+                                                    <span class="badge bg-primary rounded-pill me-2">
+                                                        @(Math.Round((double)(Convert.FromBase64String(fileContent.Value)).Length / 1024, 2)) KB
+                                                    </span>
+                                                    <button class="btn btn-sm btn-outline-secondary download-file"
+                                                    data-filename="@fileName"
+                                                    data-filecontent="@fileContent">
+                                                        <i class="bi bi-download"></i> Download
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
 
-                @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+                @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
                 {
                     <div class="tab-pane fade" id="list-email" role="tabpanel">
                         <div class="card shadow mb-4">
@@ -58,7 +87,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_email_form" method="post" novalidate="novalidate">
-                                    <div id="emailError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="Email" class="form-label">Email</label>
                                         <input type="email" class="form-control" required id="Email" name="Email" value="@Model.Email" />
@@ -76,7 +104,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_password_form" method="post" novalidate="novalidate">
-                                    <div id="passwordError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="Password" class="form-label">New Password</label>
                                         <input type="password" class="form-control" required id="Password" name="Password" placeholder="Enter new password" />
@@ -94,7 +121,6 @@
                             </div>
                             <div class="card-body">
                                 <form id="update_profile_picture_form" method="post" novalidate="novalidate">
-                                    <div id="profilePictureError" class="alert alert-danger" style="display:none"></div>
                                     <div class="mb-3">
                                         <label for="ProfilePicture" class="form-label">New Profile picture</label>
                                         <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture" placeholder="Enter URL to profile picture" />
@@ -121,6 +147,10 @@
                                                 <th>Status</th>
                                                 <th>Delivery Address</th>
                                                 <th>Total</th>
+                                                @if (Model.Orders.Any(order => order.SupportCases.Any()))
+                                                {
+                                                    <th>Support cases</th>
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -134,6 +164,22 @@
                                                     <td>@order.Status</td>
                                                     <td>@order.DeliveryAddress</td>
                                                     <td>$@order.Total</td>
+                                                    @if (Model.Orders.Any(o => o.SupportCases.Any()))
+                                                    {
+                                                        if (order.SupportCases.Any())
+                                                        {
+                                                            <th>
+                                                                @foreach (var supportCase in order.SupportCases)
+                                                                {
+                                                                    <p><a href="/@(nameof(SupportController).RemoveControllerSuffix())/@(@supportCase.CaseNumber)">@supportCase.CaseNumber</a></p>
+                                                                }
+                                                            </th>
+                                                        }
+                                                        else
+                                                        {
+                                                            <th></th>
+                                                        }
+                                                    }
                                                 </tr>
                                             }
                                         </tbody>
@@ -152,8 +198,29 @@
     </div>
 </div>
 
+<div class="modal fade" id="creditsPurchaseModal" tabindex="-1" aria-labelledby="creditsPurchaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="creditsPurchaseModalLabel">Credits Purchase</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    We're currently experiencing issues with our credits purchasing functionality.
+                    Please check back later. We apologize for any inconvenience.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    @if (RequestContext.Instance.CurrentUser.Value.Id == Model.Id)
+    @if (RequestContext.Instance?.CurrentUser?.Value?.Id == Model.Id)
     {
         <script>
             window.addEventListener('DOMContentLoaded', () => {
@@ -161,7 +228,7 @@
                 if (emailForm) {
                     emailForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -172,7 +239,7 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const emailErrorDiv = document.querySelector('#emailError');
+                                const emailErrorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
@@ -187,7 +254,7 @@
                 if (passwordForm) {
                     passwordForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -198,12 +265,12 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const passwordErrorDiv = document.querySelector('#passwordError');
+                                const errorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
-                                    passwordErrorDiv.innerText = data.errorMessage;
-                                    passwordErrorDiv.style.display = 'block';
+                                    errorDiv.innerText = data.errorMessage;
+                                    errorDiv.style.display = 'block';
                                 }
                             });
                     };
@@ -213,7 +280,7 @@
                 if (profilePictureForm) {
                     profilePictureForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
+                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -224,17 +291,49 @@
                         })
                             .then(response => response.json())
                             .then(data => {
-                                const profilePictureErrorDiv = document.querySelector('#profilePictureError');
+                                const errorDiv = document.querySelector('#error');
                                 if (data.success) {
                                     location.reload();
                                 } else {
-                                    profilePictureErrorDiv.innerText = data.errorMessage;
-                                    profilePictureErrorDiv.style.display = 'block';
+                                    errorDiv.innerText = data.errorMessage;
+                                    errorDiv.style.display = 'block';
                                 }
                             });
                     };
                 }
             });
         </script>
+        @if (Model.UserFiles.Any()) {
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    const downloadButtons = document.querySelectorAll('.download-file');
+                    if (downloadButtons) {
+                        downloadButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                const fileName = this.getAttribute('data-filename');
+                                const base64Content = this.getAttribute('data-filecontent');
+
+                                const downloadLink = document.createElement('a');
+
+                                let mimeType = 'application/octet-stream';
+
+                                if (fileName.endsWith('.pdf')) mimeType = 'application/pdf';
+                                else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) mimeType = 'image/jpeg';
+                                else if (fileName.endsWith('.png')) mimeType = 'image/png';
+                                else if (fileName.endsWith('.txt')) mimeType = 'text/plain';
+                                else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) mimeType = 'application/msword';
+
+                                downloadLink.href = `data:${mimeType};base64,${base64Content}`;
+                                downloadLink.download = fileName;
+
+                                document.body.appendChild(downloadLink);
+                                downloadLink.click();
+                                document.body.removeChild(downloadLink);
+                            });
+                        });
+                    }
+                });
+            </script>
+        }
     }
 }

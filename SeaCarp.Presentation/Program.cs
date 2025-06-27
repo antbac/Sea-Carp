@@ -1,91 +1,108 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
+﻿using elFinder.Net.AspNetCore.Extensions;
+using elFinder.Net.Drivers.FileSystem.Extensions;
+using elFinder.Net.Drivers.FileSystem.Helpers;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using SeaCarp.Application.Jobs;
 using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation;
 using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
-
-// Add services to the container.
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
+internal class Program
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(3600);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+    public static string WebRootPath { get; private set; }
+    public static string SitePwnedBy { get; set; }
 
-IocSetup.ConfigureIoc(builder.Services);
-SystemInformation.LastStarted = DateTime.Now;
-
-builder.Services
-    .AddControllersWithViews()
-    .AddRazorRuntimeCompilation()
-    .AddNewtonsoftJson(options =>
+    public static string MapPath(string path, string basePath = null)
     {
-        options.SerializerSettings.TypeNameHandling = TypeNameHandling.All;
-    })
-    .AddMvcOptions(options =>
-    {
-        // Modify the existing Newtonsoft.Json formatter to accept all media types
-        var jsonFormatter = options.InputFormatters
-            .OfType<NewtonsoftJsonInputFormatter>()
-            .FirstOrDefault();
-
-        if (jsonFormatter != null)
+        if (string.IsNullOrEmpty(basePath))
         {
-            jsonFormatter.SupportedMediaTypes.Clear();
-            jsonFormatter.SupportedMediaTypes.Add("*/*");
+            basePath = WebRootPath;
         }
-    });
 
-builder.Services.AddHostedService<RestockingJob>();
+        path = path.Replace("~/", "").TrimStart('/').Replace('/', '\\');
+        return PathHelper.GetFullPath(Path.Combine(basePath, path));
+    }
 
-builder.Services.Configure<RazorViewEngineOptions>(options =>
-{
-    options.ViewLocationFormats.Add("~/wwwroot/Views/{0}" + RazorViewEngine.ViewExtension);
-});
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+        WebRootPath = builder.Environment.WebRootPath;
 
-var app = builder.Build();
+        builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
 
-ServiceLocator.Instance = app.Services;
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromSeconds(3600);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
 
-app.UseHsts();
+        IocSetup.ConfigureIoc(builder.Services);
+        SystemInformation.LastStarted = DateTime.Now;
+        SystemInformation.PasswordSalt = builder.Configuration["Cryptography:PasswordSalt"];
 
-app.UseHttpsRedirection();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
-    RequestPath = "/files",
-    ServeUnknownFileTypes = true,
-    DefaultContentType = "application/octet-stream"
-});
+        builder.Services
+            .AddControllersWithViews()
+            .AddRazorRuntimeCompilation()
+            .AddNewtonsoftJson()
+            .AddMvcOptions(options =>
+            {
+                var jsonFormatter = options.InputFormatters
+                    .OfType<NewtonsoftJsonInputFormatter>()
+                    .FirstOrDefault();
 
-app.UseDirectoryBrowser(new DirectoryBrowserOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
-    RequestPath = "/files"
-});
+                if (jsonFormatter != null)
+                {
+                    jsonFormatter.SupportedMediaTypes.Clear();
+                    jsonFormatter.SupportedMediaTypes.Add("*/*");
+                }
+            });
 
-app.UseRouting();
+        builder.Services.AddHostedService<StockingJob>();
+        builder.Services.AddHostedService<SupportHandlerJob>();
 
-app.UseSession();
-app.UseSessionAuthorization();
+        builder.Services
+            .AddElFinderAspNetCore()
+            .AddFileSystemDriver();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
+        builder.Services.AddRazorPages();
 
-app.UseExceptionHandler("/Error");
+        var app = builder.Build();
 
-app.Run();
+        {
+            using var scope = app.Services.CreateScope();
+            scope.ServiceProvider.GetRequiredService<IFileService>().ConfigureRoot(WebRootPath);
+        }
+
+        ServiceLocator.Instance = app.Services;
+
+        app.UsePwnMiddleware();
+
+        app.UseHsts();
+        app.UseHttpsRedirection();
+
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseSession();
+        app.UseSessionAuthorization();
+
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.MapRazorPages();
+
+        app.UseExceptionHandler("/Error");
+
+        app.UsePrettyErrorMessages();
+
+        app.Run();
+    }
+}

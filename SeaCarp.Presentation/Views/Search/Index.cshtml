@@ -1,14 +1,14 @@
 ﻿@model SeaCarp.Presentation.Models.ViewModels.SearchViewModel
 
 <div class="container mt-4">
-    <h2 class="mb-4">Showing matches for: "@Model.SeachQuery"</h2>
+    <h2 class="mb-4">Showing matches for: "@Model.SearchQuery"</h2>
 
     <div class="row">
         @foreach (var product in Model.MatchingProducts)
 {
     <div class="col-md-3 mb-4">
                 <div class="card h-100">
-                    <img src="~/files/images/products/@(product.ProductName).png"
+                    <img src="~/images/products/@(product.ProductName).png"
                          class="card-img-top"
                          alt="@(product.ProductName)" />
                     <div class="card-body d-flex flex-column">

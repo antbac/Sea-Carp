@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Attributes;
 using System.Globalization;
 using System.Xml;
 
@@ -17,18 +18,27 @@ public class SEOController(
 {
     private readonly IActionDescriptorCollectionProvider _provider = provider;
 
+    #region RobotsTxt
+
     [HttpGet]
-    [Route("robots.txt")]
+    [Route("/robots.txt", Name = $"{nameof(SEOController)}/{nameof(RobotsTxt)}")]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
     public IActionResult RobotsTxt()
     {
-        return Uri.TryCreate(Url.ActionLink(nameof(AdminController.Index), nameof(AdminController).RemoveControllerSuffix()), UriKind.Absolute, out var hiddenUrl)
-            ? Content($"User-agent: *\r\nDisallow: {hiddenUrl.AbsolutePath}\r\nDisallow: /files", "text/plain")
-            : Content($"User-agent: *", "text/plain");
+        var hiddenUrls = new string[] {
+            Url.ActionLink(nameof(AdminController.Index_MVC), nameof(AdminController).RemoveControllerSuffix()),
+            Url.ActionLink(nameof(FileManagerController.Index), nameof(FileManagerController).RemoveControllerSuffix()),
+        };
+
+        return Content($"User-agent: *\r\nDisallow: {string.Join("\r\nDisallow: ", hiddenUrls)}", "text/plain");
     }
 
+    #endregion RobotsTxt
+
+    #region SitemapXml
+
     [HttpGet]
-    [Route("sitemap.xml")]
+    [Route("/sitemap.xml", Name = $"{nameof(SEOController)}/{nameof(SitemapXml)}")]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
     public IActionResult SitemapXml()
     {
@@ -39,11 +49,15 @@ public class SEOController(
         {
             if (descriptor is ControllerActionDescriptor cad)
             {
-                bool hasHttpGet = cad.MethodInfo
+                var hasHttpGet = cad.MethodInfo
                     .GetCustomAttributes(typeof(HttpGetAttribute), inherit: true)
                     .Any();
 
-                if (!hasHttpGet || cad.ControllerName == nameof(SuperAdminController))
+                var isApiEndpoint = cad.MethodInfo
+                    .GetCustomAttributes(typeof(ApiEndpointAttribute), inherit: true)
+                    .Any();
+
+                if (isApiEndpoint || !hasHttpGet || cad.ControllerName == nameof(AdminController))
                 {
                     continue;
                 }
@@ -55,15 +69,9 @@ public class SEOController(
                     routeValues[param.Name] = "<identifier>";
                 }
 
-                string url;
-                if (cad.AttributeRouteInfo != null && !string.IsNullOrEmpty(cad.AttributeRouteInfo.Name))
-                {
-                    url = Url.RouteUrl(cad.AttributeRouteInfo.Name, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
-                }
-                else
-                {
-                    url = Url.Action(cad.ActionName, cad.ControllerName, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
-                }
+                var url = cad.AttributeRouteInfo != null && !string.IsNullOrEmpty(cad.AttributeRouteInfo.Name)
+                    ? Url.RouteUrl(cad.AttributeRouteInfo.Name, routeValues.Count > 0 ? routeValues : null, Request.Scheme)
+                    : Url.Action(cad.ActionName, cad.ControllerName, routeValues.Count > 0 ? routeValues : null, Request.Scheme);
 
                 if (!string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 {
@@ -81,6 +89,10 @@ public class SEOController(
         var xml = GenerateSitemapXml(sitemapNodes);
         return Content(xml, "application/xml");
     }
+
+    #endregion SitemapXml
+
+    #region Private help functions
 
     private static string GenerateSitemapXml(List<SitemapNode> sitemapNodes)
     {
@@ -107,6 +119,8 @@ public class SEOController(
 
         return sw.ToString();
     }
+
+    #endregion Private help functions
 }
 
 public class SitemapNode
