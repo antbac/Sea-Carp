@@ -1,4 +1,5 @@
-﻿using SeaCarp.CrossCutting.Services.Abstractions;
+﻿using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.ViewModels;
@@ -48,6 +49,13 @@ public class SystemController(
     #endregion Index
 
     #region Logs
+
+    [HttpGet]
+    [Route("/system/logs", Name = $"{nameof(SystemController)}/{nameof(Logs_Redirect)}")]
+    public IActionResult Logs_Redirect()
+    {
+        return RedirectToAction(nameof(Logs), nameof(SystemController).RemoveControllerSuffix(), new { pageNumber = 1 });
+    }
 
     [HttpGet]
     [Route("/system/logs/{pageNumber}", Name = $"{nameof(SystemController)}/{nameof(Logs)}")]

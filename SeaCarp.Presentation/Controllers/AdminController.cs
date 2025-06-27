@@ -108,7 +108,7 @@ public class AdminController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
-    public async Task<IActionResult> Pwn([FromBody] PwnRequest request)
+    public IActionResult Pwn([FromBody] PwnRequest request)
     {
         if (!AuthenticateUser())
         {

@@ -16,8 +16,6 @@ public class SupportCaseService(
 
     public async Task<SupportCase> CreateSupportCase(User user, int orderId, string issueDescription, string imageName, byte[] imageBytes)
     {
-        string uploadPath = null;
-
         if (!string.IsNullOrWhiteSpace(imageName) && imageBytes != null && imageBytes.Length != 0)
         {
             imageName = imageName.Replace("\\", "/").Split("/").Last();
