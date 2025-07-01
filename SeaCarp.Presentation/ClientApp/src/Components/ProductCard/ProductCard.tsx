@@ -10,13 +10,15 @@ function ProductCard({...product} : Product) {
 
             <img src={`${ApiConfig.BASE_IMAGE_URL}/products/${product.productName}.png`} alt={product.productName} />
 
-            <h2>{product.productName}</h2>
+            <div className="disposition">
+              <h2>{product.productName}</h2>
 
-            <p>{product.description}</p>
-            
-            <p>{product.stock}</p>
-
+              <p className='description'>{product.description}</p>
+              
+              <p>{product.stock} items in stock</p>
             <Button as={"a"} href={`/products/${product.id}`}>View Details</Button>
+            </div>
+
     </div>
   )
 }

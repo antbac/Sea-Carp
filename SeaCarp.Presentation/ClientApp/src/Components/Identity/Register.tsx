@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Button, Col, Container, Form, Row } from 'react-bootstrap'
+import { Button, Col, Form, Row } from 'react-bootstrap'
 import type { AccountRegistrationRequest } from '../../models/AccountRegistrationRequest';
+import { ApiConfig } from '../../utils/ApiConfig';
 
 function Register() {
 
@@ -24,7 +25,7 @@ function Register() {
     setRegistrationRequest(request);
 
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch(ApiConfig.REGISTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -33,7 +34,7 @@ function Register() {
       })
 
       if (response.ok) {
-        window.location.href = "/identity/login";
+        window.location.href = "/login";
       }
     }
 
@@ -43,8 +44,8 @@ function Register() {
   }
 
   return (
-    <Container>
-          <h1>Register</h1>
+    <>
+    <h1>Register</h1>
       <Row xs={1} md={2}>
         <Col>
         <h2>Create a new account.</h2>
@@ -52,17 +53,17 @@ function Register() {
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className='mb-3'>
-            <Form.Label>Username</Form.Label>
+            {/* <Form.Label>Username</Form.Label> */}
             <Form.Control name="username" type="text" placeholder='Username'></Form.Control>
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>Email</Form.Label>
+            {/* <Form.Label>Email</Form.Label> */}
             <Form.Control name="email" type="email" placeholder='Email'></Form.Control>
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>Password</Form.Label>
+            {/* <Form.Label>Password</Form.Label> */}
             <Form.Control name="password" type="password" placeholder='Password'></Form.Control>
           </Form.Group>
 
@@ -75,7 +76,7 @@ function Register() {
         <h2>Join the #1 Community for Sea Carp Gear, Tips & More</h2>
         </Col>
       </Row>
-    </Container>
+    </>
   )
 }
 

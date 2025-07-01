@@ -1,11 +1,41 @@
 .product-card {
     border: 1px solid gray;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    
+    .disposition {
+      display: flex;
+      flex-direction: column;
+      margin: auto 10px 10px 10px;
 
-  img {
-    width: 100%;
+      p.description {
+        height: 50px;
+        overflow: hidden;
+        position: relative;
+      }
+      
+      h2 {
+        flex-grow: 1;
+      }
+  
+      img {
+        width: 100%;
+      }
+  
+      p {
+        flex-grow: 1;
+      }
+
+    }
+
+
+  a.btn {
+    bottom: 0px;
+    position: relative;
   }
 
-  h2 {
-    }
+
 
 }

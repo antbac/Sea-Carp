@@ -9,15 +9,15 @@ import Button from "react-bootstrap/Button";
 
 function Header() {
   return (
-    <Container as={"header"} fluid>
+    <Container as={"header"}>
       <Row>
         <Col>
           <Navbar expand="sm" className="" variant="dark">
             <Container>
               <Navbar.Brand href="/">
                 <img
-                  className="d-none d-sm-inline-block"
-                  src="src/assets/SeaCarpLogo.png"
+                  className="d-sm-inline-block"
+                  src="/src/assets/SeaCarpLogo.png"
                   title="Sea Carp"
                 />
                 Sea Carp

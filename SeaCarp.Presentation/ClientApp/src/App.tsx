@@ -6,19 +6,26 @@ import type { Product } from "./models/Product";
 import Header from "./Views/Header";
 import ProductListView from "./Views/ProductListView";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Container } from "react-bootstrap";
+import Search from "./Views/Search";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Header />
+        <Container>
         <Routes>
           <Route index element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail {...({} as Product)} />} />
           <Route path="/products" element={<ProductListView />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login/:returnurl" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/search/:query" element={<Search />} />
         </Routes>
+        </Container>
       </BrowserRouter>
 
       {/* <ProductList /> */}

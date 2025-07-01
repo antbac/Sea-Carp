@@ -1,5 +1,17 @@
+
 .product-detail {
 
+
+    img {
+        width: 100%;
+    }
+
+    .price {
+        color:  rgba(var(--bs-primary-rgb));
+        font-size: 30px;
+    }
+
+    .btn {margin-top: 20px;}
 
     
 }

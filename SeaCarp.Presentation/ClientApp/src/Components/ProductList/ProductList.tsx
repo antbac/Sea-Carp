@@ -28,11 +28,11 @@ const [products, setProducts] = useState<Product[]>([]);
     }, [])
   return (
     <Row as={"section"} className="product-list gx-5 gy-5">
-        {products.map( (p) => (
+        {products.map( (product) => (
 
             
-            <Col as={"article"} lg={6} key={p.id} >
-            <ProductCard {...p} />
+            <Col as={"article"} sm={6} md={4} key={product.id} >
+            <ProductCard {...product} />
         </Col>
 
         ))}

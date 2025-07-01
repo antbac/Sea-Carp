@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { LoginRequest } from "../../models/LoginRequest";
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
+import { Link } from "react-router-dom";
+import { ApiConfig } from "../../utils/ApiConfig";
 
 function Login() {
 
@@ -20,7 +22,7 @@ function Login() {
     setLoginRequest(request);
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch(ApiConfig.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -29,7 +31,7 @@ function Login() {
       })
 
       if (response.ok) {
-        window.location.href = "/profiles";
+        window.location.href = "/products";
       }
     }
 
@@ -39,23 +41,25 @@ function Login() {
   }
 
   return (
-    <Container>
+    <>
           <h1>Logga in</h1>
-      <Row xs={1} md={2}>
-        <Col>
+      <Row>
+        <Col md={5} lg={4}>
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className='mb-3'>
-            <Form.Label>Username</Form.Label>
+            {/* <Form.Label>Username</Form.Label> */}
             <Form.Control name="username" type="text" placeholder='Username'></Form.Control>
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            <Form.Label>Password</Form.Label>
+            {/* <Form.Label>Password</Form.Label> */}
             <Form.Control name="password" type="password" placeholder='Password'></Form.Control>
           </Form.Group>
 
-          <Button type="submit">Register</Button>
+          <Button type="submit">Log in</Button>
+          <Button as="a" href="/register" className="mx-2" variant="secondary">Register as a new user</Button>
+
         </Form>
 
 
@@ -63,14 +67,13 @@ function Login() {
         <Col>
         <h2>Your One-Stop Shop for Premium Sea Carp Fishing Gear</h2>
 
-        <img src="/files/images/SeaCarpSimple.png" width="256" height="256" />
-
-        <p>
+        <p className="m-3">
+        <img className="float-start me-3" src="/src/assets/SeaCarpSimple.png" width="256" height="256" />
           You're only one step away from exploring the best fishing gear, accessories, and tips for your next sea carp adventure. Log in to browse top-quality rods, reels, and baits, manage your cart and orders, and connect with fellow anglers in our vibrant community.
         </p>
         </Col>
       </Row>
-    </Container>
+    </>
   )
 }
 
