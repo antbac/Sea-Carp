@@ -42,6 +42,13 @@ internal class Program
             options.Cookie.IsEssential = true;
         });
 
+        builder.Services.AddCors(options =>
+            options.AddPolicy("AllowCors", builder => builder
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials()));
+
         IocSetup.ConfigureIoc(builder.Services);
         SystemInformation.LastStarted = DateTime.Now;
         SystemInformation.PasswordSalt = builder.Configuration["Cryptography:PasswordSalt"];
@@ -89,6 +96,8 @@ internal class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        app.UseCors("AllowCors");
 
         app.UseSession();
         app.UseSessionAuthorization();

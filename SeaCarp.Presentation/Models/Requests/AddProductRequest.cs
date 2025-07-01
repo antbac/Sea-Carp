@@ -1,6 +1,6 @@
-﻿namespace SeaCarp.Presentation.Models.Requests;
+namespace SeaCarp.Presentation.Models.Requests;
 
-public class UpdateProductInformationRequest
+public class AddProductRequest
 {
     public string ProductName { get; set; }
     public string Description { get; set; }

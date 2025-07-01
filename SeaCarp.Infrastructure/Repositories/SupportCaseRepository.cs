@@ -25,7 +25,7 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                 {orderId},
                 '{description}',
                 {(string.IsNullOrWhiteSpace(image) ? "NULL" : $"'{image}'")},
-                '{DateTime.Now:yyyy-MM-dd:HH:mm:ss:fff}'
+                '{DateTime.Now:yyyy-MM-dd HH:mm:ss:fff}'
             );
         ", @"\s+", " ");
             await cmd.ExecuteNonQueryAsync();
@@ -68,7 +68,7 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                     Id = reader.GetInt32(0),
                     Description = reader.GetString(1),
                     Image = reader.IsDBNull(2) ? null : reader.GetString(2),
-                    CreatedDate = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
+                    CreatedDate = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd HH:mm:ss:fff", CultureInfo.InvariantCulture),
                 };
             }
         }
@@ -89,7 +89,7 @@ public class SupportCaseRepository(IOrderRepository orderRepository) : ISupportC
                 SELECT
                     {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.Id)}
                 FROM {nameof(SupportCase).ToPlural()}
-                WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.CreatedDate)} >= '{openedAfter:yyyy-MM-dd:HH:mm:ss:fff}';
+                WHERE {nameof(SupportCase).ToPlural()}.{nameof(SupportCase.CreatedDate)} >= '{openedAfter:yyyy-MM-dd HH:mm:ss:fff}';
             ", @"\s+", " ");
 
             using var reader = await cmd.ExecuteReaderAsync();

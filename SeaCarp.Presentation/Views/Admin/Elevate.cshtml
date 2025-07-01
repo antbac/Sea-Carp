@@ -1,0 +1,150 @@
+﻿@model SeaCarp.Presentation.Models.ViewModels.AdminViewModel
+@{
+    ViewData["Title"] = "Super Admin";
+}
+
+@if (string.IsNullOrWhiteSpace(Model.ErrorMessage.Value))
+{
+    <form id="AdminLoginForm" method="post" class="mt-4">
+        <div class="form-group mb-3">
+            <label for="authKey" class="mb-2">Authentication Key</label>
+            <p class="small text-muted">Please enter the 32-character hexadecimal admin authentication key to elevate yourself to access this page</p>
+
+            <div id="authKeyBoxes" class="mb-2">
+                @for (int row = 0; row < 4; row++)
+                {
+                    <div class="d-flex mb-1">
+                        @for (int col = 0; col < 8; col++)
+                        {
+                            int index = row * 8 + col;
+                            <input type="text"
+                                   class="auth-char-input form-control text-center me-1"
+                                   maxlength="1"
+                                   data-index="@index"
+                                   pattern="[A-F0-9]"
+                                   style="width: 2.5rem; height: 2.5rem; font-family: monospace; font-size: 1.2rem;">
+                        }
+                    </div>
+                }
+            </div>
+
+            <input type="hidden" id="authKey" name="authKey">
+        </div>
+        <button type="submit" class="btn btn-primary mt-1">Authenticate</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const authInputs = document.querySelectorAll('.auth-char-input');
+            const authKeyField = document.getElementById('authKey');
+
+            // Focus the first input field on page load
+            authInputs[0].focus();
+
+            // Handle keyboard input for each box
+            authInputs.forEach((input, index) => {
+                // Auto-focus next input after entering a character
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value.toUpperCase();
+
+                    // Validate input is a hex character (0-9, A-F)
+                    if (/^[A-F0-9]$/.test(value)) {
+                        e.target.value = value;
+
+                        // Move to next input if available
+                        if (index < authInputs.length - 1) {
+                            authInputs[index + 1].focus();
+                        }
+                    } else {
+                        e.target.value = '';
+                    }
+
+                    // Update the hidden field with all values
+                    updateAuthKey();
+                });
+
+                // Handle backspace to go to previous field
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                        authInputs[index - 1].focus();
+                    }
+                });
+            });
+
+            // Handle paste event for the entire container
+            document.getElementById('authKeyBoxes').addEventListener('paste', function(e) {
+                e.preventDefault();
+
+                // Get pasted content
+                let pastedText = '';
+                if (window.clipboardData && window.clipboardData.getData) { // IE
+                    pastedText = window.clipboardData.getData('Text');
+                } else if (e.clipboardData && e.clipboardData.getData) {
+                    pastedText = e.clipboardData.getData('text/plain');
+                }
+
+                // Clean and uppercase the input
+                pastedText = pastedText.replace(/[^A-Fa-f0-9]/g, '').toUpperCase();
+
+                // Fill in the boxes with the pasted characters
+                for (let i = 0; i < Math.min(pastedText.length, authInputs.length); i++) {
+                    authInputs[i].value = pastedText[i];
+                }
+
+                // Focus the next empty box or the last box
+                const nextEmptyIndex = pastedText.length < authInputs.length ? pastedText.length : authInputs.length - 1;
+                authInputs[nextEmptyIndex].focus();
+
+                // Update the hidden field with all values
+                updateAuthKey();
+            });
+
+            // Update the hidden auth key field with combined values from all boxes
+            function updateAuthKey() {
+                let combinedValue = '';
+                authInputs.forEach(input => {
+                    combinedValue += input.value;
+                });
+                authKeyField.value = combinedValue;
+            }
+
+            // Handle form submission
+            document.getElementById('AdminLoginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const authKey = authKeyField.value;
+
+                // Check if we have all 32 characters
+                if (authKey.length !== 32) {
+                    alert('Please enter all 32 characters of the authentication key.');
+                    return;
+                }
+
+                fetch('@Url.Action(nameof(AdminController.Login), nameof(AdminController).RemoveControllerSuffix())', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        AdminAuthenticationKey: authKey
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        handleException(data);
+                        return;
+                    }
+
+                    window.location.href = data.redirectUrl;
+                });
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="text-center mt-5">
+        <h2>Unauthorized</h2>
+        <h3>@Model.ErrorMessage</h3>
+    </div>
+}

@@ -36,3 +36,28 @@ body {
 #error-box {
     display: none;
 }
+
+#admin-banner {
+    position: fixed;
+    top: 200px;
+    left: -80px;
+    width: 400px;
+    height: 35px;
+    background-color: rgba(255, 50, 50, 1);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    transform: rotate(-45deg);
+    transform-origin: top left;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+    #admin-banner p {
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+    }

@@ -60,7 +60,12 @@ public class AdminController(
     [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Login)}")]
     public IActionResult Login([FromBody] AdminLoginRequest request)
     {
-        if (CurrentUser is null || !CurrentUser.IsAdmin)
+        if (CurrentUser is null)
+        {
+            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to access this page" });
+        }
+
+        if (!CurrentUser.IsAdmin)
         {
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an admin to access this page" });
         }
@@ -86,6 +91,36 @@ public class AdminController(
 
     #endregion Login
 
+    #region Elevate
+
+    [HttpGet]
+    [Route("/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(Elevate_MVC)}")]
+    public IActionResult Elevate_MVC() => View("Elevate", new AdminViewModel(Elevate_Common()));
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(Elevate_SPA)}")]
+    public IActionResult Elevate_SPA() => Json(Elevate_Common());
+
+    public Models.Api.v1.Admin Elevate_Common()
+    {
+        if (CurrentUser is null)
+        {
+            LogService.Warning("Attempted to access Admin elevation area without being logged in.");
+            return new Models.Api.v1.Admin("You must be logged in to access this page");
+        }
+
+        if (!CurrentUser.IsAdmin)
+        {
+            LogService.Warning($"Non admin user {CurrentUser.Username} attempted to access Admin elevation area.");
+            return new Models.Api.v1.Admin("You must be an admin to access this page");
+        }
+
+        return new Models.Api.v1.Admin(null);
+    }
+
+    #endregion Elevate
+
     #region PwnPage
 
     [HttpGet]
@@ -108,7 +143,7 @@ public class AdminController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
-    public async Task<IActionResult> Pwn([FromBody] PwnRequest request)
+    public IActionResult Pwn([FromBody] PwnRequest request)
     {
         if (!AuthenticateUser())
         {

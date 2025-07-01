@@ -1,4 +1,6 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting;
+using SeaCarp.CrossCutting.Services;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
@@ -7,10 +9,24 @@ namespace SeaCarp.Application.Services;
 
 public class ProductService(
     IProductRepository productRepository,
-    ILogService logService) : IProductService
+    ILogService logService,
+    IFileService fileService,
+    IHttpService httpService) : IProductService
 {
     private readonly IProductRepository _productRepository = productRepository;
     private readonly ILogService _logService = logService;
+    private readonly IFileService _fileService = fileService;
+    private readonly IHttpService _httpService = httpService;
+
+    public async Task AddProduct(Product product, string imageUrl)
+    {
+        var imageContent = await _httpService.FetchContentAsync(imageUrl, OutputType.Binary);
+        await _fileService.WriteFile($"images/products/{product.ProductName}.png", (byte[])imageContent);
+
+        await _productRepository.AddProduct(product);
+
+        _logService.Information($"New product added: {product.ProductName}");
+    }
 
     public async Task AddReview(int productId, Review review, User user)
     {
@@ -60,8 +76,18 @@ public class ProductService(
         return products;
     }
 
-    public async Task UpdateProduct(int id, Product product)
+    public async Task ResetReviews(int productId)
     {
+        await _productRepository.ResetReviews(productId);
+
+        _logService.Information($"Reviews for product with ID {productId} cleared");
+    }
+
+    public async Task UpdateProduct(int id, Product product, string imageUrl)
+    {
+        var imageContent = await _httpService.FetchContentAsync(imageUrl, OutputType.Binary);
+        await _fileService.WriteFile($"images/products/{product.ProductName}.png", (byte[])imageContent);
+
         await _productRepository.UpdateProduct(id, product);
 
         _logService.Information($"Product with ID {id} updated: {product.ProductName}");

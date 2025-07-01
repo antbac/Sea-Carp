@@ -242,7 +242,7 @@ public class UserRepository : IUserRepository
                     order = new Order
                     {
                         Id = orderId,
-                        OrderDate = DateTime.ParseExact(reader.GetString(8), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture),
+                        OrderDate = DateTime.ParseExact(reader.GetString(8), "yyyy-MM-dd HH:mm:ss:fff", CultureInfo.InvariantCulture),
                         Status = Enum.Parse<OrderStatus>(reader.GetString(9)),
                         DeliveryAddress = reader.GetString(10),
                         OrderItems = []

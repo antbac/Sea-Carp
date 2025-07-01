@@ -109,13 +109,14 @@ public class FileService : IFileService
             throw new ArgumentNullException(nameof(content), "Content cannot be null.");
         }
 
-        var directory = Path.GetDirectoryName(filePath);
+        var fullPath = Path.Combine(RootDirectory, filePath);
+        var directory = Path.GetDirectoryName(fullPath);
         if (!string.IsNullOrEmpty(directory))
         {
             Directory.CreateDirectory(directory);
         }
 
-        await File.WriteAllBytesAsync(filePath, content);
+        await File.WriteAllBytesAsync(fullPath, content);
     }
 
     public async Task WriteUserFile(string username, string fileName, byte[] fileContent)

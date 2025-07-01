@@ -4,6 +4,8 @@ namespace SeaCarp.Domain.Abstractions;
 
 public interface IProductRepository
 {
+    Task AddProduct(Product product);
+
     Task AddReview(int productId, Review review, User user);
 
     Task<List<Product>> GetBestSellers(int numberOfProducts);
@@ -17,4 +19,6 @@ public interface IProductRepository
     Task<List<Product>> GetProductsByCategory(string[] categories);
 
     Task UpdateProduct(int id, Product product);
+
+    Task ResetReviews(int productId);
 }
