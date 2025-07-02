@@ -9,6 +9,42 @@ namespace SeaCarp.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
+    public async Task AddProduct(Product product)
+    {
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                INSERT OR IGNORE INTO Categories
+                (
+                    Category
+                ) VALUES
+                    ('{product.Category}');
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = Regex.Replace(@$"
+                INSERT INTO {nameof(Product).ToPlural()}
+                (
+                    {nameof(Product.ProductName)},
+                    {nameof(Product.Description)},
+                    {nameof(Product.Price)},
+                    {nameof(Product.Stock)},
+                    {nameof(Product.Category)}Id
+                ) VALUES (
+                    '{product.ProductName}',
+                    '{product.Description}',
+                    {product.Price.ToString().Replace(",", ".")},
+                    {product.Stock},
+                    (SELECT Categories.Id FROM Categories WHERE Categories.Category = '{product.Category}')
+                );
+            ", @"\s+", " ");
+            await cmd.ExecuteNonQueryAsync();
+        }
+    }
+
     public async Task AddReview(int productId, Review review, User user)
     {
         using var cmd = Database.GetConnection().CreateCommand();
@@ -25,7 +61,7 @@ public class ProductRepository : IProductRepository
                 {user.Id},
                 '{review.Rating}',
                 '{review.Comment}',
-                '{DateTime.Today:yyyy-MM-dd:HH:mm:ss:fff}'
+                '{DateTime.Today:yyyy-MM-dd HH:mm:ss:fff}'
             );
         ", @"\s+", " ");
         await cmd.ExecuteNonQueryAsync();
@@ -177,6 +213,16 @@ public class ProductRepository : IProductRepository
         return await InstantiateProducts(cmd);
     }
 
+    public async Task ResetReviews(int productId)
+    {
+        using var cmd = Database.GetConnection().CreateCommand();
+        cmd.CommandText = Regex.Replace(@$"
+            DELETE FROM {nameof(Review).ToPlural()}
+            WHERE {nameof(Product)}Id = {productId};
+        ", @"\s+", " ");
+        await cmd.ExecuteNonQueryAsync();
+    }
+
     public async Task UpdateProduct(int id, Product product)
     {
         {
@@ -236,7 +282,7 @@ public class ProductRepository : IProductRepository
             var username = reader.IsDBNull(6) ? default : reader.GetString(6);
             var rating = reader.IsDBNull(7) ? default : reader.GetInt32(7);
             var comment = reader.IsDBNull(8) ? default : reader.GetString(8);
-            var createdDate = reader.IsDBNull(9) ? default : DateTime.ParseExact(reader.GetString(9), "yyyy-MM-dd:HH:mm:ss:fff", CultureInfo.InvariantCulture);
+            var createdDate = reader.IsDBNull(9) ? default : DateTime.ParseExact(reader.GetString(9), "yyyy-MM-dd HH:mm:ss:fff", CultureInfo.InvariantCulture);
 
             if (!productsDict.TryGetValue(productId, out var product))
             {

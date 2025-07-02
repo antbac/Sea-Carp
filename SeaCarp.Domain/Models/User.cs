@@ -42,22 +42,52 @@ public class User
         };
     }
 
-    public void AddCredits(decimal credits)
+    public User AddCredits(decimal credits)
     {
         Credits += credits;
+
+        return this;
     }
 
-    public void SubtractCredits(decimal credits)
+    public User PromoteToAdmin()
+    {
+        if (IsAdmin)
+        {
+            throw new InvalidOperationException("User is already an admin.");
+        }
+
+        IsAdmin = true;
+
+        return this;
+    }
+
+    public User DemoteFromAdmin()
+    {
+        if (!IsAdmin)
+        {
+            throw new InvalidOperationException("Cannot demote a user who is not an admin.");
+        }
+
+        IsAdmin = false;
+
+        return this;
+    }
+
+    public User SubtractCredits(decimal credits)
     {
         Credits -= credits;
+
+        return this;
     }
 
-    public void UpdateEmail(string email)
+    public User UpdateEmail(string email)
     {
         Email = (email ?? string.Empty).ToLowerInvariant();
+
+        return this;
     }
 
-    public void UpdatePassword(string password)
+    public User UpdatePassword(string password)
     {
         using var scope = ServiceLocator.Instance.CreateScope();
         var cryptographyService = scope.ServiceProvider.GetRequiredService<ICryptographyService>();
@@ -66,10 +96,14 @@ public class User
             string.IsNullOrWhiteSpace(password)
                 ? string.Empty
                 : password.Trim());
+
+        return this;
     }
 
-    public void UpdateProfilePicture(string profilePicture)
+    public User UpdateProfilePicture(string profilePicture)
     {
         ProfilePicture = $"data:image/png;base64,{profilePicture}";
+
+        return this;
     }
 }

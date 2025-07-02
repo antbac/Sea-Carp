@@ -44,6 +44,12 @@
                             <li>
                                     <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
                                 </li>
+                                <li id="top_menu_dropdown_admin" style="display: none">
+                                    <a class="dropdown-item" href="/@nameof(AdminController).RemoveControllerSuffix()">
+                                        Admin
+                                        <span id="adminBadge" class="badge bg-secondary ms-1"></span>
+                                    </a>
+                                </li>
                         }
                         else
                         {

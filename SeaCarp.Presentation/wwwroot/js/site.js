@@ -1,4 +1,16 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener('DOMContentLoaded', function () {
+    var jwtCookie = document.cookie.split('; ').find(row => row.startsWith('JWT='));
+    if (jwtCookie) {
+        var jwtPayload = JSON.parse(atob(jwtCookie.split('.')[1]));
+        if (jwtPayload.IsAdmin === 'True') {
+            var adminDiv = document.createElement('div');
+            var pTag = document.createElement('p');
+            pTag.textContent = 'Admin';
+            adminDiv.id = 'admin-banner';
+            adminDiv.appendChild(pTag);
+            document.body.appendChild(adminDiv);
 
-// Write your JavaScript code.
+            document.querySelector('#top_menu_dropdown_admin').style.display = 'list-item';
+        }
+    }
+});

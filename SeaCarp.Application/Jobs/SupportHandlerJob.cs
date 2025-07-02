@@ -5,13 +5,14 @@ using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using System.Runtime.InteropServices;
 
 namespace SeaCarp.Application.Jobs;
 
 public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundService
 {
     private static DateTime _lastRun = DateTime.Today;
-    private readonly TimeSpan _interval = TimeSpan.FromMinutes(1);
+    private readonly TimeSpan _interval = TimeSpan.FromSeconds(10);
 
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
@@ -43,41 +44,78 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
             {
                 try
                 {
-                    // Setup Chrome driver with headless option
                     var options = new ChromeOptions();
                     options.AddArgument("--headless");
                     options.AddArgument("--no-sandbox");
                     options.AddArgument("--disable-dev-shm-usage");
+                    options.AddArgument("--disable-gpu");
+                    options.AddArgument("--window-size=1920,1080");
+                    options.AddArgument("--ignore-certificate-errors");
+                    options.AddArgument("--ignore-ssl-errors=yes");
 
-                    using var driver = new ChromeDriver(options);
+                    var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+                    var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-                    foreach (var supportCase in supportCases)
+                    var service = ChromeDriverService.CreateDefaultService();
+                    service.SuppressInitialDiagnosticInformation = true;
+                    service.HideCommandPromptWindow = true;
+
+                    for (var attemptCount = 1; attemptCount <= 3; attemptCount++)
                     {
                         try
                         {
-                            var caseNumber = supportCase.CaseNumber;
-                            var supportCaseUrl = $"https://localhost:{Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "443"}/Support/{caseNumber}";
+                            using var driver = new ChromeDriver(service, options);
 
-                            driver.Navigate().GoToUrl(supportCaseUrl);
+                            foreach (var supportCase in supportCases)
+                            {
+                                try
+                                {
+                                    var caseNumber = supportCase.CaseNumber;
 
-                            var cookie = new OpenQA.Selenium.Cookie(Constants.JWT, jwt, "/", null);
-                            driver.Manage().Cookies.AddCookie(cookie);
+                                    string baseUrl;
+                                    if (isRunningInDocker)
+                                    {
+                                        baseUrl = "http://seacarp-app";
+                                        logService.Information($"Using Docker service URL: {baseUrl}");
+                                    }
+                                    else
+                                    {
+                                        baseUrl = $"https://localhost:{Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "443"}";
+                                        logService.Information($"Using local URL: {baseUrl}");
+                                    }
 
-                            driver.Navigate().Refresh();
+                                    var supportCaseUrl = $"{baseUrl}/Support/{caseNumber}";
 
-                            await Task.Delay(1000, stoppingToken);
+                                    driver.Navigate().GoToUrl(supportCaseUrl);
 
-                            logService.Information($"Admin made an initial check of support case {caseNumber}");
+                                    var cookie = new OpenQA.Selenium.Cookie(Constants.JWT, jwt, "/", null);
+                                    driver.Manage().Cookies.AddCookie(cookie);
+
+                                    driver.Navigate().Refresh();
+
+                                    await Task.Delay(1000, stoppingToken);
+
+                                    logService.Information($"Admin made an initial check of support case {caseNumber}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    logService.Error($"Error processing support case {supportCase.Id}: {ex.Message}");
+                                }
+                            }
+
+                            break;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            logService.Error($"Error processing support case {supportCase.Id}: {ex.Message}");
+                            if (attemptCount < 3)
+                            {
+                                await Task.Delay(2000, stoppingToken);
+                            }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    logService.Error($"Error initializing Selenium: {ex.Message}");
                 }
             }
 

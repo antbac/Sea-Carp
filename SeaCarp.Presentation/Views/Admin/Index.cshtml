@@ -5,141 +5,263 @@
 
 @if (string.IsNullOrWhiteSpace(Model.ErrorMessage.Value))
 {
-    <form id="AdminLoginForm" method="post" class="mt-4">
-        <div class="form-group mb-3">
-            <label for="authKey" class="mb-2">Authentication Key</label>
-            <p class="small text-muted">Please enter the 32-character hexadecimal admin authentication key to elevate yourself to access this page</p>
-
-            <div id="authKeyBoxes" class="mb-2">
-                @for (int row = 0; row < 4; row++)
-                {
-                    <div class="d-flex mb-1">
-                        @for (int col = 0; col < 8; col++)
-                        {
-                            int index = row * 8 + col;
-                            <input type="text"
-                                   class="auth-char-input form-control text-center me-1"
-                                   maxlength="1"
-                                   data-index="@index"
-                                   pattern="[A-F0-9]"
-                                   style="width: 2.5rem; height: 2.5rem; font-family: monospace; font-size: 1.2rem;">
-                        }
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left side menu -->
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Admin Functions</h5>
                     </div>
-                }
+                    <div class="list-group list-group-flush">
+                        <button class="list-group-item list-group-item-action active" id="menu-products">
+                            <i class="fas fa-box-open me-2"></i>Add Product
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-update-product">
+                            <i class="fas fa-box-open me-2"></i>Update Product
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-reset-product-reviews">
+                            <i class="fas fa-box-open me-2"></i>Reset Product Reviews
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-set-user-password">
+                            <i class="fas fa-box-open me-2"></i>Set User Password
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-set-user-email">
+                            <i class="fas fa-box-open me-2"></i>Set User Email
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-promote-user-to-admin">
+                            <i class="fas fa-box-open me-2"></i>Promote User To Admin
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-demote-user-to-admin">
+                            <i class="fas fa-box-open me-2"></i>Demote User From Admin
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="menu-elevate-to-super-admin">
+                            <i class="fas fa-box-open me-2"></i>Elevate To Super Admin
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <input type="hidden" id="authKey" name="authKey">
+            <!-- Right side content area -->
+            <div class="col-md-9">
+                <!-- Add Product Form -->
+                <div class="content-panel" id="panel-products">
+                    <h2>Add New Product</h2>
+                    <form id="addProductForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" required>
+                            <div class="invalid-feedback">
+                                Product name is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="price" min="0.01" step="0.01" required>
+                                <div class="invalid-feedback">
+                                    Price must be greater than zero.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="category">
+                        </div>
+                        <div class="mb-3">
+                            <label for="imageUrl" class="form-label">Image URL</label>
+                            <input type="url" class="form-control" id="imageUrl">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </form>
+                </div>
+
+                <!-- Product Update Form -->
+                <div class="content-panel d-none" id="panel-update-product">
+                    <h2>Update Product</h2>
+                    <form id="updateProductForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="updateProductId" class="form-label">Product ID</label>
+                            <input type="text" class="form-control" id="updateProductId" required>
+                            <div class="invalid-feedback">
+                                Product ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateProductName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="updateProductName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="updateDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updatePrice" class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="updatePrice" min="0.01" step="0.01">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateCategory" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="updateCategory">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateImageUrl" class="form-label">Image URL</label>
+                            <input type="url" class="form-control" id="updateImageUrl">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateStock" class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="updateStock" min="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Product</button>
+                    </form>
+                </div>
+
+                <!-- Reset Product Reviews Form -->
+                <div class="content-panel d-none" id="panel-reset-product-reviews">
+                    <h2>Reset Product Reviews</h2>
+                    <form id="resetReviewsForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="resetReviewsProductId" class="form-label">Product ID</label>
+                            <input type="text" class="form-control" id="resetReviewsProductId" required>
+                            <div class="invalid-feedback">
+                                Product ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmResetReviews" required>
+                                <label class="form-check-label" for="confirmResetReviews">
+                                    I confirm I want to delete all reviews for this product
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must confirm this action.
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Reset Reviews</button>
+                    </form>
+                </div>
+
+                <!-- Set User Password Form -->
+                <div class="content-panel d-none" id="panel-set-user-password">
+                    <h2>Set User Password</h2>
+                    <form id="setPasswordForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="passwordUserId" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="passwordUserId" required>
+                            <div class="invalid-feedback">
+                                User ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                            <div class="invalid-feedback">
+                                New password is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                            <div class="invalid-feedback">
+                                Please confirm the password.
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Password</button>
+                    </form>
+                </div>
+
+                <!-- Set User Email Form -->
+                <div class="content-panel d-none" id="panel-set-user-email">
+                    <h2>Set User Email</h2>
+                    <form id="setEmailForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="emailUserId" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="emailUserId" required>
+                            <div class="invalid-feedback">
+                                User ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newEmail" class="form-label">New Email</label>
+                            <input type="email" class="form-control" id="newEmail" required>
+                            <div class="invalid-feedback">
+                                Please enter a valid email address.
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Email</button>
+                    </form>
+                </div>
+
+                <!-- Promote User To Admin Form -->
+                <div class="content-panel d-none" id="panel-promote-user-to-admin">
+                    <h2>Promote User To Admin</h2>
+                    <form id="promoteUserForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="promoteUserId" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="promoteUserId" required>
+                            <div class="invalid-feedback">
+                                User ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmPromote" required>
+                                <label class="form-check-label" for="confirmPromote">
+                                    I confirm I want to promote this user to admin
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must confirm this action.
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Promote User</button>
+                    </form>
+                </div>
+
+                <!-- Demote User From Admin Form -->
+                <div class="content-panel d-none" id="panel-demote-user-to-admin">
+                    <h2>Demote User From Admin</h2>
+                    <form id="demoteUserForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="demoteUserId" class="form-label">User ID</label>
+                            <input type="text" class="form-control" id="demoteUserId" required>
+                            <div class="invalid-feedback">
+                                User ID is required.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmDemote" required>
+                                <label class="form-check-label" for="confirmDemote">
+                                    I confirm I want to remove admin privileges from this user
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must confirm this action.
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Demote User</button>
+                    </form>
+                </div>
+
+                <!-- Elevate To Super Admin Form -->
+                <div class="content-panel d-none" id="panel-elevate-to-super-admin">
+                    <h2>Elevate To Super Admin</h2>
+                    <p class="mb-3">This action will elevate your account to Super Admin status.</p>
+                    <p class="mb-3 text-danger">Warning: This is a high-privilege action and should only be performed when absolutely necessary.</p>
+                    <a href="/admin/elevate" class="btn btn-danger">Elevate My Account</a>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-1">Authenticate</button>
-    </form>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const authInputs = document.querySelectorAll('.auth-char-input');
-            const authKeyField = document.getElementById('authKey');
-
-            // Focus the first input field on page load
-            authInputs[0].focus();
-
-            // Handle keyboard input for each box
-            authInputs.forEach((input, index) => {
-                // Auto-focus next input after entering a character
-                input.addEventListener('input', function(e) {
-                    const value = e.target.value.toUpperCase();
-
-                    // Validate input is a hex character (0-9, A-F)
-                    if (/^[A-F0-9]$/.test(value)) {
-                        e.target.value = value;
-
-                        // Move to next input if available
-                        if (index < authInputs.length - 1) {
-                            authInputs[index + 1].focus();
-                        }
-                    } else {
-                        e.target.value = '';
-                    }
-
-                    // Update the hidden field with all values
-                    updateAuthKey();
-                });
-
-                // Handle backspace to go to previous field
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && input.value === '' && index > 0) {
-                        authInputs[index - 1].focus();
-                    }
-                });
-            });
-
-            // Handle paste event for the entire container
-            document.getElementById('authKeyBoxes').addEventListener('paste', function(e) {
-                e.preventDefault();
-
-                // Get pasted content
-                let pastedText = '';
-                if (window.clipboardData && window.clipboardData.getData) { // IE
-                    pastedText = window.clipboardData.getData('Text');
-                } else if (e.clipboardData && e.clipboardData.getData) {
-                    pastedText = e.clipboardData.getData('text/plain');
-                }
-
-                // Clean and uppercase the input
-                pastedText = pastedText.replace(/[^A-Fa-f0-9]/g, '').toUpperCase();
-
-                // Fill in the boxes with the pasted characters
-                for (let i = 0; i < Math.min(pastedText.length, authInputs.length); i++) {
-                    authInputs[i].value = pastedText[i];
-                }
-
-                // Focus the next empty box or the last box
-                const nextEmptyIndex = pastedText.length < authInputs.length ? pastedText.length : authInputs.length - 1;
-                authInputs[nextEmptyIndex].focus();
-
-                // Update the hidden field with all values
-                updateAuthKey();
-            });
-
-            // Update the hidden auth key field with combined values from all boxes
-            function updateAuthKey() {
-                let combinedValue = '';
-                authInputs.forEach(input => {
-                    combinedValue += input.value;
-                });
-                authKeyField.value = combinedValue;
-            }
-
-            // Handle form submission
-            document.getElementById('AdminLoginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const authKey = authKeyField.value;
-
-                // Check if we have all 32 characters
-                if (authKey.length !== 32) {
-                    alert('Please enter all 32 characters of the authentication key.');
-                    return;
-                }
-
-                fetch('@Url.Action(nameof(AdminController.Login), nameof(AdminController).RemoveControllerSuffix())', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        AdminAuthenticationKey: authKey
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        handleException(data);
-                        return;
-                    }
-
-                    window.location.href = data.redirectUrl;
-                });
-            });
-        });
-    </script>
+    </div>
 }
 else
 {
@@ -147,4 +269,322 @@ else
         <h2>Unauthorized</h2>
         <h3>@Model.ErrorMessage</h3>
     </div>
+}
+
+@section Scripts
+{
+    <script>
+        // TODO: Remove this once done testing
+        // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6IjEiLCJVc2VybmFtZSI6ImFkbWluIiwiUGFzc3dvcmQiOiI3MUIyODlBQ0YzMzIxQTQ0OUM5ODlFODBGRTZCNjcxQSIsIkVtYWlsIjoiZnJhbmtAZmlzaG1haWwuY29tIiwiQ3JlZGl0cyI6IjQ5ODMsMjciLCJJc0FkbWluIjoiVHJ1ZSIsImV4cCI6MTc1MTM4NDIxMywiaXNzIjoiU2VhQ2FycCIsImF1ZCI6IlNlYUNhcnAifQ.TXEcxRddBq9qcdoaQ22eO21oAJalPzvt9KSCWgW_I3M
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu handling
+            const menuButtons = document.querySelectorAll('.list-group-item');
+            const contentPanels = document.querySelectorAll('.content-panel');
+
+            // Function to show selected panel
+            function showPanel(panelId) {
+                // Hide all panels
+                contentPanels.forEach(panel => {
+                    panel.classList.add('d-none');
+                });
+
+                // Show the selected panel
+                document.getElementById(panelId).classList.remove('d-none');
+
+                // Update active menu item
+                menuButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+                document.getElementById('menu-' + panelId.split('-')[1]).classList.add('active');
+            }
+
+            // Add click event listeners to menu items
+            document.getElementById('menu-products').addEventListener('click', () => showPanel('panel-products'));
+            document.getElementById('menu-update-product').addEventListener('click', () => showPanel('panel-update-product'));
+            document.getElementById('menu-reset-product-reviews').addEventListener('click', () => showPanel('panel-reset-product-reviews'));
+            document.getElementById('menu-set-user-password').addEventListener('click', () => showPanel('panel-set-user-password'));
+            document.getElementById('menu-set-user-email').addEventListener('click', () => showPanel('panel-set-user-email'));
+            document.getElementById('menu-promote-user-to-admin').addEventListener('click', () => showPanel('panel-promote-user-to-admin'));
+            document.getElementById('menu-demote-user-to-admin').addEventListener('click', () => showPanel('panel-demote-user-to-admin'));
+            document.getElementById('menu-elevate-to-super-admin').addEventListener('click', () => showPanel('panel-elevate-to-super-admin'));
+
+            // Product form handling
+            const productForm = document.getElementById('addProductForm');
+
+            productForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (productForm.checkValidity()) {
+                    const data = {
+                        productName: document.getElementById('productName').value,
+                        description: document.getElementById('description').value,
+                        price: parseFloat(document.getElementById('price').value),
+                        category: document.getElementById('category').value,
+                        imageUrl: document.getElementById('imageUrl').value
+                    };
+
+                    fetch('/api/v1/products', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                productForm.classList.add('was-validated');
+            });
+
+            // Update Product form handling
+            const updateProductForm = document.getElementById('updateProductForm');
+
+            updateProductForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (updateProductForm.checkValidity()) {
+                    const productId = document.getElementById('updateProductId').value;
+                    const data = {};
+
+                    // Only include fields that have values
+                    const name = document.getElementById('updateProductName').value;
+                    if (name) data.productName = name;
+
+                    const description = document.getElementById('updateDescription').value;
+                    if (description) data.description = description;
+
+                    const price = document.getElementById('updatePrice').value;
+                    if (price) data.price = parseFloat(price);
+
+                    const category = document.getElementById('updateCategory').value;
+                    if (category) data.category = category;
+
+                    const imageUrl = document.getElementById('updateImageUrl').value;
+                    if (imageUrl) data.imageUrl = imageUrl;
+
+                    const stock = document.getElementById('updateStock').value;
+                    if (stock !== '') data.stock = parseInt(stock, 10);
+
+                    fetch(`/api/v1/products/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                updateProductForm.classList.add('was-validated');
+            });
+
+            // Reset Product Reviews form handling
+            const resetReviewsForm = document.getElementById('resetReviewsForm');
+
+            resetReviewsForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (resetReviewsForm.checkValidity()) {
+                    const productId = document.getElementById('resetReviewsProductId').value;
+
+                    fetch(`/api/v1/products/${productId}/reviews`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                resetReviewsForm.classList.add('was-validated');
+            });
+
+            // Set User Password form handling
+            const setPasswordForm = document.getElementById('setPasswordForm');
+
+            setPasswordForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (setPasswordForm.checkValidity()) {
+                    const userId = document.getElementById('passwordUserId').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    // Check if passwords match
+                    if (newPassword !== confirmPassword) {
+                        alert('Passwords do not match.');
+                        return;
+                    }
+
+                    fetch(`/api/v1/profiles/${userId}/password`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ password: newPassword })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                setPasswordForm.classList.add('was-validated');
+            });
+
+            // Set User Email form handling
+            const setEmailForm = document.getElementById('setEmailForm');
+
+            setEmailForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (setEmailForm.checkValidity()) {
+                    const userId = document.getElementById('emailUserId').value;
+                    const newEmail = document.getElementById('newEmail').value;
+
+                    fetch(`/api/v1/profiles/${userId}/email`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: newEmail })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                setEmailForm.classList.add('was-validated');
+            });
+
+            // Promote User To Admin form handling
+            const promoteUserForm = document.getElementById('promoteUserForm');
+
+            promoteUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (promoteUserForm.checkValidity()) {
+                    const userId = document.getElementById('promoteUserId').value;
+
+                    fetch(`/api/v1/profiles/${userId}/promote`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                promoteUserForm.classList.add('was-validated');
+            });
+
+            // Demote User From Admin form handling
+            const demoteUserForm = document.getElementById('demoteUserForm');
+
+            demoteUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (demoteUserForm.checkValidity()) {
+                    const userId = document.getElementById('demoteUserId').value;
+
+                    fetch(`/api/v1/profiles/${userId}/demote`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            handleException(data);
+                            return;
+                        }
+
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        handleException({ errorMessage: 'An error occurred while processing your request.' });
+                    });
+                }
+
+                demoteUserForm.classList.add('was-validated');
+            });
+        });
+    </script>
 }

@@ -1,4 +1,4 @@
-﻿@model SeaCarp.Presentation.Models.ViewModels.OverviewViewModel
+﻿@model IEnumerable<SeaCarp.Presentation.Models.ViewModels.ProductViewModel>
 
 <div class="text-center">
     <h1 class="display-4">Welcome to Sea Carp</h1>
@@ -21,16 +21,16 @@
 <div class="container mt-5">
     <h2 class="text-center">Featured Products</h2>
     <div class="row">
-        @foreach (var product in Model.FeaturedProducts)
+        @foreach (var featuredProduct in Model)
 {
     <div class="col-md-4">
                 <div class="card">
-                    <img src="~/images/products/@(product.ProductName).png" class="card-img-top" alt="@(product.ProductName)">
+                    <img src="~/images/products/@(featuredProduct.ProductName).png" class="card-img-top" alt="@(featuredProduct.ProductName)">
                     <div class="card-body">
-                        <h5 class="card-title">@product.ProductName</h5>
-                        <p class="card-text">@product.Description</p>
-                        <p class="card-text">@(product.Stock == 0 ? Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>") : $"{product.Stock} items in stock")</p>
-                        <a href="/@nameof(ProductsController).RemoveControllerSuffix()/@(product.Id)" class="btn btn-primary">View Details</a>
+                        <h5 class="card-title">@featuredProduct.ProductName</h5>
+                        <p class="card-text">@featuredProduct.Description</p>
+                        <p class="card-text">@(featuredProduct.Stock == 0 ? Html.Raw("<span style=\"color: #8a3838;\">Out of stock</span>") : $"{featuredProduct.Stock} items in stock")</p>
+                        <a href="/@nameof(ProductsController).RemoveControllerSuffix()/@(featuredProduct.Id)" class="btn btn-primary">View Details</a>
                     </div>
                 </div>
             </div>

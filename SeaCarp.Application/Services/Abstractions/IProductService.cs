@@ -14,5 +14,9 @@ public interface IProductService
 
     Task<List<Product>> GetProductsByCategory(params string[] categories);
 
-    Task UpdateProduct(int id, Product product);
+    Task UpdateProduct(int id, Product product, string imageUrl);
+
+    Task AddProduct(Product product, string imageUrl);
+
+    Task ResetReviews(int productId);
 }

@@ -20,7 +20,7 @@ public class HomeController(
 
     [HttpGet]
     [Route("/", Name = $"{nameof(HomeController)}/{nameof(Index_MVC)}")]
-    public async Task<IActionResult> Index_MVC() => View("Index", new OverviewViewModel(new Models.Api.v1.Overview(await Index_Common())));
+    public async Task<IActionResult> Index_MVC() => View("Index", (await Index_Common()).Select(product => new ProductViewModel(product)));
 
     [HttpGet]
     [ApiEndpoint]

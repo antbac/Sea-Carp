@@ -201,18 +201,18 @@ internal static class Database
                         {nameof(Order.Status)},
                         {nameof(Order.DeliveryAddress)}
                     ) VALUES
-                        (2,  '2025-01-05:03:22:41:873', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
-                        (2,  '2025-01-06:16:07:03:251', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
-                        (3,  '2025-01-07:10:49:58:097', 'Shipped', '56 Oakwood Avenue Suite 210 Portland OR 97205 USA'),
-                        (4,  '2025-01-08:21:30:15:634', 'Pending', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
-                        (4,  '2025-01-09:00:12:27:402', 'Cancelled', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
-                        (4,  '2025-01-10:13:55:09:146', 'Delivered', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
-                        (7,  '2025-01-11:05:18:36:711', 'Shipped', '742 Elm Boulevard Floor 2 Denver CO 80204 USA'),
-                        (8,  '2025-01-12:22:41:22:089', 'Pending', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
-                        (8,  '2025-01-13:18:03:47:365', 'Delivered', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
-                        (10, '2025-01-14:07:26:04:504', 'Shipped', '287 Cedar Place Floor 3 Austin TX 78701 USA'),
-                        (11, '2025-01-15:14:39:55:982', 'Delivered', '9810 Willow Drive Apt 9A Seattle WA 98101 USA'),
-                        (12, '2025-01-16:09:01:18:220', 'Pending', '5033 Redwood Crescent Suite 7 Miami FL 33131 USA');
+                        (2,  '2025-01-05 03:22:41:873', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
+                        (2,  '2025-01-06 16:07:03:251', 'Delivered', '1249 Maple Street Apt 3B Springfield IL 62701 USA'),
+                        (3,  '2025-01-07 10:49:58:097', 'Shipped', '56 Oakwood Avenue Suite 210 Portland OR 97205 USA'),
+                        (4,  '2025-01-08 21:30:15:634', 'Pending', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (4,  '2025-01-09 00:12:27:402', 'Cancelled', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (4,  '2025-01-10 13:55:09:146', 'Delivered', '890 Birch Road Unit 45 Tampa FL 33606 USA'),
+                        (7,  '2025-01-11 05:18:36:711', 'Shipped', '742 Elm Boulevard Floor 2 Denver CO 80204 USA'),
+                        (8,  '2025-01-12 22:41:22:089', 'Pending', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
+                        (8,  '2025-01-13 18:03:47:365', 'Delivered', '1350 Pine Lane Building 4 Chicago IL 60616 USA'),
+                        (10, '2025-01-14 07:26:04:504', 'Shipped', '287 Cedar Place Floor 3 Austin TX 78701 USA'),
+                        (11, '2025-01-15 14:39:55:982', 'Delivered', '9810 Willow Drive Apt 9A Seattle WA 98101 USA'),
+                        (12, '2025-01-16 09:01:18:220', 'Pending', '5033 Redwood Crescent Suite 7 Miami FL 33131 USA');
                 ";
             cmd.ExecuteNonQuery();
         }
@@ -254,18 +254,18 @@ internal static class Database
                         {nameof(Review.Comment)},
                         {nameof(Review.CreatedDate)}
                     ) VALUES
-                        (1,  2,  5, 'Love this rod!', '2025-01-02:15:03:56:731'),
-                        (2,  3,  4, 'Great starter kit, missing a few small items.', '2025-01-03:11:11:46:834'),
-                        (3,  1,  4, 'Worked well for catching trout.', '2025-01-04:07:34:35:081'),
-                        (4,  5,  3, 'Not as many walleye here, maybe I''m using them wrong.', '2025-01-05:05:58:17:346'),
-                        (5,  6,  5, 'Trout love these spoons.', '2025-01-06:16:47:52:229'),
-                        (6,  7,  4, 'Solid reel, a bit pricey.', '2025-01-07:20:06:05:370'),
-                        (7,  8,  5, 'Excellent results in saltwater.', '2025-01-08:03:50:40:798'),
-                        (8,  9,  4, 'Hooks are strong, no complaints.', '2025-01-10:14:55:19:903'),
-                        (9,  10, 5, 'Minnows stayed alive all day.', '2025-01-11:18:36:00:118'),
-                        (10, 4,  2, 'Fish finder kept losing connection.', '2025-01-09:09:12:48:545'),
-                        (11, 11, 5, 'Hat is comfortable and protective.', '2025-01-12:21:44:58:684'),
-                        (12, 12, 3, 'Good backpack, but smaller than expected.', '2025-01-13:12:27:03:379');
+                        (1,  2,  5, 'Love this rod!', '2025-01-02 15:03:56:731'),
+                        (2,  3,  4, 'Great starter kit, missing a few small items.', '2025-01-03 11:11:46:834'),
+                        (3,  1,  4, 'Worked well for catching trout.', '2025-01-04 07:34:35:081'),
+                        (4,  5,  3, 'Not as many walleye here, maybe I''m using them wrong.', '2025-01-05 05:58:17:346'),
+                        (5,  6,  5, 'Trout love these spoons.', '2025-01-06 16:47:52:229'),
+                        (6,  7,  4, 'Solid reel, a bit pricey.', '2025-01-07 20:06:05:370'),
+                        (7,  8,  5, 'Excellent results in saltwater.', '2025-01-08 03:50:40:798'),
+                        (8,  9,  4, 'Hooks are strong, no complaints.', '2025-01-10 14:55:19:903'),
+                        (9,  10, 5, 'Minnows stayed alive all day.', '2025-01-11 18:36:00:118'),
+                        (10, 4,  2, 'Fish finder kept losing connection.', '2025-01-09 09:12:48:545'),
+                        (11, 11, 5, 'Hat is comfortable and protective.', '2025-01-12 21:44:58:684'),
+                        (12, 12, 3, 'Good backpack, but smaller than expected.', '2025-01-13 12:27:03:379');
                 ";
             cmd.ExecuteNonQuery();
         }
