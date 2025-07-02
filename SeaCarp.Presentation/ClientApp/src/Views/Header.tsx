@@ -8,6 +8,16 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
 function Header() {
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  const formData = new FormData(event.currentTarget);
+  const query = formData.get("search") as string;
+  if (query) {
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  }
+  }
+  
   return (
     <Container as={"header"}>
       <Row>
@@ -24,14 +34,13 @@ function Header() {
               </Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav ms-auto">
-                <Form className="d-flex">
+                <Form className="d-flex" onSubmit={handleSubmit}>
                   <Form.Control
                     type="search"
+                    name="search"
                     placeholder="Search"
                     className="me-2"
-                    aria-label="Search"
                   />
-                  <Button variant="outline-success">Search</Button>
                 </Form>
                 <Nav className="me-auto">
                   <NavDropdown title="Menu" id="basic-nav-dropdown">

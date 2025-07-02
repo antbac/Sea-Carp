@@ -7,7 +7,7 @@ import Header from "./Views/Header";
 import ProductListView from "./Views/ProductListView";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import Search from "./Views/Search";
+import Searchview from "./Views/SearchView";
 
 function App() {
   return (
@@ -22,8 +22,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/login/:returnurl" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/search/:query" element={<Search />} />
+          <Route path="/search" element={<Searchview />} />
         </Routes>
         </Container>
       </BrowserRouter>
