@@ -42,7 +42,9 @@ public class SystemController(
             SystemInformation.RepositoryUrl,
             SystemInformation.CurrentVersion,
             SystemInformation.PasswordSalt,
-            _cryptographyService.CurrentHashAlgorithm()
+            _cryptographyService.CurrentHashAlgorithm(),
+            SystemInformation.DeploymentTechnology,
+            SystemInformation.Ports
         );
     }
 

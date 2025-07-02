@@ -4,10 +4,12 @@ public static class SystemInformation
 {
     private static DateTime? _lastStarted;
     private static string _passwordSalt;
+    private static string _deploymentTechnology;
+    private static string _ports;
 
     public static DateTime LastStarted
     {
-        get => _lastStarted.HasValue ? _lastStarted.Value : DateTime.MinValue;
+        get => _lastStarted ?? DateTime.MinValue;
         set => _lastStarted ??= value;
     }
 
@@ -32,5 +34,17 @@ public static class SystemInformation
     {
         get => _passwordSalt;
         set => _passwordSalt ??= value;
+    }
+
+    public static string DeploymentTechnology
+    {
+        get => _deploymentTechnology ?? "Unknown";
+        set => _deploymentTechnology ??= value;
+    }
+
+    public static string Ports
+    {
+        get => _ports ?? "Unknown";
+        set => _ports ??= value;
     }
 }

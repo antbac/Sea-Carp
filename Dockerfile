@@ -58,7 +58,8 @@ COPY --from=build /app/publish .
 
 # Copy the startup script and make it executable
 COPY startup.sh .
-RUN chmod +x startup.sh
+# Fix potential line ending issues and ensure script is executable
+RUN sed -i 's/\r$//' startup.sh && chmod +x startup.sh
 
-# Set the entry point to our startup script instead of directly to the dll
-ENTRYPOINT ["/app/startup.sh"]
+# Set the entry point to our startup script
+ENTRYPOINT ["./startup.sh"]

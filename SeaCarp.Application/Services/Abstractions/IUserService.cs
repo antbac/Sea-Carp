@@ -18,5 +18,5 @@ public interface IUserService
 
     Task UpdateUser(User user);
 
-    Task UpdateProfilePicture(User user, string url);
+    Task UpdateProfilePicture(User user, string gravatarPath);
 }
