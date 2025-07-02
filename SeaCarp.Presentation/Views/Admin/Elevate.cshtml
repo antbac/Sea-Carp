@@ -119,24 +119,10 @@
                     return;
                 }
 
-                fetch('@Url.Action(nameof(AdminController.Login), nameof(AdminController).RemoveControllerSuffix())', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        AdminAuthenticationKey: authKey
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        handleException(data);
-                        return;
-                    }
-
-                    window.location.href = data.redirectUrl;
-                });
+                makeAuthorizedRequest(
+                    '@Url.Action(nameof(AdminController.ElevateUser), nameof(AdminController).RemoveControllerSuffix())',
+                    'POST',
+                    { AdminAuthenticationKey: authKey });
             });
         });
     </script>

@@ -2,5 +2,5 @@
 
 public class UpdateProfilePictureRequest
 {
-    public string Url { get; set; }
+    public string GravatarPath { get; set; }
 }

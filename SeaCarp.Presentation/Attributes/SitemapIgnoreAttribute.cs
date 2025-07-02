@@ -1,6 +1,6 @@
 ﻿namespace SeaCarp.Presentation.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
-internal class ApiEndpointAttribute : Attribute
+internal class SitemapIgnoreAttribute : Attribute
 {
 }

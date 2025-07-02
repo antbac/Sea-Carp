@@ -14,7 +14,7 @@ public class CryptographyService(IOptions<CryptographySettings> options) : ICryp
 
     public string HashPassword(string password)
     {
-        using MD5 md5 = MD5.Create();
+        using var md5 = MD5.Create();
         var messageBytes = Encoding.ASCII.GetBytes(_cryptographySettings.PasswordSalt + password);
         var hashBytes = md5.ComputeHash(messageBytes);
 

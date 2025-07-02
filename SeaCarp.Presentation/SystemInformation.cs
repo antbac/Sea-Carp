@@ -7,7 +7,7 @@ public static class SystemInformation
 
     public static DateTime LastStarted
     {
-        get => _lastStarted.HasValue ? _lastStarted.Value : DateTime.MinValue;
+        get => _lastStarted ?? DateTime.MinValue;
         set => _lastStarted ??= value;
     }
 
@@ -33,4 +33,13 @@ public static class SystemInformation
         get => _passwordSalt;
         set => _passwordSalt ??= value;
     }
+
+    public static bool IsRunningInsideDocker =>
+        !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER")) &&
+        Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER").Equals("true", StringComparison.InvariantCultureIgnoreCase);
+
+    public static string DeploymentTechnology =>
+        IsRunningInsideDocker
+            ? "Docker"
+            : "Kestrel";
 }

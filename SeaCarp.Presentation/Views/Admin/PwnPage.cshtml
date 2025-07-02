@@ -43,23 +43,10 @@
                 return;
             }
 
-            fetch('@Url.Action(nameof(AdminController.Pwn), nameof(AdminController).RemoveControllerSuffix())', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ Name: name })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    handleException(data);
-                    return;
-                }
-
-                window.location.href = data.redirectUrl;
-            });;
+            makeAuthorizedRequest(
+                '@Url.Action(nameof(AdminController.Pwn), nameof(AdminController).RemoveControllerSuffix())',
+                'POST',
+                { Name: name });
         });
 
         function showResult(message, type) {

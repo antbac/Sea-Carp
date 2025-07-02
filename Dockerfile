@@ -28,11 +28,12 @@ RUN dotnet publish "SeaCarp.Presentation/SeaCarp.Presentation.csproj" -c Release
 
 # Build the runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+ENV IS_RUNNING_DOCKER=true
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
+EXPOSE 22
 
-# Install Chrome and ChromeDriver dependencies plus jq for JSON manipulation
+# Install Chrome and ChromeDriver dependencies plus jq for JSON manipulation and SSH server
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -40,7 +41,13 @@ RUN apt-get update && apt-get install -y \
     curl \
     apt-transport-https \
     ca-certificates \
-    jq
+    jq \
+    openssh-server
+
+# Set up SSH server
+RUN mkdir -p /run/sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 
 # Install Chrome version 138.0.7204.49 directly
 RUN wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_138.0.7204.49-1_amd64.deb -O /tmp/chrome.deb \
@@ -58,7 +65,9 @@ COPY --from=build /app/publish .
 
 # Copy the startup script and make it executable
 COPY startup.sh .
-RUN chmod +x startup.sh
 
-# Set the entry point to our startup script instead of directly to the dll
-ENTRYPOINT ["/app/startup.sh"]
+# Fix potential line ending issues and ensure script is executable
+RUN sed -i 's/\r$//' startup.sh && chmod +x startup.sh
+
+# Set the entry point to our startup script
+ENTRYPOINT ["./startup.sh"]

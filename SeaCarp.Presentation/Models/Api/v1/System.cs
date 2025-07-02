@@ -8,6 +8,7 @@ public class System
     public string CurrentVersion { get; private set; }
     public string PasswordSalt { get; private set; }
     public string HashAlgorithm { get; private set; }
+    public string DeploymentTechnology { get; private set; }
 
     public System(
         DateTime lastDeployment,
@@ -15,7 +16,8 @@ public class System
         string repositoryUrl,
         string currentVersion,
         string passwordSalt,
-        string hashAlgorithm)
+        string hashAlgorithm,
+        string deploymentTechnology)
     {
         LastDeployment = lastDeployment;
         AdminEmail = string.IsNullOrWhiteSpace(adminEmail) ? string.Empty : adminEmail;
@@ -23,5 +25,6 @@ public class System
         CurrentVersion = string.IsNullOrWhiteSpace(currentVersion) ? string.Empty : currentVersion;
         PasswordSalt = string.IsNullOrWhiteSpace(passwordSalt) ? string.Empty : passwordSalt;
         HashAlgorithm = string.IsNullOrWhiteSpace(hashAlgorithm) ? string.Empty : hashAlgorithm;
+        DeploymentTechnology = string.IsNullOrWhiteSpace(deploymentTechnology) ? string.Empty : deploymentTechnology;
     }
 }

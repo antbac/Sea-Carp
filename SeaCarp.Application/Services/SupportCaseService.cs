@@ -18,7 +18,6 @@ public class SupportCaseService(
     {
         if (!string.IsNullOrWhiteSpace(imageName) && imageBytes != null && imageBytes.Length != 0)
         {
-            imageName = imageName.Replace("\\", "/").Split("/").Last();
             await _fileService.WriteUserFile(user.Username, imageName, imageBytes);
         }
 

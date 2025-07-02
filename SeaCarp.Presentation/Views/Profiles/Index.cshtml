@@ -123,13 +123,18 @@
                                 <form id="update_profile_picture_form" method="post" novalidate="novalidate">
                                     <div class="mb-3">
                                         <label for="ProfilePicture" class="form-label">New Profile picture</label>
-                                        <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture" placeholder="Enter URL to profile picture" />
+                                        <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture"
+                                               placeholder="{hash}" />
+                                        <div class="form-text">
+                                            Enter your Gravatar profile hash to link to your Gravatar or system avatar.
+                                        </div>
                                     </div>
                                     <button id="profile-picture-submit" type="submit" class="btn btn-primary">Update Profile picture</button>
                                 </form>
                             </div>
                         </div>
                     </div>
+
 
                     <div class="tab-pane fade" id="list-orders" role="tabpanel">
                         <div class="card shadow mb-4">
@@ -228,25 +233,11 @@
                 if (emailForm) {
                     emailForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                Email: document.querySelector('#Email').value
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const emailErrorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    emailErrorDiv.innerText = data.errorMessage;
-                                    emailErrorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email',
+                            'PUT',
+                            { Email: document.querySelector('#Email').value });
                     };
                 }
 
@@ -254,25 +245,11 @@
                 if (passwordForm) {
                     passwordForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                Password: document.querySelector('#Password').value
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const errorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    errorDiv.innerText = data.errorMessage;
-                                    errorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password',
+                            'PUT',
+                            { Password: document.querySelector('#Password').value });
                     };
                 }
 
@@ -280,25 +257,11 @@
                 if (profilePictureForm) {
                     profilePictureForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                Url: document.querySelector('#ProfilePicture').value
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const errorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    errorDiv.innerText = data.errorMessage;
-                                    errorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture',
+                            'PUT',
+                            { GravatarPath: `/avatar/${document.querySelector('#ProfilePicture').value}` });
                     };
                 }
             });

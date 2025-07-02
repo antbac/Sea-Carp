@@ -186,26 +186,23 @@
                 operation: operation,
             };
 
-            fetch('@Url.Action(nameof(OrdersController.PlaceOrder), nameof(OrdersController).RemoveControllerSuffix())', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    handleException(data);
-                    return;
-                }
+            makeAuthorizedRequest(
+                '@Url.Action(nameof(OrdersController.PlaceOrder), nameof(OrdersController).RemoveControllerSuffix())',
+                'POST',
+                orderData,
+                {},
+                data => {
+                    if (!data.success) {
+                        handleException(data);
+                        return;
+                    }
 
-                localStorage.removeItem('cartItems');
+                    localStorage.removeItem('cartItems');
 
-                document.getElementById("orderResult").innerHTML =
-                    "<div class='alert alert-success'>Thank you for your order! Redirecting to receipt...</div>";
-                    setTimeout(() => { window.location.href = data.redirectUrl; }, 3000);
-            });
+                    document.getElementById("orderResult").innerHTML =
+                        "<div class='alert alert-success'>Thank you for your order! Redirecting to receipt...</div>";
+                        setTimeout(() => { window.location.href = data.redirectUrl; }, 3000);
+                });
         });
     </script>
 }

@@ -82,26 +82,10 @@
             }
 
             function sendRequest(requestData) {
-                fetch(document.querySelector('#create_support_case_form').action, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(requestData),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        document.querySelector('#error-box').style.display = 'block';
-                        document.querySelector('#error-message').textContent = data.errorMessage;
-                        return;
-                    }
-                    window.location.href = data.redirectUrl;
-                })
-                .catch(error => {
-                    document.querySelector('#error-box').style.display = 'block';
-                    document.querySelector('#error-message').textContent = "Error submitting support case: " + error.message;
-                });
+                makeAuthorizedRequest(
+                    document.querySelector('#create_support_case_form').action,
+                    'POST',
+                    requestData);
             }
         });
     </script>

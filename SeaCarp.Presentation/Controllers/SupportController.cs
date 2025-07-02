@@ -6,9 +6,11 @@ using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Customer support case management operations")]
 public class SupportController(
     ISupportCaseService supportCaseService,
     IFileService fileService,
@@ -36,6 +38,14 @@ public class SupportController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/support/{identifier}", Name = $"{nameof(SupportController)}/{nameof(GetCase_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets support case details by identifier",
+        Description = "Retrieves detailed information about a specific support case using its ID or case number.",
+        OperationId = "GetSupportCase",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully returned support case details", typeof(Models.Api.v1.SupportCase))]
+    [SwaggerResponse(404, "Support case not found")]
     public async Task<IActionResult> GetCase_SPA(string identifier)
     {
         var supportCase = await GetCase_Common(identifier);
@@ -90,6 +100,13 @@ public class SupportController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/support/cases", Name = $"{nameof(SupportController)}/{nameof(CreateSupportCase)}")]
+    [SwaggerOperation(
+        Summary = "Creates a new support case",
+        Description = "Allows a user to create a new support case with optional image attachment. Requires user to be logged in.",
+        OperationId = "CreateSupportCase",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully created support case or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> CreateSupportCase([FromBody] CreateSupportCaseRequest request)
     {
         if (CurrentUser is null)
@@ -101,7 +118,7 @@ public class SupportController(
         if (string.IsNullOrWhiteSpace(request.ImageName) ^ string.IsNullOrWhiteSpace(request.ProductImage))
         {
             LogService.Warning("Support case creation failed due to missing image name or product image.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "An error occured when handling the image" });
+            return Json(new GenericResponse { Success = false, ErrorMessage = "An error occurred when handling the image" });
         }
 
         if (!string.IsNullOrWhiteSpace(request.ImageName) && !request.ImageName.Contains(".png", StringComparison.InvariantCultureIgnoreCase))
@@ -113,13 +130,6 @@ public class SupportController(
         var imageBytes = string.IsNullOrWhiteSpace(request.ProductImage)
             ? Array.Empty<byte>()
             : Convert.FromBase64String(request.ProductImage);
-        var pngSignature = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-        var isPng = imageBytes.Length >= 8 && imageBytes.Take(8).SequenceEqual(pngSignature);
-        if (imageBytes.Length != 0 && !isPng)
-        {
-            return Json(new GenericResponse { Success = false, ErrorMessage = "The content of the file does not appear to be a PNG file" });
-        }
-
         var supportCase = await _supportCaseService.CreateSupportCase(CurrentUser, request.OrderId, request.IssueDescription, request.ImageName, imageBytes);
 
         LogService.Information($"Support case created successfully with case number {supportCase.CaseNumber} for user {CurrentUser?.Username ?? "N/A"}.");

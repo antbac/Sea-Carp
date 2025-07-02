@@ -380,26 +380,10 @@ else
                     const stock = document.getElementById('updateStock').value;
                     if (stock !== '') data.stock = parseInt(stock, 10);
 
-                    fetch(`/api/v1/products/${productId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/products/${productId}`,
+                        'PUT',
+                        data);
                 }
 
                 updateProductForm.classList.add('was-validated');
@@ -415,25 +399,9 @@ else
                 if (resetReviewsForm.checkValidity()) {
                     const productId = document.getElementById('resetReviewsProductId').value;
 
-                    fetch(`/api/v1/products/${productId}/reviews`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/products/${productId}/reviews`,
+                        'DELETE');
                 }
 
                 resetReviewsForm.classList.add('was-validated');
@@ -457,26 +425,10 @@ else
                         return;
                     }
 
-                    fetch(`/api/v1/profiles/${userId}/password`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ password: newPassword })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/profiles/${userId}/password`,
+                        'PUT',
+                        { password: newPassword });
                 }
 
                 setPasswordForm.classList.add('was-validated');
@@ -493,26 +445,10 @@ else
                     const userId = document.getElementById('emailUserId').value;
                     const newEmail = document.getElementById('newEmail').value;
 
-                    fetch(`/api/v1/profiles/${userId}/email`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email: newEmail })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/profiles/${userId}/email`,
+                        'PUT',
+                        { email: newEmail };
                 }
 
                 setEmailForm.classList.add('was-validated');
@@ -528,25 +464,9 @@ else
                 if (promoteUserForm.checkValidity()) {
                     const userId = document.getElementById('promoteUserId').value;
 
-                    fetch(`/api/v1/profiles/${userId}/promote`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/profiles/${userId}/promote`,
+                        'PUT');
                 }
 
                 promoteUserForm.classList.add('was-validated');
@@ -562,25 +482,9 @@ else
                 if (demoteUserForm.checkValidity()) {
                     const userId = document.getElementById('demoteUserId').value;
 
-                    fetch(`/api/v1/profiles/${userId}/demote`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        handleException({ errorMessage: 'An error occurred while processing your request.' });
-                    });
+                    makeAuthorizedRequest(
+                        `/api/v1/profiles/${userId}/demote`,
+                        'PUT');
                 }
 
                 demoteUserForm.classList.add('was-validated');
