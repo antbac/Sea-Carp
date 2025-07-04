@@ -3,26 +3,23 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 
 function Header() {
-
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  const query = formData.get("search") as string;
-  if (query) {
-    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get("search") as string;
+    if (query) {
+      window.location.href = `/search?q=${encodeURIComponent(query)}`;
+    }
   }
-  }
-  
+
   return (
     <Container as={"header"}>
       <Row>
         <Col>
-          <Navbar expand="sm" className="" variant="dark">
+          <Navbar expand="sm" variant="dark">
             <Container>
               <Navbar.Brand href="/">
                 <img
@@ -42,13 +39,9 @@ function Header() {
                     className="me-2"
                   />
                 </Form>
-                <Nav className="me-auto">
-                  <NavDropdown title="Menu" id="basic-nav-dropdown">
-                    <NavDropdown.Item href="/register">
-                      Register
-                    </NavDropdown.Item>
-                    <NavDropdown.Item href="/Login">Login</NavDropdown.Item>
-                  </NavDropdown>
+                <Nav className="ms-auto">
+                  <Nav.Link href="/register">Register</Nav.Link>
+                  <Nav.Link href="/login">Login</Nav.Link>
                 </Nav>
               </Navbar.Collapse>
             </Container>

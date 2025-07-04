@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
@@ -8,61 +7,60 @@ import type { Search } from "../models/Search";
 import type { Product } from "../models/Product";
 
 function Searchview() {
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const query = queryParams.get("q");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const query = queryParams.get("q");
 
-    const [searchQuery, setSearchQuery] = useState<string>(query || "");
-    const [products, setProducts] = useState<Product[]>();
+  const [searchQuery, setSearchQuery] = useState<string>(query || "");
+  const [products, setProducts] = useState<Product[]>();
 
-useEffect(() => {
+  useEffect(() => {
     if (!query) {
-        return;
+      return;
     }
     const fetchProduct = async (): Promise<void> => {
-    try {
+      try {
         console.log("fetch");
         const response = await fetch(`${ApiConfig.SEARCH}?q=${query}`);
         if (!response.ok) {
-            throw new Error("Could not get product");
+          throw new Error("Could not get product");
         }
 
         const result: Search = await response.json();
-        setSearchQuery(result.searchQuery)
+        setSearchQuery(result.searchQuery);
         if (result?.matchingProducts) {
-            setProducts(result.matchingProducts);
-            }
-    } catch (err) {
+          setProducts(result.matchingProducts);
+        }
+      } catch (err) {
         console.error("could not connect", err);
-    }
- };
- fetchProduct();
- }, [query]);
+      }
+    };
+    fetchProduct();
+  }, [query]);
 
- return (
+  return (
     <>
-    <Row>
+      <Row>
         <Col>
-            <p>Showing matches for: "{searchQuery}"</p>
+          <p>Showing matches for: "{searchQuery}"</p>
         </Col>
-    </Row>
-    <Row>
+      </Row>
+      <Row>
         {products?.length === 0 && (
-            <Col>
-                <p>No products found</p>
-            </Col>
+          <Col>
+            <p>No products found</p>
+          </Col>
         )}
 
-         {products && products?.map((product) => (
+        {products &&
+          products?.map((product) => (
             <Col as="article" sm={6} md={4} key={product.id}>
-                <ProductCard {...product} />
+              <ProductCard {...product} />
             </Col>
-         ))}
-
-        
-    </Row>
+          ))}
+      </Row>
     </>
- );
+  );
 }
 
 export default Searchview;

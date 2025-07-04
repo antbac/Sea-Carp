@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { LoginRequest } from "../../models/LoginRequest";
-import { Button, Col, Container, Form, Row } from 'react-bootstrap'
-import { Link } from "react-router-dom";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { ApiConfig } from "../../utils/ApiConfig";
 
 function Login() {
@@ -16,8 +15,8 @@ function Login() {
 
     const formData = new FormData(event.currentTarget);
     const request: LoginRequest = {
-      Username: formData.get('username') as string,
-      Password: formData.get('password') as string,
+      Username: formData.get("username") as string,
+      Password: formData.get("password") as string,
     }
     setLoginRequest(request);
 
@@ -47,18 +46,18 @@ function Login() {
         <Col md={5} lg={4}>
 
         <Form onSubmit={handleSubmit}>
-          <Form.Group className='mb-3'>
-            {/* <Form.Label>Username</Form.Label> */}
-            <Form.Control name="username" type="text" placeholder='Username'></Form.Control>
+          <Form.Group className="mb-3">
+            <Form.Label>Username</Form.Label>
+            <Form.Control name="username" type="text" size="lg"></Form.Control>
           </Form.Group>
 
-          <Form.Group className='mb-3'>
-            {/* <Form.Label>Password</Form.Label> */}
-            <Form.Control name="password" type="password" placeholder='Password'></Form.Control>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control name="password" type="password" size="lg"></Form.Control>
           </Form.Group>
 
           <Button type="submit">Log in</Button>
-          <Button as="a" href="/register" className="mx-2" variant="secondary">Register as a new user</Button>
+          <Button as="a" href="/register" className="mx-2" variant="">Register as a new user</Button>
 
         </Form>
 

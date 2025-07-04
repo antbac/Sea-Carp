@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
-import { Button, Col, Form, Row } from 'react-bootstrap'
-import type { AccountRegistrationRequest } from '../../models/AccountRegistrationRequest';
-import { ApiConfig } from '../../utils/ApiConfig';
+import React, { useState } from "react";
+import { Button, Col, Form, Row } from "react-bootstrap";
+import type { AccountRegistrationRequest } from "../../models/AccountRegistrationRequest";
+import { ApiConfig } from "../../utils/ApiConfig";
 
 function Register() {
 
@@ -17,9 +17,9 @@ function Register() {
 
     const formData = new FormData(event.currentTarget);
     const request: AccountRegistrationRequest = {
-      Username: formData.get('username') as string,
-      Email: formData.get('email') as string,
-      Password: formData.get('password') as string,
+      Username: formData.get("username") as string,
+      Email: formData.get("email") as string,
+      Password: formData.get("password") as string,
       Credits: 100
     }
     setRegistrationRequest(request);
@@ -52,19 +52,19 @@ function Register() {
 
 
         <Form onSubmit={handleSubmit}>
-          <Form.Group className='mb-3'>
-            {/* <Form.Label>Username</Form.Label> */}
-            <Form.Control name="username" type="text" placeholder='Username'></Form.Control>
+          <Form.Group className="mb-3">
+            <Form.Label>Username</Form.Label>
+            <Form.Control name="username" type="text" size="lg"></Form.Control>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control name="email" type="email" size="lg"></Form.Control>
           </Form.Group>
 
           <Form.Group className='mb-3'>
-            {/* <Form.Label>Email</Form.Label> */}
-            <Form.Control name="email" type="email" placeholder='Email'></Form.Control>
-          </Form.Group>
-
-          <Form.Group className='mb-3'>
-            {/* <Form.Label>Password</Form.Label> */}
-            <Form.Control name="password" type="password" placeholder='Password'></Form.Control>
+            <Form.Label>Password</Form.Label>
+            <Form.Control name="password" type="password" size="lg"></Form.Control>
           </Form.Group>
 
           <Button type="submit">Register</Button>

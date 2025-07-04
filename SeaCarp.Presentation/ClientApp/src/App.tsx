@@ -15,15 +15,18 @@ function App() {
       <BrowserRouter>
         <Header />
         <Container>
-        <Routes>
-          <Route index element={<ProductList />} />
-          <Route path="/products/:id" element={<ProductDetail {...({} as Product)} />} />
-          <Route path="/products" element={<ProductListView />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/login/:returnurl" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/search" element={<Searchview />} />
-        </Routes>
+          <Routes>
+            <Route index element={<ProductList />} />
+            <Route
+              path="/products/:id"
+              element={<ProductDetail {...({} as Product)} />}
+            />
+            <Route path="/products" element={<ProductListView />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/login/:returnurl" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/search" element={<Searchview />} />
+          </Routes>
         </Container>
       </BrowserRouter>
 
