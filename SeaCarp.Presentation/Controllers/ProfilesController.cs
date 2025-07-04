@@ -179,11 +179,11 @@ public class ProfilesController(
             ? await _userService.GetUser(id)
             : await _userService.GetUser(identifier);
 
-        await _userService.UpdateProfilePicture(user, request.Url);
+        await _userService.UpdateProfilePicture(user, request.GravatarPath);
 
         CurrentUser = user;
 
-        LogService.Information($"User {user.Username} updated their profile picture to {request.Url}.");
+        LogService.Information($"User {user.Username} updated their profile picture to {request.GravatarPath}.");
 
         return Json(new GenericResponse() { Success = true });
     }

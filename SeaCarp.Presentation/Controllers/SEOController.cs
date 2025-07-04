@@ -26,11 +26,14 @@ public class SEOController(
     public IActionResult RobotsTxt()
     {
         var hiddenUrls = new string[] {
-            Url.ActionLink(nameof(AdminController.Index_MVC), nameof(AdminController).RemoveControllerSuffix()),
-            Url.ActionLink(nameof(FileManagerController.Index), nameof(FileManagerController).RemoveControllerSuffix()),
+            $"{Url.Action(nameof(AdminController.Index_MVC), nameof(AdminController).RemoveControllerSuffix())}/",
+            $"{Url.Action(nameof(FileManagerController.Index), nameof(FileManagerController).RemoveControllerSuffix())}/",
+            "/swagger/",
         };
 
-        return Content($"User-agent: *\r\nDisallow: {string.Join("\r\nDisallow: ", hiddenUrls)}", "text/plain");
+        var sitemapUrl = Url.ActionLink(nameof(SEOController.SitemapXml), nameof(SEOController).RemoveControllerSuffix());
+
+        return Content($"User-agent: *\r\nDisallow: {string.Join("\r\nDisallow: ", hiddenUrls)}\r\nSitemap: {sitemapUrl}", "text/plain");
     }
 
     #endregion RobotsTxt
@@ -57,7 +60,11 @@ public class SEOController(
                     .GetCustomAttributes(typeof(ApiEndpointAttribute), inherit: true)
                     .Any();
 
-                if (isApiEndpoint || !hasHttpGet || cad.ControllerName == nameof(AdminController))
+                var isIgnoredEndpoint = cad.MethodInfo
+                    .GetCustomAttributes(typeof(SitemapIgnoreAttribute), inherit: true)
+                    .Any();
+
+                if (isIgnoredEndpoint || isApiEndpoint || !hasHttpGet)
                 {
                     continue;
                 }

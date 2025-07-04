@@ -124,6 +124,7 @@ public class AdminController(
     #region PwnPage
 
     [HttpGet]
+    [SitemapIgnore]
     [Route("/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(PwnPage)}")]
     public IActionResult PwnPage()
     {
@@ -142,6 +143,7 @@ public class AdminController(
 
     [HttpPost]
     [ApiEndpoint]
+    [SwaggerIgnore]
     [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
     public IActionResult Pwn([FromBody] PwnRequest request)
     {

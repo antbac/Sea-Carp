@@ -123,13 +123,18 @@
                                 <form id="update_profile_picture_form" method="post" novalidate="novalidate">
                                     <div class="mb-3">
                                         <label for="ProfilePicture" class="form-label">New Profile picture</label>
-                                        <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture" placeholder="Enter URL to profile picture" />
+                                        <input type="text" class="form-control" required id="ProfilePicture" name="ProfilePicture"
+                                               placeholder="{hash}" />
+                                        <div class="form-text">
+                                            Enter your Gravatar profile hash to link to your Gravatar or system avatar.
+                                        </div>
                                     </div>
                                     <button id="profile-picture-submit" type="submit" class="btn btn-primary">Update Profile picture</button>
                                 </form>
                             </div>
                         </div>
                     </div>
+
 
                     <div class="tab-pane fade" id="list-orders" role="tabpanel">
                         <div class="card shadow mb-4">
@@ -286,7 +291,7 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                Url: document.querySelector('#ProfilePicture').value
+                                GravatarPath: `/avatar/${document.querySelector('#ProfilePicture').value}`
                             })
                         })
                             .then(response => response.json())

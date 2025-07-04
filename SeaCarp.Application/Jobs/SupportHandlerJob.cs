@@ -5,7 +5,6 @@ using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
-using System.Runtime.InteropServices;
 
 namespace SeaCarp.Application.Jobs;
 
@@ -21,21 +20,10 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _scopeFactory.CreateScope();
-            var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
             var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
             var jwtService = scope.ServiceProvider.GetRequiredService<IJwtService>();
             var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
             var supportCaseRepository = scope.ServiceProvider.GetRequiredService<ISupportCaseRepository>();
-
-            var user = await userRepository.GetUser(1);
-            var jwt = jwtService.GenerateJwt(
-                (nameof(User.Id), user.Id.ToString()),
-                (nameof(User.Username), user.Username),
-                (nameof(User.Password), user.Password),
-                (nameof(User.Email), user.Email),
-                (nameof(User.Credits), user.Credits.ToString()),
-                (nameof(User.IsAdmin), user.IsAdmin.ToString())
-            );
 
             var supportCases = await supportCaseRepository.GetRecentSupportCases(_lastRun);
             _lastRun = DateTime.Now;
@@ -44,6 +32,16 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
             {
                 try
                 {
+                    var user = await userRepository.GetUser(1);
+                    var jwt = jwtService.GenerateJwt(
+                        (nameof(User.Id), user.Id.ToString()),
+                        (nameof(User.Username), user.Username),
+                        (nameof(User.Password), user.Password),
+                        (nameof(User.Email), user.Email),
+                        (nameof(User.Credits), user.Credits.ToString()),
+                        (nameof(User.IsAdmin), user.IsAdmin.ToString())
+                    );
+
                     var options = new ChromeOptions();
                     options.AddArgument("--headless");
                     options.AddArgument("--no-sandbox");
@@ -52,9 +50,6 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
                     options.AddArgument("--window-size=1920,1080");
                     options.AddArgument("--ignore-certificate-errors");
                     options.AddArgument("--ignore-ssl-errors=yes");
-
-                    var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-                    var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
                     var service = ChromeDriverService.CreateDefaultService();
                     service.SuppressInitialDiagnosticInformation = true;
@@ -71,30 +66,16 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
                                 try
                                 {
                                     var caseNumber = supportCase.CaseNumber;
-
-                                    string baseUrl;
-                                    if (isRunningInDocker)
-                                    {
-                                        baseUrl = "http://seacarp-app";
-                                        logService.Information($"Using Docker service URL: {baseUrl}");
-                                    }
-                                    else
-                                    {
-                                        baseUrl = $"https://localhost:{Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "443"}";
-                                        logService.Information($"Using local URL: {baseUrl}");
-                                    }
-
+                                    var baseUrl = ResolveBaseUrl(logService);
                                     var supportCaseUrl = $"{baseUrl}/Support/{caseNumber}";
 
                                     driver.Navigate().GoToUrl(supportCaseUrl);
 
                                     var cookie = new OpenQA.Selenium.Cookie(Constants.JWT, jwt, "/", null);
                                     driver.Manage().Cookies.AddCookie(cookie);
-
                                     driver.Navigate().Refresh();
 
                                     await Task.Delay(1000, stoppingToken);
-
                                     logService.Information($"Admin made an initial check of support case {caseNumber}");
                                 }
                                 catch (Exception ex)
@@ -105,8 +86,9 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
 
                             break;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            logService.Error($"Chrome driver initialization failed (attempt {attemptCount}/3): {ex.Message}");
                             if (attemptCount < 3)
                             {
                                 await Task.Delay(2000, stoppingToken);
@@ -114,12 +96,73 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    logService.Error($"Unexpected error in support handler job: {ex.Message}");
                 }
             }
 
             await Task.Delay(_interval, stoppingToken);
+        }
+    }
+
+    private string ResolveBaseUrl(ILogService logService)
+    {
+        var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+        var disableHttps = string.Equals(Environment.GetEnvironmentVariable("DISABLE_HTTPS"), "true", StringComparison.OrdinalIgnoreCase);
+
+        if (isRunningInDocker)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                client.Timeout = TimeSpan.FromSeconds(1);
+
+                var response = client.GetAsync("http://localhost:80/").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var baseUrl = "http://localhost:80";
+                    logService.Information($"Successfully connected via localhost, using: {baseUrl}");
+                    return baseUrl;
+                }
+            }
+            catch (Exception ex)
+            {
+                logService.Warning($"Failed to connect to localhost:80: {ex.Message}");
+            }
+
+            // Fallback to default Docker URL
+            var fallbackUrl = "http://localhost";
+            logService.Information($"Using fallback Docker URL: {fallbackUrl}");
+            return fallbackUrl;
+        }
+        else
+        {
+            var aspNetCoreUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+            var port = "5000";
+
+            if (!string.IsNullOrEmpty(aspNetCoreUrls))
+            {
+                var urls = aspNetCoreUrls.Split(';');
+                foreach (var url in urls)
+                {
+                    if (!url.Contains(":6001"))
+                    {
+                        var uri = new Uri(url.Replace("+", "localhost"));
+                        port = uri.Port.ToString();
+                        break;
+                    }
+                }
+            }
+            else if (!disableHttps)
+            {
+                port = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "443";
+            }
+
+            var protocol = disableHttps ? "http" : "https";
+            var baseUrl = $"{protocol}://localhost:{port}";
+            logService.Information($"Using local URL: {baseUrl}");
+            return baseUrl;
         }
     }
 }

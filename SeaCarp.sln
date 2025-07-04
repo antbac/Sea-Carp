@@ -17,8 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
 		LICENSE = LICENSE
+		NuGet.config = NuGet.config
 		README.md = README.md
+		startup.sh = startup.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "10 - Presentation", "10 - Presentation", "{2DF34E37-56A5-4E8B-B4D7-ADD4388A1047}"

@@ -88,9 +88,9 @@ public class UserService(
         _logService.Information($"User with ID {id} removed.");
     }
 
-    public async Task UpdateProfilePicture(User user, string url)
+    public async Task UpdateProfilePicture(User user, string gravatarPath)
     {
-        var imageContent = await _httpService.FetchContentAsync(url, CrossCutting.OutputType.Base64) as string;
+        var imageContent = await _httpService.FetchContentAsync($"https://gravatar.com{gravatarPath}", CrossCutting.OutputType.Base64) as string;
         user.UpdateProfilePicture(imageContent);
         await _userRepository.UpdateUser(user);
 
