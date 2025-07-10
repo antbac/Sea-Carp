@@ -8,12 +8,14 @@ import ProductListView from "./Views/ProductListView";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import Searchview from "./Views/SearchView";
+import isLoggedIn from "./utils/Helpers";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Header />
+        {<p>IsLogged in: {isLoggedIn() ? "true" : "false"}</p>}
         <Container>
           <Routes>
             <Route index element={<ProductList />} />
