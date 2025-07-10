@@ -1,4 +1,5 @@
 import { Button } from "react-bootstrap";
+import { isLoggedIn } from "../../utils/Helpers";
 
 function IntroBlock() {
   return (
@@ -16,9 +17,15 @@ function IntroBlock() {
           adventure.
         </p>
 
-        <Button variant="light" as="a" href="login">
-          Log in to get started
-        </Button>
+        {!isLoggedIn() ? (
+          <Button variant="light" as="a" href="login">
+            Log in to get started
+          </Button>
+        ) : (
+          <Button variant="light" as="a" href="products">
+            Shop Now
+          </Button>
+        )}
       </div>
     </>
   );

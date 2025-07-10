@@ -4,6 +4,7 @@ import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
+import { isLoggedIn } from "../../utils/Helpers";
 
 function Header() {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -40,8 +41,17 @@ function Header() {
                   />
                 </Form>
                 <Nav className="ms-auto">
-                  <Nav.Link href="/register">Register</Nav.Link>
-                  <Nav.Link href="/login">Login</Nav.Link>
+                  {!isLoggedIn() ? (
+                    <>
+                      <Nav.Link href="/register">Register</Nav.Link>
+                      <Nav.Link href="/login">Login</Nav.Link>
+                    </>
+                  ) : (
+                    <>
+                      <Nav.Link href="/profile">Profile</Nav.Link>
+                      <Nav.Link href="/logout">Logout</Nav.Link>
+                    </>
+                  )}
                 </Nav>
               </Navbar.Collapse>
             </Container>
