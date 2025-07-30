@@ -90,18 +90,10 @@ public static class StringExtensions
     /// <summary>
     /// Helper method to preserve the capitalization style of the original noun (simple approach).
     /// </summary>
-    private static string MatchCapitalization(string original, string pluralForm)
-    {
-        if (original.ToUpper() == original)
-        {
-            return pluralForm.ToUpper();
-        }
-
-        if (char.IsUpper(original[0]) && original[1..].Equals(original, StringComparison.CurrentCultureIgnoreCase))
-        {
-            return char.ToUpper(pluralForm[0]) + pluralForm[1..].ToLower();
-        }
-
-        return pluralForm;
-    }
+    private static string MatchCapitalization(string original, string pluralForm) =>
+        original.Equals(original, StringComparison.CurrentCultureIgnoreCase)
+            ? pluralForm.ToUpper()
+            : char.IsUpper(original[0]) && original[1..].Equals(original, StringComparison.CurrentCultureIgnoreCase)
+                ? char.ToUpper(pluralForm[0]) + pluralForm[1..].ToLower()
+                : pluralForm;
 }

@@ -6,11 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
-      - "2222:22"
+      - "80:5000"
+      - "22:22"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - DISABLE_HTTPS=true
+      - IS_RUNNING_DOCKER=true
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro

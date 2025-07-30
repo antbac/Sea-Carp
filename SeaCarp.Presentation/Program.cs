@@ -8,7 +8,6 @@ using SeaCarp.Application.Jobs;
 using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Infrastructure;
 using SeaCarp.Presentation;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Config;
@@ -38,43 +37,25 @@ internal class Program
 
         WebRootPath = builder.Environment.WebRootPath;
 
-        // Check if we should disable HTTPS (useful for Docker containers without certificates)
-        var useHttps = !string.Equals(Environment.GetEnvironmentVariable("DISABLE_HTTPS"), "true", StringComparison.OrdinalIgnoreCase);
+        SystemInformation.LastStarted = DateTime.Now;
+        SystemInformation.PasswordSalt = builder.Configuration["Cryptography:PasswordSalt"];
 
-        // Check if ASPNETCORE_URLS is set (common in Docker)
-        var aspNetCoreUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
-        var useEnvironmentUrls = !string.IsNullOrEmpty(aspNetCoreUrls);
-
-        if (!useEnvironmentUrls)
+        builder.WebHost.ConfigureKestrel(options =>
         {
-            // Only configure explicit Kestrel options if ASPNETCORE_URLS is not set
-            builder.WebHost.ConfigureKestrel(options =>
+            if (SystemInformation.IsRunningInsideDocker)
             {
-                // Public endpoint
-                if (useHttps)
-                {
-                    options.ListenAnyIP(5000, opt => opt.UseHttps());
-                }
-                else
-                {
-                    options.ListenAnyIP(5000); // HTTP only
-                }
+                var certPath = builder.Configuration["Kestrel:Certificates:Default:Path"];
+                var certPassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
 
-                // Private, localhost-only endpoint
-                if (useHttps)
-                {
-                    options.ListenLocalhost(6001, opt => opt.UseHttps());
-                }
-                else
-                {
-                    options.ListenLocalhost(6001); // HTTP only
-                }
-            });
-        }
-        else
-        {
-            Console.WriteLine($"Using environment-provided URLs: {aspNetCoreUrls}");
-        }
+                options.ListenAnyIP(5000);
+                options.ListenLocalhost(6001, opt => opt.UseHttps(certPath, certPassword));
+            }
+            else
+            {
+                options.ListenAnyIP(5000, opt => opt.UseHttps());
+                options.ListenLocalhost(6001, opt => opt.UseHttps());
+            }
+        });
 
         builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
 
@@ -99,88 +80,6 @@ internal class Program
             .ConfigureApplicationServices()
             .ConfigureDomainServices()
             .ConfigureInfrastructureServices();
-
-        SystemInformation.LastStarted = DateTime.Now;
-        SystemInformation.PasswordSalt = builder.Configuration["Cryptography:PasswordSalt"];
-
-        // Dynamically determine deployment technology and ports
-        var deploymentTechnology = "ASP.NET Core";
-        var ports = string.Empty;
-
-        // Check if running in Docker container
-        var inDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-        if (inDocker)
-        {
-            deploymentTechnology = "Containerized with Docker, running ASP.NET Core Kestrel web server";
-
-            // Get port mapping from environment variables or docker-compose configuration
-            if (!string.IsNullOrEmpty(aspNetCoreUrls))
-            {
-                // Parse the URLs to extract ports
-                var urlParts = aspNetCoreUrls.Split(';');
-                foreach (var part in urlParts)
-                {
-                    if (part.Contains("http://+:"))
-                    {
-                        var internalPort = part.Split(':').Last();
-                        // In Docker we typically map internal port to external port
-                        ports = $"port {internalPort} (internal), mapped to port 8080 on host";
-                        break;
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(ports))
-            {
-                ports = "port 80 (internal), mapped to port 8080 on host"; // Default if not found in environment
-            }
-        }
-        else
-        {
-            // Not running in Docker
-            if (!useEnvironmentUrls)
-            {
-                deploymentTechnology += " Kestrel";
-                ports = "port 5000";
-                if (useHttps)
-                {
-                    ports += " with HTTPS";
-                }
-
-                ports += " (public)";
-            }
-            else
-            {
-                deploymentTechnology += " Kestrel with custom URLs";
-
-                // Filter out localhost:6001 from the displayed ports
-                if (!string.IsNullOrEmpty(aspNetCoreUrls))
-                {
-                    // Split the URLs and filter out any that contain port 6001
-                    var urlParts = aspNetCoreUrls.Split(';')
-                        .Where(url => !url.Contains(":6001"))
-                        .ToArray();
-
-                    ports = urlParts.Length > 0
-                        ? string.Join("; ", urlParts)
-                        : "custom ports";
-                }
-                else
-                {
-                    ports = "custom ports";
-                }
-            }
-
-            // Check if potentially running behind IIS
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_IIS_HTTPAUTH")) ||
-                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("IIS_DRIVE_LETTER")))
-            {
-                deploymentTechnology = "IIS with ASP.NET Core";
-            }
-        }
-
-        SystemInformation.DeploymentTechnology = deploymentTechnology;
-        SystemInformation.Ports = ports;
 
         builder.Services
             .AddControllersWithViews()
@@ -265,7 +164,7 @@ internal class Program
                     </head>
                     <body>
                         <h1>Internal Admin Dashboard</h1>
-                        <p>This is served on localhost:6001 only.</p>
+                        <p>This is served on port 6001 locally only.</p>
 
                         <h2>System Information</h2>
                         <table>
@@ -275,7 +174,6 @@ internal class Program
                             <tr><td>Current Version</td><td>" + SystemInformation.CurrentVersion + @"</td></tr>
                             <tr><td>Password Salt</td><td>" + SystemInformation.PasswordSalt + @"</td></tr>
                             <tr><td>Deployment Technology</td><td>" + SystemInformation.DeploymentTechnology + @"</td></tr>
-                            <tr><td>Ports</td><td>" + SystemInformation.Ports + @"</td></tr>
                         </table>
 
                         <h2>Application Settings</h2>
@@ -300,9 +198,6 @@ internal class Program
 
         app.UseSwagger();
         app.UseSwaggerUI();
-
-        app.UseHsts();
-        app.UseHttpsRedirection();
 
         app.UseStaticFiles();
 

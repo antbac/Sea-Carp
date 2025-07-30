@@ -52,8 +52,7 @@ public class SystemController(
             SystemInformation.CurrentVersion,
             SystemInformation.PasswordSalt,
             _cryptographyService.CurrentHashAlgorithm(),
-            SystemInformation.DeploymentTechnology,
-            SystemInformation.Ports
+            SystemInformation.DeploymentTechnology
         );
     }
 
@@ -70,7 +69,7 @@ public class SystemController(
 
     [HttpGet]
     [Route("/system/logs/{pageNumber}", Name = $"{nameof(SystemController)}/{nameof(Logs)}")]
-    public async Task<IActionResult> Logs([FromRoute] int pageNumber = 1)
+    public IActionResult Logs([FromRoute] int pageNumber = 1)
     {
         return Content(string.Join("\n", LogService.GetLogs(pageNumber)), "text/plain");
     }

@@ -143,8 +143,6 @@
             body = body || {};
             headers = headers || {};
 
-            console.log(url, httpMethod, body, headers, customCallback);
-
             const tokenResponse = await fetch('@Url.ActionLink(nameof(IdentityController.TokenRetrieval), nameof(IdentityController).RemoveControllerSuffix())', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }

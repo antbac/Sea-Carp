@@ -66,7 +66,7 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
                                 try
                                 {
                                     var caseNumber = supportCase.CaseNumber;
-                                    var baseUrl = ResolveBaseUrl(logService);
+                                    var baseUrl = "https://localhost:6001";
                                     var supportCaseUrl = $"{baseUrl}/Support/{caseNumber}";
 
                                     driver.Navigate().GoToUrl(supportCaseUrl);
@@ -112,66 +112,6 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
             }
 
             await Task.Delay(_interval, stoppingToken);
-        }
-    }
-
-    private string ResolveBaseUrl(ILogService logService)
-    {
-        var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-        var disableHttps = string.Equals(Environment.GetEnvironmentVariable("DISABLE_HTTPS"), "true", StringComparison.OrdinalIgnoreCase);
-
-        if (isRunningInDocker)
-        {
-            try
-            {
-                using var client = new HttpClient();
-                client.Timeout = TimeSpan.FromSeconds(1);
-
-                var response = client.GetAsync("http://localhost:80/").Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var baseUrl = "http://localhost:80";
-                    logService.Information($"Successfully connected via localhost, using: {baseUrl}");
-                    return baseUrl;
-                }
-            }
-            catch (Exception ex)
-            {
-                logService.Warning($"Failed to connect to localhost:80: {ex.Message}");
-            }
-
-            // Fallback to default Docker URL
-            var fallbackUrl = "http://localhost";
-            logService.Information($"Using fallback Docker URL: {fallbackUrl}");
-            return fallbackUrl;
-        }
-        else
-        {
-            var aspNetCoreUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
-            var port = "5000";
-
-            if (!string.IsNullOrEmpty(aspNetCoreUrls))
-            {
-                var urls = aspNetCoreUrls.Split(';');
-                foreach (var url in urls)
-                {
-                    if (!url.Contains(":6001"))
-                    {
-                        var uri = new Uri(url.Replace("+", "localhost"));
-                        port = uri.Port.ToString();
-                        break;
-                    }
-                }
-            }
-            else if (!disableHttps)
-            {
-                port = Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT") ?? "443";
-            }
-
-            var protocol = disableHttps ? "http" : "https";
-            var baseUrl = $"{protocol}://localhost:{port}";
-            logService.Information($"Using local URL: {baseUrl}");
-            return baseUrl;
         }
     }
 }

@@ -4,8 +4,6 @@ public static class SystemInformation
 {
     private static DateTime? _lastStarted;
     private static string _passwordSalt;
-    private static string _deploymentTechnology;
-    private static string _ports;
 
     public static DateTime LastStarted
     {
@@ -36,15 +34,12 @@ public static class SystemInformation
         set => _passwordSalt ??= value;
     }
 
-    public static string DeploymentTechnology
-    {
-        get => _deploymentTechnology ?? "Unknown";
-        set => _deploymentTechnology ??= value;
-    }
+    public static bool IsRunningInsideDocker =>
+        !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER")) &&
+        Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER").Equals("true", StringComparison.InvariantCultureIgnoreCase);
 
-    public static string Ports
-    {
-        get => _ports ?? "Unknown";
-        set => _ports ??= value;
-    }
+    public static string DeploymentTechnology =>
+        IsRunningInsideDocker
+            ? "Docker"
+            : "Kestrel";
 }
