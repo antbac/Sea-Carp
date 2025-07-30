@@ -6,9 +6,11 @@ using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Operations for managing and retrieving product catalog items")]
 public class ProductsController(
     IProductService productService,
     IJwtService jwtService,
@@ -28,6 +30,13 @@ public class ProductsController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/products", Name = $"{nameof(ProductsController)}/{nameof(Index_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets all products",
+        Description = "Retrieves a list of all products, optionally filtered by category and price range.",
+        OperationId = "GetProducts",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully returned list of products", typeof(IEnumerable<Models.Api.v1.Product>))]
     public async Task<IActionResult> Index_SPA([FromQuery] string category, [FromQuery] string priceRange) => Json(await Index_Common(category, priceRange));
 
     private async Task<IEnumerable<Models.Api.v1.Product>> Index_Common(string category, string priceRange)
@@ -70,6 +79,14 @@ public class ProductsController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/products/{id}", Name = $"{nameof(ProductsController)}/{nameof(GetProductDetails_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets product details by ID",
+        Description = "Retrieves detailed information about a specific product including related products from the same category.",
+        OperationId = "GetProductById",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully returned product details", typeof(Models.Api.v1.Product))]
+    [SwaggerResponse(404, "Product not found")]
     public async Task<IActionResult> GetProductDetails_SPA(int id)
     {
         var product = await _productService.GetProduct(id);
@@ -103,6 +120,13 @@ public class ProductsController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/products/{id}/reviews", Name = $"{nameof(ProductsController)}/{nameof(AddReview)}")]
+    [SwaggerOperation(
+        Summary = "Adds a review to a product",
+        Description = "Allows an authenticated user to add a review for a specific product. Requires user to be logged in.",
+        OperationId = "AddProductReview",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully added review or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> AddReview(int id, [FromBody] AddReviewRequest request)
     {
         if (CurrentUser is null)
@@ -125,6 +149,13 @@ public class ProductsController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/products", Name = $"{nameof(ProductsController)}/{nameof(AddProduct)}")]
+    [SwaggerOperation(
+        Summary = "Adds a new product",
+        Description = "Allows an administrator to add a new product to the catalog. Requires admin privileges.",
+        OperationId = "AddProduct",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully added product or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> AddProduct([FromBody] AddProductRequest request)
     {
         if (CurrentUser is null)
@@ -172,6 +203,13 @@ public class ProductsController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/products/{id}", Name = $"{nameof(ProductsController)}/{nameof(UpdateProduct)}")]
+    [SwaggerOperation(
+        Summary = "Updates an existing product",
+        Description = "Allows an administrator to update an existing product's information. Requires admin privileges.",
+        OperationId = "UpdateProduct",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully updated product or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductInformationRequest request)
     {
         if (CurrentUser is null)
@@ -226,6 +264,13 @@ public class ProductsController(
     [HttpDelete]
     [ApiEndpoint]
     [Route("/api/v1/products/{id}/reviews", Name = $"{nameof(ProductsController)}/{nameof(ResetProductReviews)}")]
+    [SwaggerOperation(
+        Summary = "Resets all reviews for a product",
+        Description = "Allows an administrator to delete all reviews for a specific product. Requires admin privileges.",
+        OperationId = "ResetProductReviews",
+        Tags = new[] { "Products" }
+    )]
+    [SwaggerResponse(200, "Successfully reset reviews or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> ResetProductReviews(int id)
     {
         if (CurrentUser is null)

@@ -3,9 +3,11 @@ using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("System information and diagnostic operations")]
 public class SystemController(
     IFileService fileService,
     IJwtService jwtService,
@@ -29,6 +31,13 @@ public class SystemController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/system", Name = $"{nameof(SystemController)}/{nameof(Index_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets system information",
+        Description = "Retrieves information about the system including version, admin contact, deployment details, and configuration.",
+        OperationId = "GetSystemInfo",
+        Tags = new[] { "System" }
+    )]
+    [SwaggerResponse(200, "Successfully returned system information", typeof(Models.Api.v1.System))]
     public async Task<IActionResult> Index_SPA() => Json(await Index_Common());
 
     private async Task<Models.Api.v1.System> Index_Common()
@@ -61,9 +70,24 @@ public class SystemController(
 
     [HttpGet]
     [Route("/system/logs/{pageNumber}", Name = $"{nameof(SystemController)}/{nameof(Logs)}")]
-    public IActionResult Logs([FromRoute] int pageNumber = 1)
+    public async Task<IActionResult> Logs([FromRoute] int pageNumber = 1)
     {
-        return Content(LogService.GetLogs(pageNumber), "text/plain");
+        return Content(string.Join("\n", LogService.GetLogs(pageNumber)), "text/plain");
+    }
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/system/logs/{pageNumber}", Name = $"{nameof(SystemController)}/{nameof(Logs_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets system logs",
+        Description = "Retrieves system log entries for the specified page.",
+        OperationId = "GetSystemLogs",
+        Tags = new[] { "System" }
+    )]
+    [SwaggerResponse(200, "Successfully returned log entries", typeof(string))]
+    public IActionResult Logs_SPA([FromRoute] int pageNumber = 1)
+    {
+        return Content(string.Join("\n", LogService.GetLogs(pageNumber)), "text/plain");
     }
 
     #endregion Logs

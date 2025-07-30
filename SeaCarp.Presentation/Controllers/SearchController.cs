@@ -2,9 +2,11 @@
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Product search operations")]
 public class SearchController(
     IProductService productService,
     IJwtService jwtService,
@@ -33,6 +35,14 @@ public class SearchController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/search", Name = $"{nameof(SearchController)}/{nameof(Index_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Searches for products",
+        Description = "Searches for products matching the provided query string.",
+        OperationId = "SearchProducts",
+        Tags = new[] { "Search" }
+    )]
+    [SwaggerResponse(200, "Successfully returned search results", typeof(Models.Api.v1.Search))]
+    [SwaggerResponse(400, "Bad request - search query is empty")]
     public async Task<IActionResult> Index_SPA([FromQuery] string q)
     {
         if (string.IsNullOrWhiteSpace(q))

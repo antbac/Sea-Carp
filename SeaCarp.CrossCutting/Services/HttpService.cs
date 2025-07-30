@@ -26,6 +26,7 @@ public class HttpService : IHttpService
 
                     return isLocalhost && requestMessage.RequestUri.Scheme.Equals("https", StringComparison.InvariantCultureIgnoreCase) || sslPolicyErrors == SslPolicyErrors.None;
                 }
+
                 return sslPolicyErrors == SslPolicyErrors.None;
             }
         });

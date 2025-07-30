@@ -3,9 +3,11 @@ using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Home page and featured products operations")]
 public class HomeController(
     IProductService productService,
     IJwtService jwtService,
@@ -25,6 +27,13 @@ public class HomeController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/overview", Name = $"{nameof(HomeController)}/{nameof(Index_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets featured products overview",
+        Description = "Retrieves a list of featured products to be displayed on the home page.",
+        OperationId = "GetFeaturedProducts",
+        Tags = new[] { "Home" }
+    )]
+    [SwaggerResponse(200, "Successfully returned featured products", typeof(IEnumerable<Models.Api.v1.Product>))]
     public async Task<IActionResult> Index_SPA() => Json(await Index_Common());
 
     private async Task<IEnumerable<Models.Api.v1.Product>> Index_Common()

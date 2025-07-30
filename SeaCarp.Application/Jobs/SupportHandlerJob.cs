@@ -71,7 +71,16 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
 
                                     driver.Navigate().GoToUrl(supportCaseUrl);
 
-                                    var cookie = new OpenQA.Selenium.Cookie(Constants.JWT, jwt, "/", null);
+                                    var cookie = new OpenQA.Selenium.Cookie(
+                                        Constants.JWT,
+                                        jwt,
+                                        new Uri(baseUrl).DnsSafeHost,
+                                        "/",
+                                        null,
+                                        true,
+                                        false,
+                                        "None");
+
                                     driver.Manage().Cookies.AddCookie(cookie);
                                     driver.Navigate().Refresh();
 

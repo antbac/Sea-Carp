@@ -28,6 +28,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.3" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
 	</ItemGroup>
 
@@ -72,9 +73,5 @@
 		<NoWarn>NU1903</NoWarn>
 		<NoWarn>NU1904</NoWarn>
 	</PropertyGroup>
-
-	<Target Name="GenerateCycloneDXSBOM" AfterTargets="Build">
-		<Exec Command="dotnet CycloneDX &quot;$(MSBuildProjectFullPath)&quot; -o &quot;$(ProjectDir)wwwroot&quot; --json" IgnoreExitCode="false" ContinueOnError="false" />
-	</Target>
 
 </Project>

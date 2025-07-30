@@ -195,25 +195,14 @@
             if (reviewForm) {
                 reviewForm.onsubmit = (e) => {
                     e.preventDefault();
-                    fetch('/api/v1/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
+                    
+                    makeAuthorizedRequest(
+                        '/api/v1/@nameof(ProductsController).RemoveControllerSuffix()/@(Model.Id)/Reviews',
+                        'POST',
+                        {
                             'Rating': document.querySelector('#Rating').value,
                             'Comment': document.querySelector('#Comment').value,
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            handleException(data);
-                            return;
-                        }
-
-                        window.location.href = data.redirectUrl;
-                    });
+                        });
                 };
             }
 

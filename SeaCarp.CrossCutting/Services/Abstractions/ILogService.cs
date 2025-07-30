@@ -2,7 +2,9 @@
 
 public interface ILogService
 {
-    string GetLogs(int page = 1);
+    string[] GetLogs(int page = 1);
+
+    int GetNumberOfPages();
 
     void Debug(string message);
 

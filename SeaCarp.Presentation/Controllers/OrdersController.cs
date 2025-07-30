@@ -5,9 +5,11 @@ using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Operations for creating and retrieving customer orders")]
 public class OrdersController(
     IOrderService orderService,
     IJwtService jwtService,
@@ -45,6 +47,15 @@ public class OrdersController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/orders/{orderNumber}", Name = $"{nameof(OrdersController)}/{nameof(GetOrder_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets order details by order number",
+        Description = "Retrieves detailed information about a specific order using its unique order number.",
+        OperationId = "GetOrderByNumber",
+        Tags = new[] { "Orders" }
+    )]
+    [SwaggerResponse(200, "Successfully returned order details", typeof(Models.Api.v1.Order))]
+    [SwaggerResponse(400, "Bad request - invalid order number")]
+    [SwaggerResponse(404, "Order not found")]
     public async Task<IActionResult> GetOrder_SPA(string orderNumber)
     {
         if (string.IsNullOrWhiteSpace(orderNumber))
@@ -74,6 +85,13 @@ public class OrdersController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/orders", Name = $"{nameof(OrdersController)}/{nameof(PlaceOrder)}")]
+    [SwaggerOperation(
+        Summary = "Places a new order",
+        Description = "Creates a new order with the specified items. Requires user to be logged in.",
+        OperationId = "PlaceOrder",
+        Tags = new[] { "Orders" }
+    )]
+    [SwaggerResponse(200, "Successfully placed order or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> PlaceOrder([FromBody] OrderRegistrationRequest request)
     {
         if (CurrentUser is null)

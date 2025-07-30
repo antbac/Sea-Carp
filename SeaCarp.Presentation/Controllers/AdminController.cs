@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Annotations;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
@@ -9,6 +10,7 @@ using SeaCarp.Presentation.Models.ViewModels;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Admin operations for system management")]
 public class AdminController(
     IOptions<CryptographySettings> options,
     ICryptographyService cryptographyService,
@@ -30,8 +32,15 @@ public class AdminController(
     public IActionResult Index_MVC() => View("Index", new AdminViewModel(Index_Common()));
 
     [HttpGet]
-    [ApiEndpoint]
     [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Index_SPA)}")]
+    [ApiEndpoint]
+    [SwaggerOperation(
+        Summary = "Gets admin dashboard information",
+        Description = "Retrieves information to show on the admin dashboard. Requires admin privileges.",
+        OperationId = "GetAdminDashboard",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with admin dashboard information or error message", typeof(Models.Api.v1.Admin))]
     public IActionResult Index_SPA() => Json(Index_Common());
 
     public Models.Api.v1.Admin Index_Common()
@@ -53,12 +62,19 @@ public class AdminController(
 
     #endregion Index
 
-    #region Login
+    #region Elevate user
 
     [HttpPost]
+    [Route("/api/v1/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(ElevateUser)}")]
     [ApiEndpoint]
-    [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Login)}")]
-    public IActionResult Login([FromBody] AdminLoginRequest request)
+    [SwaggerOperation(
+        Summary = "Elevate admin privileges",
+        Description = "Allows an admin to elevate their privileges using an authentication key. Requires admin privileges.",
+        OperationId = "AdminElevation",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with a redirect URL or error message", typeof(GenericResponse))]
+    public IActionResult ElevateUser([FromBody] AdminLoginRequest request)
     {
         if (CurrentUser is null)
         {
@@ -89,7 +105,7 @@ public class AdminController(
         return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(AdminController).RemoveControllerSuffix()}/{nameof(Pwn)}" });
     }
 
-    #endregion Login
+    #endregion Elevate user
 
     #region Elevate
 
@@ -98,8 +114,15 @@ public class AdminController(
     public IActionResult Elevate_MVC() => View("Elevate", new AdminViewModel(Elevate_Common()));
 
     [HttpGet]
-    [ApiEndpoint]
     [Route("/api/v1/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(Elevate_SPA)}")]
+    [ApiEndpoint]
+    [SwaggerOperation(
+        Summary = "Gets admin elevation dashboard information",
+        Description = "Retrieves information to show on the admin elevation dashboard. Requires admin privileges.",
+        OperationId = "GetAdminElevationDashboard",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with admin elevation dashboard information or error message", typeof(Models.Api.v1.Admin))]
     public IActionResult Elevate_SPA() => Json(Elevate_Common());
 
     public Models.Api.v1.Admin Elevate_Common()
@@ -124,7 +147,6 @@ public class AdminController(
     #region PwnPage
 
     [HttpGet]
-    [SitemapIgnore]
     [Route("/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(PwnPage)}")]
     public IActionResult PwnPage()
     {
@@ -142,9 +164,16 @@ public class AdminController(
     #region Pwn
 
     [HttpPost]
-    [ApiEndpoint]
-    [SwaggerIgnore]
     [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
+    [ApiEndpoint]
+    [SwaggerOperation(
+        Summary = "Pwn the system",
+        Description = "Allows an authenticated admin to take control of the system by setting their name as the system owner. Requires admin privileges and valid admin authentication.",
+        OperationId = "PwnSystem",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with a redirect URL or error message", typeof(GenericResponse))]
+    [SwaggerResponse(401, "Unauthorized access - returns this status code when user is not authenticated as an elevated admin")]
     public IActionResult Pwn([FromBody] PwnRequest request)
     {
         if (!AuthenticateUser())

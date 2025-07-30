@@ -23,7 +23,7 @@ public class LogService(ITimeService timeService) : ILogService
 
     public void Warning(string message) => Log(LogLevel.Warning, message);
 
-    public string GetLogs(int page = 1)
+    public string[] GetLogs(int page = 1)
     {
         if (page is <=1 or >MAXIMUM_NUMBER_OF_PAGES)
         {
@@ -32,7 +32,7 @@ public class LogService(ITimeService timeService) : ILogService
 
         lock (_lock)
         {
-            return string.Join('\n', _log.Skip(MAXIMUM_LOG_ENTRIES_PER_PAGE * (page - 1)).Take(MAXIMUM_LOG_ENTRIES_PER_PAGE));
+            return [.. _log.Skip(MAXIMUM_LOG_ENTRIES_PER_PAGE * (page - 1)).Take(MAXIMUM_LOG_ENTRIES_PER_PAGE)];
         }
     }
 
@@ -52,4 +52,10 @@ public class LogService(ITimeService timeService) : ILogService
             }
         }
     }
+
+    public int GetNumberOfPages() =>
+        Enumerable
+            .Range(0, MAXIMUM_NUMBER_OF_PAGES)
+            .Where(pageNumber => GetLogs(pageNumber).Length != 0)
+            .Max();
 }

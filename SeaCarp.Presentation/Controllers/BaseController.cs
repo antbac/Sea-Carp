@@ -32,7 +32,10 @@ public abstract class BaseController(
                     (nameof(value.IsAdmin), value.IsAdmin.ToString())
                 ), new CookieOptions
                 {
-                    HttpOnly = false,
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Domain = Request.Host.Host,
                 });
             }
         }

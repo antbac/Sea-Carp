@@ -5,9 +5,11 @@ using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("User profile management and administration operations")]
 public class ProfilesController(
     IUserService userService,
     IFileService fileService,
@@ -29,7 +31,7 @@ public class ProfilesController(
         if (CurrentUser is null)
         {
             LogService.Warning("Attempted to access profile without being logged in.");
-            return RedirectToAction("Login", "Identity");
+            return RedirectToAction(nameof(IdentityController.LoginPage), nameof(IdentityController).RemoveControllerSuffix());
         }
 
         LogService.Information($"User {CurrentUser.Username} accessed their profile.");
@@ -66,6 +68,14 @@ public class ProfilesController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}", Name = $"{nameof(ProfilesController)}/{nameof(GetProfilePageById_SPA)}")]
+    [SwaggerOperation(
+        Summary = "Gets user profile details",
+        Description = "Retrieves detailed information about a user profile using their ID or username.",
+        OperationId = "GetUserProfile",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully returned user profile details", typeof(Models.Api.v1.User))]
+    [SwaggerResponse(404, "User not found")]
     public async Task<IActionResult> GetProfilePageById_SPA(string identifier)
     {
         var user = int.TryParse(identifier, out var id)
@@ -109,6 +119,13 @@ public class ProfilesController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}/email", Name = $"{nameof(ProfilesController)}/{nameof(UpdateEmail)}")]
+    [SwaggerOperation(
+        Summary = "Updates user's email",
+        Description = "Updates the email address for a user profile. Requires user to be logged in.",
+        OperationId = "UpdateUserEmail",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully updated email or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] UpdateEmailRequest request)
     {
         if (CurrentUser is null)
@@ -138,6 +155,13 @@ public class ProfilesController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}/password", Name = $"{nameof(ProfilesController)}/{nameof(UpdatePassword)}")]
+    [SwaggerOperation(
+        Summary = "Updates user's password",
+        Description = "Updates the password for a user profile. Requires user to be logged in.",
+        OperationId = "UpdateUserPassword",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully updated password or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] UpdatePasswordRequest request)
     {
         if (CurrentUser is null)
@@ -167,6 +191,13 @@ public class ProfilesController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}/picture", Name = $"{nameof(ProfilesController)}/{nameof(UpdateProfilePicture)}")]
+    [SwaggerOperation(
+        Summary = "Updates user's profile picture",
+        Description = "Updates the profile picture for a user profile. Requires user to be logged in.",
+        OperationId = "UpdateUserProfilePicture",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully updated profile picture or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> UpdateProfilePicture(string identifier, [FromBody] UpdateProfilePictureRequest request)
     {
         if (CurrentUser is null)
@@ -195,6 +226,13 @@ public class ProfilesController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}/promote", Name = $"{nameof(ProfilesController)}/{nameof(PromoteToAdmin)}")]
+    [SwaggerOperation(
+        Summary = "Promotes a user to admin",
+        Description = "Promotes a regular user to admin status. Requires the current user to have admin privileges.",
+        OperationId = "PromoteUserToAdmin",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully promoted user or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> PromoteToAdmin(string identifier)
     {
         if (CurrentUser is null)
@@ -240,6 +278,13 @@ public class ProfilesController(
     [HttpPut]
     [ApiEndpoint]
     [Route("/api/v1/profiles/{identifier}/demote", Name = $"{nameof(ProfilesController)}/{nameof(DemoteFromAdmin)}")]
+    [SwaggerOperation(
+        Summary = "Demotes a user from admin",
+        Description = "Removes admin privileges from a user. Requires the current user to have admin privileges and cannot be used to demote yourself.",
+        OperationId = "DemoteUserFromAdmin",
+        Tags = new[] { "Profiles" }
+    )]
+    [SwaggerResponse(200, "Successfully demoted user or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> DemoteFromAdmin(string identifier)
     {
         if (CurrentUser is null)

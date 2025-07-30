@@ -233,25 +233,11 @@
                 if (emailForm) {
                     emailForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                Email: document.querySelector('#Email').value
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const emailErrorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    emailErrorDiv.innerText = data.errorMessage;
-                                    emailErrorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Email',
+                            'PUT',
+                            { Email: document.querySelector('#Email').value });
                     };
                 }
 
@@ -259,25 +245,11 @@
                 if (passwordForm) {
                     passwordForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                Password: document.querySelector('#Password').value
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const errorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    errorDiv.innerText = data.errorMessage;
-                                    errorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Password',
+                            'PUT',
+                            { Password: document.querySelector('#Password').value });
                     };
                 }
 
@@ -285,25 +257,11 @@
                 if (profilePictureForm) {
                     profilePictureForm.onsubmit = (e) => {
                         e.preventDefault();
-                        fetch('/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                GravatarPath: `/avatar/${document.querySelector('#ProfilePicture').value}`
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                const errorDiv = document.querySelector('#error');
-                                if (data.success) {
-                                    location.reload();
-                                } else {
-                                    errorDiv.innerText = data.errorMessage;
-                                    errorDiv.style.display = 'block';
-                                }
-                            });
+
+                        makeAuthorizedRequest(
+                            '/api/v1/@nameof(ProfilesController).RemoveControllerSuffix()/@(Model.Id)/Picture',
+                            'PUT',
+                            { GravatarPath: `/avatar/${document.querySelector('#ProfilePicture').value}` });
                     };
                 }
             });

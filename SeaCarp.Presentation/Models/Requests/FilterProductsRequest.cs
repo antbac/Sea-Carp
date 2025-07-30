@@ -2,5 +2,5 @@
 
 public class FilterProductsRequest
 {
-    public Dictionary<string, Object> Filters { get; set; }
+    public Dictionary<string, object> Filters { get; set; }
 }

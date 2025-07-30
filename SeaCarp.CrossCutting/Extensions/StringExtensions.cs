@@ -59,13 +59,13 @@ public static class StringExtensions
 
         if (Regex.IsMatch(singular, "fe?$", RegexOptions.IgnoreCase))
         {
-            string lowerSingular = singular.ToLower();
+            var lowerSingular = singular.ToLower();
             if (lowerSingular.EndsWith("f") || lowerSingular.EndsWith("fe"))
             {
                 var knownFtoVWords = new HashSet<string> { "knife", "leaf", "life", "loaf", "wife", "wolf", "shelf", "calf", "elf", "thief" };
-                string root = lowerSingular.EndsWith("fe")
-                    ? lowerSingular.Substring(0, lowerSingular.Length - 2)
-                    : lowerSingular.Substring(0, lowerSingular.Length - 1);
+                var root = lowerSingular.EndsWith("fe")
+                    ? lowerSingular[..^2]
+                    : lowerSingular[..^1];
 
                 if (knownFtoVWords.Contains(lowerSingular) || knownFtoVWords.Contains(root + "f") || knownFtoVWords.Contains(root + "fe"))
                 {
@@ -74,12 +74,9 @@ public static class StringExtensions
             }
         }
 
-        if (Regex.IsMatch(singular, "^(potato|tomato)$", RegexOptions.IgnoreCase))
-        {
-            return singular + "es";
-        }
-
-        return singular + "s";
+        return Regex.IsMatch(singular, "^(potato|tomato)$", RegexOptions.IgnoreCase)
+            ? singular + "es"
+            : singular + "s";
     }
 
     /// <summary>
@@ -102,7 +99,7 @@ public static class StringExtensions
 
         if (char.IsUpper(original[0]) && original[1..].Equals(original, StringComparison.CurrentCultureIgnoreCase))
         {
-            return char.ToUpper(pluralForm[0]) + pluralForm.Substring(1).ToLower();
+            return char.ToUpper(pluralForm[0]) + pluralForm[1..].ToLower();
         }
 
         return pluralForm;

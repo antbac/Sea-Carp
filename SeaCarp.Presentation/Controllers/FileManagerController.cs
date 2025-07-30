@@ -4,9 +4,11 @@ using elFinder.Net.Core;
 using elFinder.Net.Drivers.FileSystem.Helpers;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Attributes;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("File management operations for administrators")]
 public class FileManagerController(
     IConnector connector,
     IDriver driver,
@@ -41,6 +43,14 @@ public class FileManagerController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/files/connector", Name = $"{nameof(FileManagerController)}/{nameof(Connector)}")]
+    [SwaggerOperation(
+        Summary = "File manager connector",
+        Description = "Processes file manager operations. Requires admin privileges.",
+        OperationId = "FileManagerConnector",
+        Tags = new[] { "FileManager" }
+    )]
+    [SwaggerResponse(200, "Successfully processed file manager operation")]
+    [SwaggerResponse(401, "Unauthorized - requires admin privileges")]
     public async Task<IActionResult> Connector()
     {
         if (CurrentUser is null || !CurrentUser.IsAdmin)
@@ -63,6 +73,14 @@ public class FileManagerController(
     [HttpGet]
     [ApiEndpoint]
     [Route("/api/v1/files/thumb/{target}", Name = $"{nameof(FileManagerController)}/{nameof(Thumb)}")]
+    [SwaggerOperation(
+        Summary = "Gets file thumbnail",
+        Description = "Retrieves a thumbnail image for the specified file. Requires admin privileges.",
+        OperationId = "GetFileThumb",
+        Tags = new[] { "FileManager" }
+    )]
+    [SwaggerResponse(200, "Successfully returned file thumbnail")]
+    [SwaggerResponse(401, "Unauthorized - requires admin privileges")]
     public async Task<IActionResult> Thumb(string target)
     {
         if (CurrentUser is null || !CurrentUser.IsAdmin)

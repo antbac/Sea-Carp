@@ -1,6 +1,6 @@
 ﻿namespace SeaCarp.Presentation.Models.Requests.Models;
 
-public class OrderItem
+public class OrderItemRequestModel
 {
     public int ProductId { get; set; }
     public decimal Price { get; set; }

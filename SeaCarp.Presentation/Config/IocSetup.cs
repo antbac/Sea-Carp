@@ -13,4 +13,7 @@ public static class IocSetup
 
     public static IServiceCollection ConfigureInfrastructureServices(this IServiceCollection services) =>
         Infrastructure.IocSetup.ConfigureServices(services);
+
+    public static IServiceCollection ConfigurePresentationServices(this IServiceCollection services) =>
+        services;
 }

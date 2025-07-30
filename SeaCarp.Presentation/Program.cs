@@ -2,6 +2,7 @@
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using elFinder.Net.Drivers.FileSystem.Helpers;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using SeaCarp.Application.Jobs;
 using SeaCarp.CrossCutting;
@@ -12,6 +13,7 @@ using SeaCarp.Presentation;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
 internal class Program
@@ -93,6 +95,7 @@ internal class Program
 
         builder.Services
             .ConfigureCrossCuttingServices()
+            .ConfigurePresentationServices()
             .ConfigureApplicationServices()
             .ConfigureDomainServices()
             .ConfigureInfrastructureServices();
@@ -209,6 +212,9 @@ internal class Program
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "SeaCarp API", Version = "v1" });
 
+            // Enable Swagger annotations to process SwaggerOperation and SwaggerResponse attributes
+            options.EnableAnnotations();
+
             options.DocInclusionPredicate((docName, apiDesc) =>
             {
                 var actionAttributes = apiDesc.ActionDescriptor?.EndpointMetadata;
@@ -240,6 +246,7 @@ internal class Program
                     return;
                 }
 
+                var cryptographySettings = context.RequestServices.GetService<IOptions<CryptographySettings>>().Value;
                 context.Response.ContentType = "text/html";
                 await context.Response.WriteAsync(@"
                     <!DOCTYPE html>
@@ -277,9 +284,9 @@ internal class Program
                             <tr><td>AllowedHosts</td><td>" + builder.Configuration["AllowedHosts"] + @"</td></tr>
                             <tr><td>Logging:LogLevel:Default</td><td>" + builder.Configuration["Logging:LogLevel:Default"] + @"</td></tr>
                             <tr><td>Logging:LogLevel:Microsoft.AspNetCore</td><td>" + builder.Configuration["Logging:LogLevel:Microsoft.AspNetCore"] + @"</td></tr>
-                            <tr><td>Cryptography:AdminAuthenticationKey</td><td>" + builder.Configuration["Cryptography:AdminAuthenticationKey"] + @"</td></tr>
-                            <tr><td>Cryptography:JwtEncryptionKey</td><td>" + builder.Configuration["Cryptography:JwtEncryptionKey"] + @"</td></tr>
-                            <tr><td>Cryptography:PasswordSalt</td><td>" + builder.Configuration["Cryptography:PasswordSalt"] + @"</td></tr>
+                            <tr><td>Cryptography:AdminAuthenticationKey</td><td>" + cryptographySettings.AdminAuthenticationKey + @"</td></tr>
+                            <tr><td>Cryptography:JwtEncryptionKey</td><td>" + cryptographySettings.JwtEncryptionKey + @"</td></tr>
+                            <tr><td>Cryptography:PasswordSalt</td><td>" + cryptographySettings.PasswordSalt + @"</td></tr>
                         </table>
                     </body>
                     </html>");
@@ -304,7 +311,7 @@ internal class Program
         app.UseCors("AllowCors");
 
         app.UseSession();
-        app.UseSessionAuthorization();
+        app.UseJwtAuthentication();
 
         app.MapControllerRoute(
             name: "default",

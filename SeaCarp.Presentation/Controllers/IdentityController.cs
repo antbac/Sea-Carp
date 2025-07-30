@@ -1,12 +1,16 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation.Attributes;
+using SeaCarp.Presentation.Models.Api.v1;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SeaCarp.Presentation.Controllers;
 
+[SwaggerTag("Authentication and user registration operations")]
 public class IdentityController(
     IUserService userService,
     IJwtService jwtService,
@@ -30,6 +34,13 @@ public class IdentityController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/identity/register", Name = $"{nameof(IdentityController)}/{nameof(CreateAccount)}")]
+    [SwaggerOperation(
+        Summary = "Registers a new user account",
+        Description = "Creates a new user account with the provided registration information.",
+        OperationId = "RegisterUser",
+        Tags = new[] { "Identity" }
+    )]
+    [SwaggerResponse(200, "Successfully registered user or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> CreateAccount([FromBody] AccountRegistrationRequest registration)
     {
         var user = Domain.Models.User.Create(
@@ -57,7 +68,7 @@ public class IdentityController(
     {
         return CurrentUser is null
             ? View("Login")
-            : RedirectToAction("Index", nameof(ProfilesController).RemoveControllerSuffix());
+            : RedirectToAction(nameof(ProfilesController.GetProfile), nameof(ProfilesController).RemoveControllerSuffix());
     }
 
     #endregion LoginPage
@@ -67,6 +78,13 @@ public class IdentityController(
     [HttpPost]
     [ApiEndpoint]
     [Route("/api/v1/identity/login", Name = $"{nameof(IdentityController)}/{nameof(Login)}")]
+    [SwaggerOperation(
+        Summary = "Authenticates a user",
+        Description = "Authenticates a user with the provided credentials and creates a session.",
+        OperationId = "LoginUser",
+        Tags = new[] { "Identity" }
+    )]
+    [SwaggerResponse(200, "Successfully authenticated or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> Login([FromBody] LoginRequest login)
     {
         var user = await _userService.GetUser(login.Username, login.Password);
@@ -96,14 +114,33 @@ public class IdentityController(
         if (user is null)
         {
             LogService.Warning($"Unable to log out unknown user");
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(HomeController.Index_MVC), nameof(HomeController).RemoveControllerSuffix());
         }
 
         LogService.Information($"User {user.Username} logged out");
         CurrentUser = null;
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction(nameof(HomeController.Index_MVC), nameof(HomeController).RemoveControllerSuffix());
     }
 
     #endregion Logout
+
+    #region TokenRetrieval
+
+    [HttpGet]
+    [ApiEndpoint]
+    [Route("/api/v1/identity/token", Name = $"{nameof(IdentityController)}/{nameof(TokenRetrieval)}")]
+    [SwaggerOperation(
+        Summary = "Gets the user's authentication token",
+        Description = "Retrieves the current user's JWT authentication token from cookies. This endpoint allows clients to access their token for API authorization.",
+        OperationId = "TokenRetrieval",
+        Tags = new[] { "Identity" }
+    )]
+    [SwaggerResponse(200, "Returns the JWT authentication token if available, otherwise returns an empty string", typeof(Token))]
+    public IActionResult TokenRetrieval()
+    {
+        return Json(new Token(Request.Cookies.FirstOrDefault(cookie => cookie.Key == Constants.JWT).Value ?? string.Empty));
+    }
+
+    #endregion TokenRetrieval
 }
