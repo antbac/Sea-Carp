@@ -28,8 +28,9 @@ RUN dotnet publish "SeaCarp.Presentation/SeaCarp.Presentation.csproj" -c Release
 
 # Build the runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+ENV IS_RUNNING_DOCKER=true
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 80
 EXPOSE 22
 
 # Install Chrome and ChromeDriver dependencies plus jq for JSON manipulation and SSH server

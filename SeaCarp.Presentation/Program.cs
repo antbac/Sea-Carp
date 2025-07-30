@@ -47,7 +47,7 @@ internal class Program
                 var certPath = builder.Configuration["Kestrel:Certificates:Default:Path"];
                 var certPassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
 
-                options.ListenAnyIP(5000);
+                options.ListenAnyIP(80);
                 options.ListenLocalhost(6001, opt => opt.UseHttps(certPath, certPassword));
             }
             else
