@@ -19,7 +19,7 @@ public class StockingJob(IServiceScopeFactory scopeFactory) : BackgroundService
             var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
             var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
 
-            var products = await productRepository.GetAllProducts();
+            var products = productRepository.GetAllProducts();
             foreach (var product in products)
             {
                 if (product.Stock > 50)
@@ -27,14 +27,14 @@ public class StockingJob(IServiceScopeFactory scopeFactory) : BackgroundService
                     continue;
                 }
 
-                if (new Random().Next(100) >= 20)
+                if (Random.Shared.Next(100) >= 20)
                 {
                     continue;
                 }
 
-                var addedStock = new Random().Next(1, 7);
+                var addedStock = Random.Shared.Next(1, 7);
                 product.AddStock(addedStock);
-                await productRepository.UpdateProduct(product.Id, product);
+                productRepository.UpdateProduct(product.Id, product);
 
                 logService.Information($"Stocked product {product.ProductName} with {addedStock} items. New stock: {product.Stock}.");
             }

@@ -13,12 +13,7 @@ public class CartController(
 
     [HttpGet]
     [Route("/cart", Name = $"{nameof(CartController)}/{nameof(Index)}")]
-    public IActionResult Index()
-    {
-        LogService.Information("Cart Index accessed.");
-
-        return View();
-    }
+    public IActionResult Index() => View();
 
     #endregion Index
 }

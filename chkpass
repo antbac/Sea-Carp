@@ -1,0 +1,7 @@
+#!/bin/bash
+username="$1"
+password="$2"
+salt=$(cat /etc/shadow | grep $username | cut -d$ -f3)
+current_hashed_password=$(cat /etc/shadow | grep $username | cut -d: -f2)
+hashed_password=$(openssl passwd -6 -salt $salt $password)
+[ ${hashed_password} == ${current_hashed_password} ] && echo "Password matches" || echo "Password doesn't match"

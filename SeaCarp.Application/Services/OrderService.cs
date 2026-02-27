@@ -11,7 +11,8 @@ public class OrderService(
     IProductService productService,
     IProductRepository productRepository,
     ISupportCaseRepository supportCaseRepository,
-    ILogService logService) : IOrderService
+    ILogService logService,
+    ITimeService timeService) : IOrderService
 {
     private readonly IOrderRepository _orderRepository = orderRepository;
     private readonly IUserRepository _userRepository = userRepository;
@@ -19,6 +20,7 @@ public class OrderService(
     private readonly IProductRepository _productRepository = productRepository;
     private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
     private readonly ILogService _logService = logService;
+    private readonly ITimeService _timeService = timeService;
 
     public async Task<(bool orderPlaced, string errorMessage)> CreateOrder(
         int userId,
@@ -46,7 +48,7 @@ public class OrderService(
             return (false, "You can not buy the same product multiple times in a single order");
         }
 
-        var user = await _userRepository.GetUser(userId);
+        var user = _userRepository.GetUser(userId);
         if (user is null)
         {
             return (false, "Can not find a user with Id " + userId);
@@ -66,7 +68,7 @@ public class OrderService(
 
         var orderToPlace = Order.Create(
             user.Username,
-            DateTime.Today,
+            _timeService.Today,
             purchaseNow ? OrderStatus.Pending : OrderStatus.Reserved,
             deliveryAddress,
             []);
@@ -93,17 +95,17 @@ public class OrderService(
             }
 
             user.SubtractCredits(totalCost);
-            await _userRepository.UpdateUser(user);
+            _userRepository.UpdateCredits(user);
         }
 
         foreach (var (ProductId, Quantity, Price) in orderItems)
         {
             var product = productsToBuy.First(p => p.Id == ProductId);
             product.RemoveStock(Quantity);
-            await _productRepository.UpdateProduct(product.Id, product);
+            _productRepository.UpdateProduct(product.Id, product);
         }
 
-        await _orderRepository.CreateOrder(orderToPlace);
+        _orderRepository.CreateOrder(orderToPlace);
 
         _logService.Information($"Placed order for user {user.Username} with {orderItems.Sum(orderItem => orderItem.Quantity)} products.");
 
@@ -112,11 +114,11 @@ public class OrderService(
 
     public async Task<Order> GetNewestOrder()
     {
-        var order = await _orderRepository.GetNewestOrder();
+        var order = _orderRepository.GetNewestOrder();
 
         _logService.Information($"Retrieved newest order: {order.OrderNumber} with {order.OrderItems.Sum(orderItem => orderItem.Quantity)} products.");
 
-        var supportCases = await _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
+        var supportCases = _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
         order.AppendSupportCases(supportCases);
 
         return order;
@@ -124,11 +126,11 @@ public class OrderService(
 
     public async Task<Order> GetOrder(string orderNumber)
     {
-        var order = await _orderRepository.GetOrder(orderNumber);
+        var order = _orderRepository.GetOrder(orderNumber);
 
         _logService.Information($"Retrieved order: {order.OrderNumber} with {order.OrderItems.Sum(orderItem => orderItem.Quantity)} products.");
 
-        var supportCases = await _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
+        var supportCases = _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
         order.AppendSupportCases(supportCases);
 
         return order;
@@ -136,7 +138,7 @@ public class OrderService(
 
     public async Task UpdateOrder(int id, Order order)
     {
-        await _orderRepository.UpdateOrder(id, order);
+        _orderRepository.UpdateOrder(id, order);
 
         _logService.Information($"Order {order.OrderNumber} updated with {order.OrderItems.Sum(orderItem => orderItem.Quantity)} products.");
     }

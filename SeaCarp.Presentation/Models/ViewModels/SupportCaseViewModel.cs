@@ -10,4 +10,8 @@ public class SupportCaseViewModel(Api.v1.SupportCase supportCase)
     public HtmlString Description { get; private set; } = new(string.IsNullOrWhiteSpace(supportCase?.Description) ? string.Empty : supportCase.Description);
     public HtmlString Image { get; private set; } = new(string.IsNullOrWhiteSpace(supportCase?.Image) ? string.Empty : supportCase.Image);
     public HtmlString CreatedDate { get; private set; } = new((supportCase?.CreatedDate ?? default).ToString("yyy-MM-dd"));
+    public HtmlString Status { get; private set; } = new(supportCase?.Status);
+    public HtmlString CaseOfficer { get; private set; } = new(supportCase?.CaseOfficer);
+    public bool IsAssigned => !string.IsNullOrWhiteSpace(CaseOfficer.Value);
+    public List<SupportCaseNoteViewModel> Notes { get; private set; } = [.. supportCase.Notes.Select(note => new SupportCaseNoteViewModel(note))];
 }

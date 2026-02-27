@@ -11,4 +11,5 @@ public class SystemViewModel(Api.v1.System system)
     public HtmlString PasswordSalt { get; private set; } = new(string.IsNullOrWhiteSpace(system?.PasswordSalt) ? string.Empty : system.PasswordSalt);
     public HtmlString HashAlgorithm { get; private set; } = new(string.IsNullOrWhiteSpace(system?.HashAlgorithm) ? string.Empty : system.HashAlgorithm);
     public HtmlString DeploymentTechnology { get; private set; } = new(string.IsNullOrWhiteSpace(system?.DeploymentTechnology) ? string.Empty : system.DeploymentTechnology);
+    public HtmlString LocalPort { get; private set; } = new(string.IsNullOrWhiteSpace(system?.LocalPort) ? string.Empty : system.LocalPort);
 }

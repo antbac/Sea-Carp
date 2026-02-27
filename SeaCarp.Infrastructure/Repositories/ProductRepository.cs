@@ -1,277 +1,265 @@
 ﻿using SeaCarp.CrossCutting.Extensions;
+using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
 using System.Data.SQLite;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace SeaCarp.Infrastructure.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository(ITimeService timeService) : BaseRepository, IProductRepository
 {
-    public async Task AddProduct(Product product)
+    private readonly ITimeService _timeService = timeService;
+
+    private static string ProductSelectColumns = @$"
+        {nameof(Product).ToPlural()}.{nameof(Product.Id)},
+        {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
+        {nameof(Product).ToPlural()}.{nameof(Product.Description)},
+        {nameof(Product).ToPlural()}.{nameof(Product.Price)},
+        {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
+        Categories.Category,
+        {nameof(User).ToPlural()}.{nameof(User.Username)},
+        {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
+        {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
+        {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}";
+
+    private static string ProductSelectFromClause = @$"
+        FROM {nameof(Product).ToPlural()}
+        INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
+        LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
+        LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id";
+
+    private static string BuildProductSelectQuery(string whereClause = null) =>
+        string.IsNullOrWhiteSpace(whereClause)
+            ? @$"
+                SELECT
+                    {ProductSelectColumns}
+                    {ProductSelectFromClause};
+            "
+            : @$"
+                SELECT
+                    {ProductSelectColumns}
+                    {ProductSelectFromClause}
+                WHERE {whereClause};
+            ";
+
+    public void AddProduct(Product product)
     {
+        lock (Database.RequestLock())
+        {
+            {
+                using var cmd = Database.GetConnection().CreateCommand();
+                cmd.CommandText = GenerateSecureQuery(@$"
+                    INSERT OR IGNORE INTO Categories
+                    (
+                        Category
+                    ) VALUES (@1);
+                ",
+                    product.Category);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            {
+                using var cmd = Database.GetConnection().CreateCommand();
+                cmd.CommandText = GenerateSecureQuery(@$"
+                    INSERT INTO {nameof(Product).ToPlural()}
+                    (
+                        {nameof(Product.ProductName)},
+                        {nameof(Product.Description)},
+                        {nameof(Product.Price)},
+                        {nameof(Product.Stock)},
+                        {nameof(Product.Category)}Id
+                    ) VALUES (@1, @2, @3, @4, (SELECT Categories.Id FROM Categories WHERE Categories.Category = @5));
+                ",
+                    product.ProductName,
+                    product.Description,
+                    product.Price,
+                    product.Stock,
+                    product.Category);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public void AddReview(int productId, Review review, User user)
+    {
+        lock (Database.RequestLock())
         {
             using var cmd = Database.GetConnection().CreateCommand();
-            cmd.CommandText = Regex.Replace(@$"
-                INSERT OR IGNORE INTO Categories
+            cmd.CommandText = GenerateSecureQuery(@$"
+                INSERT INTO {nameof(Review).ToPlural()}
                 (
-                    Category
-                ) VALUES
-                    ('{product.Category}');
-            ", @"\s+", " ");
-            await cmd.ExecuteNonQueryAsync();
-        }
+                    {nameof(Product)}Id,
+                    {nameof(User)}Id,
+                    {nameof(Review.Comment)},
+                    {nameof(Review.Rating)},
+                    {nameof(Review.CreatedDate)}
+                ) VALUES (@1, @2, @3, @4, @5);
+            ",
+                productId,
+                user.Id,
+                review.Comment,
+                review.Rating,
+                _timeService.Today.ToString("yyyy-MM-dd HH:mm:ss:fff"));
 
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public List<Product> GetAllProducts()
+    {
+        lock (Database.RequestLock())
         {
             using var cmd = Database.GetConnection().CreateCommand();
-            cmd.CommandText = Regex.Replace(@$"
-                INSERT INTO {nameof(Product).ToPlural()}
+            cmd.CommandText = GenerateSecureQuery(BuildProductSelectQuery());
+
+            return InstantiateProducts(cmd);
+        }
+    }
+
+    public List<Product> GetBestSellers(int numberOfProducts)
+    {
+        lock (Database.RequestLock())
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = GenerateSecureQuery(BuildProductSelectQuery(@$"
+                {nameof(Product).ToPlural()}.{nameof(Product.Id)} IN
                 (
-                    {nameof(Product.ProductName)},
-                    {nameof(Product.Description)},
-                    {nameof(Product.Price)},
-                    {nameof(Product.Stock)},
-                    {nameof(Product.Category)}Id
-                ) VALUES (
-                    '{product.ProductName}',
-                    '{product.Description}',
-                    {product.Price.ToString().Replace(",", ".")},
-                    {product.Stock},
-                    (SELECT Categories.Id FROM Categories WHERE Categories.Category = '{product.Category}')
-                );
-            ", @"\s+", " ");
-            await cmd.ExecuteNonQueryAsync();
+                    SELECT DISTINCT inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
+                    FROM {nameof(Product).ToPlural()} inner{nameof(Product).ToPlural()}
+                    INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(Product)}Id = inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
+                    GROUP BY inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
+                    ORDER BY COUNT(*) DESC
+                    LIMIT @1
+                )
+            "),
+                numberOfProducts);
+
+            return InstantiateProducts(cmd);
         }
     }
 
-    public async Task AddReview(int productId, Review review, User user)
+    public Product GetProduct(int id)
     {
-        using var cmd = Database.GetConnection().CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            INSERT INTO {nameof(Review).ToPlural()}
-            (
-                {nameof(Product)}Id,
-                {nameof(User)}Id,
-                {nameof(Review.Rating)},
-                {nameof(Review.Comment)},
-                {nameof(Review.CreatedDate)}
-            ) VALUES (
-                {productId},
-                {user.Id},
-                '{review.Rating}',
-                '{review.Comment}',
-                '{DateTime.Today:yyyy-MM-dd HH:mm:ss:fff}'
-            );
-        ", @"\s+", " ");
-        await cmd.ExecuteNonQueryAsync();
-    }
-
-    public async Task<List<Product>> GetAllProducts()
-    {
-        var connection = Database.GetConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            SELECT
-                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
-                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
-                Categories.Category,
-                {nameof(User).ToPlural()}.{nameof(User.Username)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
-                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
-            FROM {nameof(Product).ToPlural()}
-            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
-            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
-            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id;
-        ", @"\s+", " ");
-
-        return await InstantiateProducts(cmd);
-    }
-
-    public async Task<List<Product>> GetBestSellers(int numberOfProducts)
-    {
-        var connection = Database.GetConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            SELECT
-                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
-                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
-                Categories.Category,
-                {nameof(User).ToPlural()}.{nameof(User.Username)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
-                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
-            FROM {nameof(Product).ToPlural()}
-            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
-            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
-            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id
-            WHERE {nameof(Product).ToPlural()}.{nameof(Product.Id)} IN
-            (
-                SELECT DISTINCT inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
-                FROM {nameof(Product).ToPlural()} inner{nameof(Product).ToPlural()}
-                INNER JOIN {nameof(OrderItem).ToPlural()} ON {nameof(OrderItem).ToPlural()}.{nameof(Product)}Id = inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
-                GROUP BY inner{nameof(Product).ToPlural()}.{nameof(Product.Id)}
-                ORDER BY COUNT(*) DESC
-                LIMIT {numberOfProducts}
-            );
-        ", @"\s+", " ");
-
-        return await InstantiateProducts(cmd);
-    }
-
-    public async Task<Product> GetProduct(int id)
-    {
-        var connection = Database.GetConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            SELECT
-                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
-                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
-                Categories.Category,
-                {nameof(User).ToPlural()}.{nameof(User.Username)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
-                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
-            FROM {nameof(Product).ToPlural()}
-            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
-            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
-            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id
-            WHERE {nameof(Product).ToPlural()}.{nameof(Product.Id)} = {id};
-        ", @"\s+", " ");
-
-        var products = await InstantiateProducts(cmd);
-        return products.FirstOrDefault();
-    }
-
-    public async Task<List<Product>> GetProducts(string[] searchTerms)
-    {
-        var whereClause = string.Join(
-            " OR ",
-            searchTerms.Select(searchTerm => $"{nameof(Product).ToPlural()}.{nameof(Product.ProductName)} LIKE '%{searchTerm}%'"));
-
-        var connection = Database.GetConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            SELECT
-                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
-                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
-                Categories.Category,
-                {nameof(User).ToPlural()}.{nameof(User.Username)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
-                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
-            FROM {nameof(Product).ToPlural()}
-            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
-            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
-            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id
-            WHERE {whereClause};
-        ", @"\s+", " ");
-
-        return await InstantiateProducts(cmd);
-    }
-
-    public async Task<List<Product>> GetProductsByCategory(string[] categories)
-    {
-        var whereClause = string.Join(
-            " OR ",
-            categories.Select(category => $"Categories.Category = '{category}'"));
-
-        var connection = Database.GetConnection();
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            SELECT
-                {nameof(Product).ToPlural()}.{nameof(Product.Id)},
-                {nameof(Product).ToPlural()}.{nameof(Product.ProductName)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Description)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Price)},
-                {nameof(Product).ToPlural()}.{nameof(Product.Stock)},
-                Categories.Category,
-                {nameof(User).ToPlural()}.{nameof(User.Username)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Rating)},
-                {nameof(Review).ToPlural()}.{nameof(Review.Comment)},
-                {nameof(Review).ToPlural()}.{nameof(Review.CreatedDate)}
-            FROM {nameof(Product).ToPlural()}
-            INNER JOIN Categories ON Categories.Id = {nameof(Product).ToPlural()}.CategoryId
-            LEFT JOIN {nameof(Review).ToPlural()} ON {nameof(Review).ToPlural()}.{nameof(Product)}Id = {nameof(Product).ToPlural()}.{nameof(Product.Id)}
-            LEFT JOIN {nameof(User).ToPlural()} ON {nameof(User).ToPlural()}.{nameof(User.Id)} = {nameof(Review).ToPlural()}.{nameof(User)}Id
-            WHERE {whereClause};
-        ", @"\s+", " ");
-
-        return await InstantiateProducts(cmd);
-    }
-
-    public async Task ResetReviews(int productId)
-    {
-        using var cmd = Database.GetConnection().CreateCommand();
-        cmd.CommandText = Regex.Replace(@$"
-            DELETE FROM {nameof(Review).ToPlural()}
-            WHERE {nameof(Product)}Id = {productId};
-        ", @"\s+", " ");
-        await cmd.ExecuteNonQueryAsync();
-    }
-
-    public async Task UpdateProduct(int id, Product product)
-    {
+        lock (Database.RequestLock())
         {
             using var cmd = Database.GetConnection().CreateCommand();
-            cmd.CommandText = Regex.Replace(@$"
-                INSERT OR IGNORE INTO Categories
-                (
-                    Category
-                ) VALUES
-                    ('{product.Category}');
-            ", @"\s+", " ");
-            await cmd.ExecuteNonQueryAsync();
-        }
+            cmd.CommandText = GenerateSecureQuery(BuildProductSelectQuery($"{nameof(Product).ToPlural()}.{nameof(Product.Id)} = @1"),
+                id);
 
-        {
-            using var cmd = Database.GetConnection().CreateCommand();
-            cmd.CommandText = Regex.Replace(@$"
-                UPDATE {nameof(Product).ToPlural()}
-                SET
-                    {nameof(Product.ProductName)} = '{product.ProductName}',
-                    {nameof(Product.Description)} = '{product.Description}',
-                    {nameof(Product.Price)} = {product.Price.ToString().Replace(",", ".")},
-                    {nameof(Product.Stock)} = {product.Stock},
-                    {nameof(Product.Category)}Id = (SELECT Categories.Id FROM Categories WHERE Categories.Category = '{product.Category}')
-                WHERE {nameof(Product.Id)} = {id};
-            ", @"\s+", " ");
-            await cmd.ExecuteNonQueryAsync();
-        }
-
-        {
-            using var cmd = Database.GetConnection().CreateCommand();
-            cmd.CommandText = Regex.Replace(@$"
-                DELETE FROM Categories
-                WHERE Categories.Id NOT IN
-                (
-                    SELECT {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
-                    FROM {nameof(Product).ToPlural()}
-                );
-            ", @"\s+", " ");
-            await cmd.ExecuteNonQueryAsync();
+            var products = InstantiateProducts(cmd);
+            return products.FirstOrDefault();
         }
     }
 
-    private async Task<List<Product>> InstantiateProducts(SQLiteCommand cmd)
+    public List<Product> GetProducts(string[] searchTerms)
+    {
+        lock (Database.RequestLock())
+        {
+            var whereClause = string.Join(
+                " OR ",
+                searchTerms.Select(searchTerm => $"{nameof(Product).ToPlural()}.{nameof(Product.ProductName)} LIKE '%{GenerateSecureQuery("@1", searchTerm)[1..^1]}%'"));
+
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = GenerateSecureQuery(BuildProductSelectQuery(whereClause));
+
+            return InstantiateProducts(cmd);
+        }
+    }
+
+    public List<Product> GetProductsByCategory(string[] categories)
+    {
+        lock (Database.RequestLock())
+        {
+            var whereClause = string.Join(
+                " OR ",
+                categories.Select(category => $"Categories.Category = {GenerateSecureQuery("@1", category)}"));
+
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = GenerateSecureQuery(BuildProductSelectQuery(whereClause));
+
+            return InstantiateProducts(cmd);
+        }
+    }
+
+    public void ResetReviews(int productId)
+    {
+        lock (Database.RequestLock())
+        {
+            using var cmd = Database.GetConnection().CreateCommand();
+            cmd.CommandText = GenerateSecureQuery(@$"
+                DELETE FROM {nameof(Review).ToPlural()}
+                WHERE {nameof(Product)}Id = @1;
+            ",
+                productId);
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public void UpdateProduct(int id, Product product)
+    {
+        lock (Database.RequestLock())
+        {
+            {
+                using var cmd = Database.GetConnection().CreateCommand();
+                cmd.CommandText = GenerateSecureQuery(@$"
+                    INSERT OR IGNORE INTO Categories
+                    (
+                        Category
+                    ) VALUES (@1);
+                ",
+                    product.Category);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            {
+                using var cmd = Database.GetConnection().CreateCommand();
+                cmd.CommandText = GenerateSecureQuery(@$"
+                    UPDATE {nameof(Product).ToPlural()}
+                    SET
+                        {nameof(Product.ProductName)} = @1,
+                        {nameof(Product.Description)} = @2,
+                        {nameof(Product.Price)} = @3,
+                        {nameof(Product.Stock)} = @4,
+                        {nameof(Product.Category)}Id = (SELECT Categories.Id FROM Categories WHERE Categories.Category = @5)
+                    WHERE {nameof(Product.Id)} = @6;
+                ",
+                    product.ProductName,
+                    product.Description,
+                    product.Price,
+                    product.Stock,
+                    product.Category,
+                    id);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            {
+                using var cmd = Database.GetConnection().CreateCommand();
+                cmd.CommandText = GenerateSecureQuery(@$"
+                    DELETE FROM Categories
+                    WHERE Categories.Id NOT IN
+                    (
+                        SELECT {nameof(Product).ToPlural()}.{nameof(Product.Category)}Id
+                        FROM {nameof(Product).ToPlural()}
+                    );
+                ");
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
+
+    private static List<Product> InstantiateProducts(SQLiteCommand cmd)
     {
         var productsDict = new Dictionary<int, Product>();
 
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
         {
             var productId = reader.GetInt32(0);
             var productName = reader.GetString(1);

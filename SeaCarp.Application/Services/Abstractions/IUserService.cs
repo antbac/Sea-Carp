@@ -4,9 +4,11 @@ namespace SeaCarp.Application.Services.Abstractions;
 
 public interface IUserService
 {
+    Task<IEnumerable<User>> GetAllUsers();
+
     Task CreateUser(User user);
 
-    Task<IEnumerable<User>> GetAllUsers();
+    Task DemoteCaseOfficer(User user);
 
     Task<User> GetUser(int id);
 
@@ -14,9 +16,7 @@ public interface IUserService
 
     Task<User> GetUser(string username, string password);
 
-    Task RemoveUser(int id);
-
-    Task UpdateUser(User user);
+    Task PromoteCaseOfficer(User user);
 
     Task UpdateProfilePicture(User user, string gravatarPath);
 }

@@ -1,0 +1,54 @@
+﻿@model SeaCarp.Presentation.Models.ViewModels.AdminViewModel
+@{
+    ViewData["Title"] = "Admin - Terminal";
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage.Value))
+{
+    <div class="text-center mt-5">
+        <h2>Unauthorized</h2>
+        <h3>@Model.ErrorMessage</h3>
+    </div>
+    return;
+}
+
+<div class="container-fluid bash-terminal-page">
+    <div class="row">
+        <div class="col-12">
+            <div class="bash-terminal" data-terminal>
+                <div class="bash-terminal__chrome">
+                    <span class="bash-terminal__dot bash-terminal__dot--red" aria-hidden="true"></span>
+                    <span class="bash-terminal__dot bash-terminal__dot--yellow" aria-hidden="true"></span>
+                    <span class="bash-terminal__dot bash-terminal__dot--green" aria-hidden="true"></span>
+                    <span class="bash-terminal__title">bash</span>
+                    <span class="bash-terminal__hint">Enter a command and press <code>Enter</code></span>
+                </div>
+
+                <div class="bash-terminal__screen" tabindex="0" role="textbox" aria-label="Terminal output" data-terminal-screen>
+                    <div class="bash-terminal__output" data-terminal-output></div>
+                    <div class="bash-terminal__prompt" data-terminal-prompt>
+                        <span class="bash-terminal__ps1" data-terminal-ps1>seacarp@localhost:~$</span>
+                        <span class="bash-terminal__input" data-terminal-input></span>
+                        <span class="bash-terminal__caret" aria-hidden="true"></span>
+                        <input class="bash-terminal__hidden-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-hidden="true" data-terminal-hidden-input />
+                    </div>
+                </div>
+
+                <div class="bash-terminal__footer">
+                    <span class="text-muted">Simple web terminal with limited functionality.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.SeaCarpTerminal && typeof window.SeaCarpTerminal.init === 'function') {
+                window.SeaCarpTerminal.init(document.querySelector('[data-terminal]'));
+            }
+        });
+    </script>
+}

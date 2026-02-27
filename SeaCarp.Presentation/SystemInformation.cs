@@ -3,7 +3,6 @@
 public static class SystemInformation
 {
     private static DateTime? _lastStarted;
-    private static string _passwordSalt;
 
     public static DateTime LastStarted
     {
@@ -13,7 +12,7 @@ public static class SystemInformation
 
     public static string RepositoryUrl { get; } = "https://github.com/antbac/Sea-Carp";
 
-    public static string CurrentVersion { get; } = $"{new Random().Next(1, 10)}.{new Random().Next(1, 10)}.{new Random().Next(1, 10)}"
+    public static string CurrentVersion { get; } = $"{Random.Shared.Next(1, 10)}.{Random.Shared.Next(1, 10)}.{Random.Shared.Next(1, 10)}"
         + " (" + new string[] {
             "Archerfish",
             "Betta Fish",
@@ -25,21 +24,10 @@ public static class SystemInformation
             "Humphead Wrasse",
             "Indian Glassy Fish",
             "Jawfish",
-        }[new Random().Next(10)]
+        }[Random.Shared.Next(10)]
         + ")";
 
-    public static string PasswordSalt
-    {
-        get => _passwordSalt;
-        set => _passwordSalt ??= value;
-    }
+    public static string LocalPort = "8080";
 
-    public static bool IsRunningInsideDocker =>
-        !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER")) &&
-        Environment.GetEnvironmentVariable("IS_RUNNING_DOCKER").Equals("true", StringComparison.InvariantCultureIgnoreCase);
-
-    public static string DeploymentTechnology =>
-        IsRunningInsideDocker
-            ? "Docker"
-            : "Kestrel";
+    public static string DeploymentTechnology = "Docker";
 }

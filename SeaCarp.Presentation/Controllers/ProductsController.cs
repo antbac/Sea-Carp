@@ -14,12 +14,14 @@ namespace SeaCarp.Presentation.Controllers;
 public class ProductsController(
     IProductService productService,
     IJwtService jwtService,
-    ILogService logService)
+    ILogService logService,
+    ITimeService timeService)
     : BaseController(
         jwtService,
         logService)
 {
     private readonly IProductService _productService = productService;
+    private readonly ITimeService _timeService = timeService;
 
     #region Index
 
@@ -135,7 +137,7 @@ public class ProductsController(
             return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to add a review" });
         }
 
-        await _productService.AddReview(id, Review.Create(CurrentUser.Username, request.Rating, request.Comment, DateTime.Today), CurrentUser);
+        await _productService.AddReview(id, Review.Create(CurrentUser.Username, request.Rating, request.Comment, _timeService.Today), CurrentUser);
 
         LogService.Information($"Review added for product ID {id} by user {CurrentUser.Username}.");
 
@@ -143,161 +145,4 @@ public class ProductsController(
     }
 
     #endregion AddReview
-
-    #region AddProduct
-
-    [HttpPost]
-    [ApiEndpoint]
-    [Route("/api/v1/products", Name = $"{nameof(ProductsController)}/{nameof(AddProduct)}")]
-    [SwaggerOperation(
-        Summary = "Adds a new product",
-        Description = "Allows an administrator to add a new product to the catalog. Requires admin privileges.",
-        OperationId = "AddProduct",
-        Tags = new[] { "Products" }
-    )]
-    [SwaggerResponse(200, "Successfully added product or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> AddProduct([FromBody] AddProductRequest request)
-    {
-        if (CurrentUser is null)
-        {
-            LogService.Warning($"Attempted to add a product without being logged in.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to add a product" });
-        }
-
-        if (!CurrentUser.IsAdmin)
-        {
-            LogService.Warning($"Attempted to add a product without administrator privileges by user {CurrentUser?.Username ?? "anonymous"}.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an administrator to add products" });
-        }
-
-        if (string.IsNullOrWhiteSpace(request.ProductName))
-        {
-            LogService.Warning("Product creation failed due to missing product name.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Product name is required" });
-        }
-
-        if (request.Price <= 0)
-        {
-            LogService.Warning("Product creation failed due to invalid price.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Price must be greater than zero" });
-        }
-
-        var product = Product.Create(
-            request.ProductName,
-            request.Description,
-            request.Price,
-            request.Category,
-            request.Stock);
-
-        await _productService.AddProduct(product, request.ImageUrl);
-
-        LogService.Information($"Product created successfully: {request.ProductName} by admin {CurrentUser.Username}.");
-
-        return Json(new GenericResponse { Success = true });
-    }
-
-    #endregion AddProduct
-
-    #region UpdateProduct
-
-    [HttpPut]
-    [ApiEndpoint]
-    [Route("/api/v1/products/{id}", Name = $"{nameof(ProductsController)}/{nameof(UpdateProduct)}")]
-    [SwaggerOperation(
-        Summary = "Updates an existing product",
-        Description = "Allows an administrator to update an existing product's information. Requires admin privileges.",
-        OperationId = "UpdateProduct",
-        Tags = new[] { "Products" }
-    )]
-    [SwaggerResponse(200, "Successfully updated product or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductInformationRequest request)
-    {
-        if (CurrentUser is null)
-        {
-            LogService.Warning($"Attempted to add a product without being logged in.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to add a product" });
-        }
-
-        if (!CurrentUser.IsAdmin)
-        {
-            LogService.Warning($"Attempted to add a product without administrator privileges by user {CurrentUser?.Username ?? "anonymous"}.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an administrator to add products" });
-        }
-
-        if (string.IsNullOrWhiteSpace(request.ProductName))
-        {
-            LogService.Warning("Product update failed due to missing product name.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Product name is required" });
-        }
-
-        if (request.Price <= 0)
-        {
-            LogService.Warning("Product update failed due to invalid price.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Price must be greater than zero" });
-        }
-
-        var existingProduct = await _productService.GetProduct(id);
-        if (existingProduct is null)
-        {
-            LogService.Warning($"Product update failed. Product with ID {id} not found.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = $"Product with ID {id} not found" });
-        }
-
-        var updatedProduct = Product.Create(
-            request.ProductName,
-            request.Description,
-            request.Price,
-            request.Category,
-            request.Stock);
-
-        await _productService.UpdateProduct(id, updatedProduct, request.ImageUrl);
-
-        LogService.Information($"Product updated successfully: ID {id}, {request.ProductName} by admin {CurrentUser.Username}.");
-
-        return Json(new GenericResponse { Success = true });
-    }
-
-    #endregion UpdateProduct
-
-    #region ResetProductReviews
-
-    [HttpDelete]
-    [ApiEndpoint]
-    [Route("/api/v1/products/{id}/reviews", Name = $"{nameof(ProductsController)}/{nameof(ResetProductReviews)}")]
-    [SwaggerOperation(
-        Summary = "Resets all reviews for a product",
-        Description = "Allows an administrator to delete all reviews for a specific product. Requires admin privileges.",
-        OperationId = "ResetProductReviews",
-        Tags = new[] { "Products" }
-    )]
-    [SwaggerResponse(200, "Successfully reset reviews or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> ResetProductReviews(int id)
-    {
-        if (CurrentUser is null)
-        {
-            LogService.Warning("Attempted to reset product reviews without being logged in.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to reset product reviews" });
-        }
-
-        if (!CurrentUser.IsAdmin)
-        {
-            LogService.Warning($"Attempted to reset product reviews without administrator privileges by user {CurrentUser?.Username ?? "anonymous"}.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an administrator to reset product reviews" });
-        }
-
-        var existingProduct = await _productService.GetProduct(id);
-        if (existingProduct is null)
-        {
-            LogService.Warning($"Product reviews reset failed. Product with ID {id} not found.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = $"Product with ID {id} not found" });
-        }
-
-        await _productService.ResetReviews(id);
-
-        LogService.Information($"Reviews reset successfully for product ID {id} by admin {CurrentUser.Username}.");
-
-        return Json(new GenericResponse { Success = true });
-    }
-
-    #endregion ResetProductReviews
 }

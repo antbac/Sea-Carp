@@ -1,6 +1,7 @@
+.dockerignore
+.github
 .vs
 *.ncrunch*
 **/bin/*
 **/obj/*
-/SeaCarp.Presentation/wwwroot/bom.json
 /SeaCarp.Presentation/wwwroot/uploads

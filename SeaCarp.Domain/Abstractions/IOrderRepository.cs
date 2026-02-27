@@ -4,13 +4,13 @@ namespace SeaCarp.Domain.Abstractions;
 
 public interface IOrderRepository
 {
-    Task CreateOrder(Order order);
+    void CreateOrder(Order order);
 
-    Task<Order> GetNewestOrder();
+    Order GetNewestOrder();
 
-    Task<Order> GetOrder(string orderNumber);
+    Order GetOrder(string orderNumber);
 
-    Task<Order> GetOrderBySupportCaseId(int supportCaseId);
+    Order GetOrderBySupportCaseId(int supportCaseId);
 
-    Task UpdateOrder(int id, Order order);
+    void UpdateOrder(int id, Order order);
 }

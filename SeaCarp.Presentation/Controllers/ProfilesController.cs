@@ -45,7 +45,7 @@ public class ProfilesController(
 
     [HttpGet]
     [Route("/profiles/{identifier}", Name = $"{nameof(ProfilesController)}/{nameof(GetProfilePageById_MVC)}")]
-    public async Task<IActionResult> GetProfilePageById_MVC(string identifier)
+    public async Task<IActionResult> GetProfilePageById_MVC(string identifier, [FromQuery] bool maskData = true)
     {
         var user = int.TryParse(identifier, out var id)
             ? CurrentUser?.Id == id
@@ -55,11 +55,26 @@ public class ProfilesController(
                 ? CurrentUser
                 : await _userService.GetUser(identifier);
 
+        maskData &= CurrentUser != user;
+
         user = await _userService.GetUser(user.Id);
         if (user is null)
         {
             LogService.Warning($"No user found with identifier {identifier}.");
             return NotFound($"No user with identifier {identifier} found");
+        }
+
+        if (maskData)
+        {
+            user = Domain.Models.User.Create(
+                id: user.Id,
+                username: string.Join(string.Empty, user.Username.Select((c, i) => i <= user.Username.Length / 4 || i >= user.Username.Length - user.Username.Length / 4 ? c : '*')),
+                email: string.Join(string.Empty, user.Email.Select((c, i) => i <= user.Email.Length / 4 || i >= user.Email.Length - user.Email.Length / 4 ? c : '*')),
+                password: string.Join(string.Empty, user.Password.Select(_ => '*')),
+                credits: user.Credits,
+                profilePicture: user.ProfilePicture,
+                isAdmin: user.IsAdmin,
+                isCaseOfficer: user.IsCaseOfficer);
         }
 
         return View("Index", new UserViewModel(await GetProfilePageById_Common(user)));
@@ -76,7 +91,7 @@ public class ProfilesController(
     )]
     [SwaggerResponse(200, "Successfully returned user profile details", typeof(Models.Api.v1.User))]
     [SwaggerResponse(404, "User not found")]
-    public async Task<IActionResult> GetProfilePageById_SPA(string identifier)
+    public async Task<IActionResult> GetProfilePageById_SPA(string identifier, [FromQuery] bool maskData = true)
     {
         var user = int.TryParse(identifier, out var id)
             ? CurrentUser?.Id == id
@@ -86,11 +101,26 @@ public class ProfilesController(
                 ? CurrentUser
                 : await _userService.GetUser(identifier);
 
+        maskData &= CurrentUser != user;
+
         user = await _userService.GetUser(user.Id);
         if (user is null)
         {
             LogService.Warning($"No user found with identifier {identifier}.");
             return NotFound($"No user with identifier {identifier} found");
+        }
+
+        if (maskData)
+        {
+            user = Domain.Models.User.Create(
+                id: user.Id,
+                username: string.Join(string.Empty, user.Username.Select((c, i) => i <= user.Username.Length / 4 || i >= user.Username.Length - user.Username.Length / 4 ? c : '*')),
+                email: string.Join(string.Empty, user.Email.Select((c, i) => i <= user.Email.Length / 4 || i >= user.Email.Length - user.Email.Length / 4 ? c : '*')),
+                password: string.Join(string.Empty, user.Password.Select(_ => '*')),
+                credits: user.Credits,
+                profilePicture: user.ProfilePicture,
+                isAdmin: user.IsAdmin,
+                isCaseOfficer: user.IsCaseOfficer);
         }
 
         return Json(await GetProfilePageById_Common(user));
@@ -114,78 +144,6 @@ public class ProfilesController(
 
     #endregion GetProfilePageById
 
-    #region UpdateEmail
-
-    [HttpPut]
-    [ApiEndpoint]
-    [Route("/api/v1/profiles/{identifier}/email", Name = $"{nameof(ProfilesController)}/{nameof(UpdateEmail)}")]
-    [SwaggerOperation(
-        Summary = "Updates user's email",
-        Description = "Updates the email address for a user profile. Requires user to be logged in.",
-        OperationId = "UpdateUserEmail",
-        Tags = new[] { "Profiles" }
-    )]
-    [SwaggerResponse(200, "Successfully updated email or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> UpdateEmail(string identifier, [FromBody] UpdateEmailRequest request)
-    {
-        if (CurrentUser is null)
-        {
-            LogService.Warning("Attempted to update email without being logged in.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to update your email" });
-        }
-
-        var user = int.TryParse(identifier, out var id)
-            ? await _userService.GetUser(id)
-            : await _userService.GetUser(identifier);
-
-        user.UpdateEmail(request.Email);
-        await _userService.UpdateUser(user);
-
-        CurrentUser = user;
-
-        LogService.Information($"User {user.Username} updated their email to {request.Email}.");
-
-        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(ProfilesController).RemoveControllerSuffix()}" });
-    }
-
-    #endregion UpdateEmail
-
-    #region UpdatePassword
-
-    [HttpPut]
-    [ApiEndpoint]
-    [Route("/api/v1/profiles/{identifier}/password", Name = $"{nameof(ProfilesController)}/{nameof(UpdatePassword)}")]
-    [SwaggerOperation(
-        Summary = "Updates user's password",
-        Description = "Updates the password for a user profile. Requires user to be logged in.",
-        OperationId = "UpdateUserPassword",
-        Tags = new[] { "Profiles" }
-    )]
-    [SwaggerResponse(200, "Successfully updated password or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> UpdatePassword(string identifier, [FromBody] UpdatePasswordRequest request)
-    {
-        if (CurrentUser is null)
-        {
-            LogService.Warning("Attempted to update password without being logged in.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to update your password" });
-        }
-
-        var user = int.TryParse(identifier, out var id)
-            ? await _userService.GetUser(id)
-            : await _userService.GetUser(identifier);
-
-        user.UpdatePassword(request.Password);
-        await _userService.UpdateUser(user);
-
-        CurrentUser = user;
-
-        LogService.Information($"User {user.Username} updated their password to {request.Password}.");
-
-        return Json(new GenericResponse() { Success = true });
-    }
-
-    #endregion UpdatePassword
-
     #region UpdateProfilePicture
 
     [HttpPut]
@@ -200,6 +158,8 @@ public class ProfilesController(
     [SwaggerResponse(200, "Successfully updated profile picture or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> UpdateProfilePicture(string identifier, [FromBody] UpdateProfilePictureRequest request)
     {
+        LogService.Information($"Received request to update profile picture for user with identifier {identifier}.");
+
         if (CurrentUser is null)
         {
             LogService.Warning("Attempted to update profile picture without being logged in.");
@@ -221,30 +181,30 @@ public class ProfilesController(
 
     #endregion UpdateProfilePicture
 
-    #region PromoteToAdmin
+    #region PromoteToCaseOfficer
 
     [HttpPut]
     [ApiEndpoint]
-    [Route("/api/v1/profiles/{identifier}/promote", Name = $"{nameof(ProfilesController)}/{nameof(PromoteToAdmin)}")]
+    [Route("/api/v1/profiles/{identifier}/promotecaseofficer", Name = $"{nameof(ProfilesController)}/{nameof(PromoteToCaseOfficer)}")]
     [SwaggerOperation(
-        Summary = "Promotes a user to admin",
-        Description = "Promotes a regular user to admin status. Requires the current user to have admin privileges.",
-        OperationId = "PromoteUserToAdmin",
+        Summary = "Promotes a user to case officer",
+        Description = "Promotes a user to case officer status. Requires the current user to have admin privileges.",
+        OperationId = "PromoteUserToCaseOfficer",
         Tags = new[] { "Profiles" }
     )]
     [SwaggerResponse(200, "Successfully promoted user or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> PromoteToAdmin(string identifier)
+    public async Task<IActionResult> PromoteToCaseOfficer(string identifier)
     {
         if (CurrentUser is null)
         {
-            LogService.Warning("Attempted to promote user to admin without being logged in.");
+            LogService.Warning("Attempted to promote user to case officer without being logged in.");
             return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to perform this action" });
         }
 
-        if (!CurrentUser.IsAdmin)
+        if (CurrentUser.IsAdmin)
         {
-            LogService.Warning($"Non-admin user {CurrentUser.Username} attempted to promote a user to admin.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be an admin to promote users" });
+            LogService.Warning($"Non-admin user {CurrentUser.Username} attempted to promote a case officer.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be an admin to promote case officers" });
         }
 
         var user = int.TryParse(identifier, out var id)
@@ -257,46 +217,45 @@ public class ProfilesController(
             return Json(new GenericResponse() { Success = false, ErrorMessage = $"No user with identifier {identifier} found" });
         }
 
-        if (user.IsAdmin)
+        if (user.IsCaseOfficer)
         {
-            LogService.Information($"Admin {CurrentUser.Username} attempted to promote user {user.Username} who is already an admin.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "User is already an admin" });
+            LogService.Information($"Admin {CurrentUser.Username} attempted to promote user {user.Username} who is already a case officer.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "User is already a case officer" });
         }
 
-        user.PromoteToAdmin();
-        await _userService.UpdateUser(user);
+        await _userService.PromoteCaseOfficer(user);
 
-        LogService.Information($"Admin {CurrentUser.Username} promoted user {user.Username} to admin.");
+        LogService.Information($"Admin {CurrentUser.Username} promoted user {user.Username} to case officer.");
 
         return Json(new GenericResponse() { Success = true });
     }
 
-    #endregion PromoteToAdmin
+    #endregion PromoteToCaseOfficer
 
-    #region DemoteFromAdmin
+    #region DemoteFromCaseOfficer
 
     [HttpPut]
     [ApiEndpoint]
-    [Route("/api/v1/profiles/{identifier}/demote", Name = $"{nameof(ProfilesController)}/{nameof(DemoteFromAdmin)}")]
+    [Route("/api/v1/profiles/{identifier}/demotecaseofficer", Name = $"{nameof(ProfilesController)}/{nameof(DemoteFromCaseOfficer)}")]
     [SwaggerOperation(
-        Summary = "Demotes a user from admin",
-        Description = "Removes admin privileges from a user. Requires the current user to have admin privileges and cannot be used to demote yourself.",
-        OperationId = "DemoteUserFromAdmin",
+        Summary = "Demotes a user from case officer status",
+        Description = "Removes case officer privileges from a user. Requires the current user to have admin privileges.",
+        OperationId = "DemoteUserFromCaseOfficer",
         Tags = new[] { "Profiles" }
     )]
     [SwaggerResponse(200, "Successfully demoted user or returned an error message", typeof(GenericResponse))]
-    public async Task<IActionResult> DemoteFromAdmin(string identifier)
+    public async Task<IActionResult> DemoteFromCaseOfficer(string identifier)
     {
         if (CurrentUser is null)
         {
-            LogService.Warning("Attempted to demote admin without being logged in.");
+            LogService.Warning("Attempted to demote case officer without being logged in.");
             return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be logged in to perform this action" });
         }
 
         if (!CurrentUser.IsAdmin)
         {
-            LogService.Warning($"Non-admin user {CurrentUser.Username} attempted to demote an admin.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be an admin to demote other admins" });
+            LogService.Warning($"Non-admin user {CurrentUser.Username} attempted to demote a case officer.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "You must be an admin to demote case officers" });
         }
 
         var user = int.TryParse(identifier, out var id)
@@ -309,25 +268,18 @@ public class ProfilesController(
             return Json(new GenericResponse() { Success = false, ErrorMessage = $"No user with identifier {identifier} found" });
         }
 
-        if (!user.IsAdmin)
+        if (!user.IsCaseOfficer)
         {
-            LogService.Information($"Admin {CurrentUser.Username} attempted to demote user {user.Username} who is not an admin.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "User is not an admin" });
+            LogService.Information($"Admin {CurrentUser.Username} attempted to demote user {user.Username} who is not a case officer.");
+            return Json(new GenericResponse() { Success = false, ErrorMessage = "User is not a case officer" });
         }
 
-        if (user.Id == CurrentUser.Id)
-        {
-            LogService.Warning($"Admin {CurrentUser.Username} attempted to demote themselves.");
-            return Json(new GenericResponse() { Success = false, ErrorMessage = "You cannot demote yourself from admin" });
-        }
+        await _userService.DemoteCaseOfficer(user);
 
-        user.DemoteFromAdmin();
-        await _userService.UpdateUser(user);
-
-        LogService.Information($"Admin {CurrentUser.Username} demoted user {user.Username} from admin.");
+        LogService.Information($"Admin {CurrentUser.Username} demoted user {user.Username} from case officer.");
 
         return Json(new GenericResponse() { Success = true });
     }
 
-    #endregion DemoteFromAdmin
+    #endregion DemoteFromCaseOfficer
 }

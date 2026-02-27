@@ -1,6 +1,6 @@
-﻿using SeaCarp.CrossCutting.Extensions;
+﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Domain.Abstractions;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.ViewModels;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,14 +12,14 @@ public class SystemController(
     IFileService fileService,
     IJwtService jwtService,
     ILogService logService,
-    IUserRepository userRepository,
+    IUserService userService,
     ICryptographyService cryptographyService)
     : BaseController(
         jwtService,
         logService)
 {
     private readonly IFileService _fileService = fileService;
-    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserService _userService = userService;
     private readonly ICryptographyService _cryptographyService = cryptographyService;
 
     #region Index
@@ -42,7 +42,7 @@ public class SystemController(
 
     private async Task<Models.Api.v1.System> Index_Common()
     {
-        var users = await _userRepository.GetAllUsers();
+        var users = await _userService.GetAllUsers();
         var admin = users.FirstOrDefault(user => user.IsAdmin);
 
         return new Models.Api.v1.System(
@@ -50,9 +50,9 @@ public class SystemController(
             string.IsNullOrWhiteSpace(admin?.Email) ? "<No admins available>" : $"<{admin.Email}>",
             SystemInformation.RepositoryUrl,
             SystemInformation.CurrentVersion,
-            SystemInformation.PasswordSalt,
             _cryptographyService.CurrentHashAlgorithm(),
-            SystemInformation.DeploymentTechnology
+            SystemInformation.DeploymentTechnology,
+            SystemInformation.LocalPort
         );
     }
 
@@ -90,18 +90,4 @@ public class SystemController(
     }
 
     #endregion Logs
-
-    #region Sbom
-
-    [HttpGet]
-    [Route("/system/sbom", Name = $"{nameof(SystemController)}/{nameof(Sbom)}")]
-    public async Task<IActionResult> Sbom()
-    {
-        var sbomPath = Path.Combine("wwwroot", "bom.json");
-        var sbomContent = await _fileService.ReadFile(sbomPath);
-
-        return Content(sbomContent, "application/json; charset=utf-8");
-    }
-
-    #endregion Sbom
 }

@@ -88,6 +88,13 @@ public static class StringExtensions
         : controllerName;
 
     /// <summary>
+    /// Escapes single quotes in strings to remove risk of SQL injections
+    /// </summary>
+    /// <param name="input">String to escape</param>
+    /// <returns>A string where all single quotes have been escaped</returns>
+    public static string DbEscape(this string input) => input.Replace("'", "''");
+
+    /// <summary>
     /// Helper method to preserve the capitalization style of the original noun (simple approach).
     /// </summary>
     private static string MatchCapitalization(string original, string pluralForm) =>

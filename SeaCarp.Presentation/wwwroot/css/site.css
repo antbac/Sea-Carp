@@ -61,3 +61,163 @@ body {
         padding: 0;
         line-height: 1;
     }
+
+/* ----------------------------
+   Bash-like terminal (Admin)
+   ---------------------------- */
+
+/* Make the terminal page fill the available viewport height to avoid tiny extra scroll. */
+.bash-terminal-page {
+    /* container in _Layout has inline style min-height: 80vh */
+    min-height: calc(80vh - 1px);
+}
+
+.bash-terminal {
+    --term-bg: #0b0f14;
+    --term-fg: #d7dde8;
+    --term-muted: rgba(215, 221, 232, 0.65);
+    --term-border: rgba(255, 255, 255, 0.08);
+    --term-accent: #2dd4bf;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    background: var(--term-bg);
+    color: var(--term-fg);
+    border: 1px solid var(--term-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    /* Keep terminal height stable; scrolling happens inside the screen */
+    display: flex;
+    flex-direction: column;
+    height: min(70vh, 700px);
+}
+
+.bash-terminal__chrome {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--term-border);
+    flex: 0 0 auto;
+}
+
+.bash-terminal__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.bash-terminal__dot--red {
+    background: #ff5f57;
+}
+
+.bash-terminal__dot--yellow {
+    background: #febc2e;
+}
+
+.bash-terminal__dot--green {
+    background: #28c840;
+}
+
+.bash-terminal__title {
+    font-size: 12px;
+    color: var(--term-muted);
+}
+
+.bash-terminal__hint {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--term-muted);
+}
+
+    .bash-terminal__hint code {
+        color: var(--term-accent);
+    }
+
+.bash-terminal__screen {
+    /* Fill remaining space and keep scroll inside the terminal */
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 14px;
+    overflow: auto;
+    outline: none;
+    cursor: text;
+    /* Prevent layout spillover to the page while still allowing internal scroll */
+    contain: layout;
+}
+
+.bash-terminal__output {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.35;
+    font-size: 14px;
+    /* Allow output to grow so the screen can scroll */
+    overflow: visible;
+}
+
+.bash-terminal__prompt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.bash-terminal__ps1 {
+    color: var(--term-accent);
+    user-select: none;
+}
+
+.bash-terminal__input {
+    color: var(--term-fg);
+}
+
+.bash-terminal__caret {
+    width: 8px;
+    height: 16px;
+    background: var(--term-fg);
+    display: inline-block;
+    transform: translateY(2px);
+    animation: bash-term-blink 1s steps(1) infinite;
+}
+
+.bash-terminal__hidden-input {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.bash-terminal__footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--term-border);
+    background: rgba(255, 255, 255, 0.02);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+
+.bash-terminal__line {
+    margin: 0;
+    padding: 0;
+}
+
+.bash-terminal__line--error {
+    color: #ff8a8a;
+}
+
+.bash-terminal__line--success {
+    color: #76f7c3;
+}
+
+.bash-terminal__line--muted {
+    color: var(--term-muted);
+}
+
+@keyframes bash-term-blink {
+    50% {
+        opacity: 0;
+    }
+}
+}

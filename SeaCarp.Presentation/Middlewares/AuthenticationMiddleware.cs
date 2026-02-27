@@ -2,8 +2,8 @@
 using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Infrastructure;
 using SeaCarp.Presentation.Attributes;
-using SeaCarp.Presentation.Services;
 
 namespace SeaCarp.Presentation.Middlewares;
 
@@ -30,13 +30,10 @@ public static class AuthenticationMiddleware
 
                 token = authHeader["Bearer ".Length..].Trim();
             }
-            else
+            else if (!context.Request.Cookies.TryGetValue(Constants.JWT, out token) || string.IsNullOrWhiteSpace(token))
             {
-                if (!context.Request.Cookies.TryGetValue(Constants.JWT, out token) || string.IsNullOrWhiteSpace(token))
-                {
-                    await next(context);
-                    return;
-                }
+                await next(context);
+                return;
             }
 
             try
@@ -54,7 +51,8 @@ public static class AuthenticationMiddleware
                     claims.First(claim => claim.Type == nameof(Domain.Models.User.Password)).Value,
                     decimal.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.Credits)).Value),
                     user.ProfilePicture,
-                    bool.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value)
+                    bool.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.IsAdmin)).Value),
+                    bool.Parse(claims.First(claim => claim.Type == nameof(Domain.Models.User.IsCaseOfficer)).Value)
                 );
             }
             catch (Exception)

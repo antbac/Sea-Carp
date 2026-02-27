@@ -6,4 +6,5 @@ public class GenericResponse
     public string RedirectUrl { get; set; }
     public string ErrorMessage { get; set; }
     public string StackTrace { get; set; }
+    public string Output { get; set; }
 }

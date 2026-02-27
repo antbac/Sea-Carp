@@ -1,6 +1,6 @@
 ﻿using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Presentation.Services;
+using SeaCarp.Infrastructure;
 
 namespace SeaCarp.Presentation.Controllers;
 
@@ -19,7 +19,15 @@ public abstract class BaseController(
             RequestContext.Instance.CurrentUser.Value = value;
             if (value is null)
             {
-                Response.Cookies.Delete(Constants.JWT);
+                Response.Cookies.Delete(
+                    Constants.JWT,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Domain = Request.Host.Host,
+                    });
             }
             else
             {
@@ -29,6 +37,7 @@ public abstract class BaseController(
                     (nameof(value.Password), value.Password),
                     (nameof(value.Email), value.Email),
                     (nameof(value.Credits), value.Credits.ToString()),
+                    (nameof(value.IsCaseOfficer), value.IsCaseOfficer.ToString()),
                     (nameof(value.IsAdmin), value.IsAdmin.ToString())
                 ), new CookieOptions
                 {

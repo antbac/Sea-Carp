@@ -4,21 +4,21 @@ namespace SeaCarp.Domain.Abstractions;
 
 public interface IProductRepository
 {
-    Task AddProduct(Product product);
+    void AddProduct(Product product);
 
-    Task AddReview(int productId, Review review, User user);
+    void AddReview(int productId, Review review, User user);
 
-    Task<List<Product>> GetBestSellers(int numberOfProducts);
+    List<Product> GetBestSellers(int numberOfProducts);
 
-    Task<Product> GetProduct(int id);
+    Product GetProduct(int id);
 
-    Task<List<Product>> GetAllProducts();
+    List<Product> GetAllProducts();
 
-    Task<List<Product>> GetProducts(string[] searchTerms);
+    List<Product> GetProducts(string[] searchTerms);
 
-    Task<List<Product>> GetProductsByCategory(string[] categories);
+    List<Product> GetProductsByCategory(string[] categories);
 
-    Task UpdateProduct(int id, Product product);
+    void UpdateProduct(int id, Product product);
 
-    Task ResetReviews(int productId);
+    void ResetReviews(int productId);
 }

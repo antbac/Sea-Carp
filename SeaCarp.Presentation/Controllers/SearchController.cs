@@ -56,7 +56,7 @@ public class SearchController(
 
     private async Task<Models.Api.v1.Search> Index_Common(string query)
     {
-        var matchingProducts = await _productService.GetProducts([.. query.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s))]);
+        var matchingProducts = await _productService.GetProducts([.. query.Split([' ', '\t', '\n'], StringSplitOptions.RemoveEmptyEntries)]);
         if (matchingProducts.Any())
         {
             LogService.Information($"Found {matchingProducts.Count} products matching the search query '{query}'.");

@@ -1,38 +1,13 @@
-﻿using SeaCarp.CrossCutting.Services.Abstractions;
-
-using System.Net;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+﻿using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Services.Abstractions;
 
 namespace SeaCarp.CrossCutting.Services;
 
 public class HttpService : IHttpService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient = new();
 
-    public HttpService()
-    {
-        _httpClient = new HttpClient(new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-            {
-                var requestMessage = sender;
-                if (requestMessage != null)
-                {
-                    var isLocalhost = requestMessage.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
-                        requestMessage.RequestUri.Host.Equals("127.0.0.1") ||
-                        requestMessage.RequestUri.Host.Equals("[::1]");
-
-                    return isLocalhost && requestMessage.RequestUri.Scheme.Equals("https", StringComparison.InvariantCultureIgnoreCase) || sslPolicyErrors == SslPolicyErrors.None;
-                }
-
-                return sslPolicyErrors == SslPolicyErrors.None;
-            }
-        });
-    }
-
-    public async Task<object> FetchContentAsync(string url, OutputType outputType)
+    public async Task<object> FetchContent(string url, OutputType outputType, AuthenticationLevel authenticationLevel)
     {
         if (string.IsNullOrWhiteSpace(url))
         {
@@ -64,7 +39,14 @@ public class HttpService : IHttpService
             throw new ArgumentException($"The provided URL {url} is not a valid absolute URL.", nameof(url));
         }
 
-        using var response = await _httpClient.GetAsync(uri);
+        uri = DowngradeSchemeOnLoopback(uri);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+
+        AddClientId(request);
+        AddAuthenticationLevel(request, authenticationLevel);
+
+        using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
         switch (outputType)
@@ -85,6 +67,42 @@ public class HttpService : IHttpService
 
             default:
                 throw new ArgumentException("Can not generate output of unknown output type", nameof(outputType));
+        }
+    }
+
+    private static Uri DowngradeSchemeOnLoopback(Uri uri)
+    {
+        if (uri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
+            uri.Host.Equals("127.0.0.1") ||
+            uri.Host.Equals("[::1]"))
+        {
+            uri = new UriBuilder(uri)
+            {
+                Scheme = Uri.UriSchemeHttp,
+                Port = uri.Port
+            }.Uri;
+        }
+
+        return uri;
+    }
+
+    private static void AddAuthenticationLevel(HttpRequestMessage request, AuthenticationLevel authenticationLevel)
+    {
+        if (request.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
+            request.RequestUri.Host.Equals("127.0.0.1") ||
+            request.RequestUri.Host.Equals("[::1]"))
+        {
+            request.Headers.TryAddWithoutValidation("AuthenticationLevel", authenticationLevel.ToString());
+        }
+    }
+
+    private static void AddClientId(HttpRequestMessage request)
+    {
+        if (request.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
+            request.RequestUri.Host.Equals("127.0.0.1") ||
+            request.RequestUri.Host.Equals("[::1]"))
+        {
+            request.Headers.TryAddWithoutValidation("ClientId", AuthenticationSettings.ClientId);
         }
     }
 }

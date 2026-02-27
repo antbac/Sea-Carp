@@ -49,6 +49,7 @@ public class IdentityController(
             password: registration.Password,
             credits: registration.Credits,
             profilePicture: registration.ProfilePicture,
+            isCaseOfficer: registration.IsCaseOfficer,
             isAdmin: registration.IsAdmin);
 
         await _userService.CreateUser(user);

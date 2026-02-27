@@ -4,13 +4,17 @@ namespace SeaCarp.Domain.Abstractions;
 
 public interface ISupportCaseRepository
 {
-    Task<SupportCase> CreateSupportCase(int orderId, string description, string image);
+    void AddNote(int supportCaseId, int officerUserId, string note);
 
-    Task<SupportCase> GetCaseByCaseNumber(string identifier);
+    SupportCase CreateSupportCase(int orderId, string description, string image);
 
-    Task<SupportCase> GetCaseById(int id);
+    SupportCase GetCaseByCaseNumber(string identifier);
 
-    Task<List<SupportCase>> GetRecentSupportCases(DateTime openedAfter);
+    SupportCase GetCaseById(int id);
 
-    Task<List<SupportCase>> GetSupportCasesByOrderId(int orderId);
+    List<SupportCase> GetSupportCasesByOrderId(int orderId);
+
+    List<SupportCase> GetUnhandledSupportCases();
+
+    void UpdateCase(SupportCase supportCase);
 }

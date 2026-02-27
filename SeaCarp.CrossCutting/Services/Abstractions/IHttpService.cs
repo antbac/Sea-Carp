@@ -2,5 +2,5 @@
 
 public interface IHttpService
 {
-    Task<object> FetchContentAsync(string url, OutputType outputType);
+    Task<object> FetchContent(string url, OutputType outputType, AuthenticationLevel authenticationLevel);
 }

@@ -2,7 +2,9 @@
 
 public interface ITimeService
 {
-    DateTime Now();
+    DateTime Now { get; }
 
-    DateTime Today();
+    DateTime Today { get; }
+
+    DateTime UtcNow { get; }
 }

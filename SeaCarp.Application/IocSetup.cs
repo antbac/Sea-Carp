@@ -8,9 +8,10 @@ public static class IocSetup
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services) =>
         services
-            .AddScoped<IAdminService, AdminService>()
             .AddScoped<IOrderService, OrderService>()
             .AddScoped<IProductService, ProductService>()
             .AddScoped<ISupportCaseService, SupportCaseService>()
-            .AddScoped<IUserService, UserService>();
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IBugReportService, BugReportService>()
+            .AddScoped<IDebugService, DebugService>();
 }

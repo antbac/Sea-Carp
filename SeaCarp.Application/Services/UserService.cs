@@ -1,4 +1,5 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
@@ -12,31 +13,36 @@ public class UserService(
     ICryptographyService cryptographyService,
     ILogService logService) : IUserService
 {
-    private readonly IHttpService _httpService = httpService;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
     private readonly ICryptographyService _cryptographyService = cryptographyService;
+    private readonly IHttpService _httpService = httpService;
     private readonly ILogService _logService = logService;
-
-    public async Task CreateUser(User user)
-    {
-        await _userRepository.CreateUser(user);
-
-        _logService.Information($"User created: {user.Username} (ID: {user.Id})");
-    }
+    private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
+    private readonly IUserRepository _userRepository = userRepository;
 
     public async Task<IEnumerable<User>> GetAllUsers()
     {
-        var users = await _userRepository.GetAllUsers();
-
-        _logService.Information($"Retrieved {users.Count()} users.");
+        var users = _userRepository.GetAllUsers().ToList();
+        _logService.Information($"Retrieved {users.Count} users.");
 
         return users;
     }
 
+    public async Task CreateUser(User user)
+    {
+        _userRepository.CreateUser(user);
+
+        _logService.Information($"User created: {user.Username} (ID: {user.Id})");
+    }
+
+    public async Task DemoteCaseOfficer(User user)
+    {
+        user.DemoteFromCaseOfficer();
+        _userRepository.UpdateCaseOfficerStatus(user);
+    }
+
     public async Task<User> GetUser(int id)
     {
-        var user = await _userRepository.GetUser(id);
+        var user = _userRepository.GetUser(id);
         if (user == null)
         {
             _logService.Warning($"User with ID {id} not found.");
@@ -47,7 +53,7 @@ public class UserService(
 
         foreach (var order in user.Orders)
         {
-            order.AppendSupportCases(await _supportCaseRepository.GetSupportCasesByOrderId(order.Id));
+            order.AppendSupportCases(_supportCaseRepository.GetSupportCasesByOrderId(order.Id));
         }
 
         return user;
@@ -55,7 +61,7 @@ public class UserService(
 
     public async Task<User> GetUser(string identifier)
     {
-        var user = await _userRepository.GetUser(identifier);
+        var user = _userRepository.GetUser(identifier);
         if (user == null)
         {
             _logService.Warning($"User with identifier '{identifier}' not found.");
@@ -69,7 +75,7 @@ public class UserService(
 
     public async Task<User> GetUser(string username, string password)
     {
-        var user = await _userRepository.GetUser(username, _cryptographyService.HashPassword(password));
+        var user = _userRepository.GetUser(username, _cryptographyService.HashPassword(password));
         if (user == null)
         {
             _logService.Warning($"User with username '{username}' not found or password is incorrect.");
@@ -81,26 +87,23 @@ public class UserService(
         return user;
     }
 
-    public async Task RemoveUser(int id)
+    public async Task PromoteCaseOfficer(User user)
     {
-        await _userRepository.RemoveUser(id);
-
-        _logService.Information($"User with ID {id} removed.");
+        user.PromoteToCaseOfficer();
+        _userRepository.UpdateCaseOfficerStatus(user);
     }
 
     public async Task UpdateProfilePicture(User user, string gravatarPath)
     {
-        var imageContent = await _httpService.FetchContentAsync($"https://gravatar.com{gravatarPath}", CrossCutting.OutputType.Base64) as string;
+        var imageContent = await _httpService.FetchContent(
+            $"https://gravatar.com{gravatarPath}",
+            OutputType.Base64,
+            user?.AuthenticationLevel ?? AuthenticationLevel.Anonymous)
+            as string;
+
         user.UpdateProfilePicture(imageContent);
-        await _userRepository.UpdateUser(user);
+        _userRepository.UpdateProfilePicture(user);
 
         _logService.Information($"Profile picture updated for user: {user.Username} (ID: {user.Id})");
-    }
-
-    public async Task UpdateUser(User user)
-    {
-        await _userRepository.UpdateUser(user);
-
-        _logService.Information($"User updated: {user.Username} (ID: {user.Id})");
     }
 }

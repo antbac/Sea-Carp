@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using OpenQA.Selenium.Chrome;
 using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
@@ -10,7 +11,6 @@ namespace SeaCarp.Application.Jobs;
 
 public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundService
 {
-    private static DateTime _lastRun = DateTime.Today;
     private readonly TimeSpan _interval = TimeSpan.FromSeconds(10);
 
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
@@ -25,20 +25,26 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
             var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
             var supportCaseRepository = scope.ServiceProvider.GetRequiredService<ISupportCaseRepository>();
 
-            var supportCases = await supportCaseRepository.GetRecentSupportCases(_lastRun);
-            _lastRun = DateTime.Now;
+            var supportCases = supportCaseRepository.GetUnhandledSupportCases();
 
             if (supportCases.Count > 0)
             {
                 try
                 {
-                    var user = await userRepository.GetUser(1);
+                    var user = await GetCaseOfficer(userRepository);
+                    if (user is null)
+                    {
+                        logService.Warning("No case officer available to process support cases.");
+                        return;
+                    }
+
                     var jwt = jwtService.GenerateJwt(
                         (nameof(User.Id), user.Id.ToString()),
                         (nameof(User.Username), user.Username),
                         (nameof(User.Password), user.Password),
                         (nameof(User.Email), user.Email),
                         (nameof(User.Credits), user.Credits.ToString()),
+                        (nameof(User.IsCaseOfficer), user.IsCaseOfficer.ToString()),
                         (nameof(User.IsAdmin), user.IsAdmin.ToString())
                     );
 
@@ -66,26 +72,31 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
                                 try
                                 {
                                     var caseNumber = supportCase.CaseNumber;
-                                    var baseUrl = "https://localhost:6001";
+                                    var baseUrl = "http://localhost:8080";
                                     var supportCaseUrl = $"{baseUrl}/Support/{caseNumber}";
 
                                     driver.Navigate().GoToUrl(supportCaseUrl);
 
                                     var cookie = new OpenQA.Selenium.Cookie(
-                                        Constants.JWT,
-                                        jwt,
-                                        new Uri(baseUrl).DnsSafeHost,
-                                        "/",
-                                        null,
-                                        true,
-                                        false,
-                                        "None");
+                                        name: Constants.JWT,
+                                        value: jwt,
+                                        domain: new Uri(baseUrl).DnsSafeHost,
+                                        path: "/",
+                                        expiry: null,
+                                        secure: false,
+                                        isHttpOnly: true,
+                                        sameSite: "Lax");
 
                                     driver.Manage().Cookies.AddCookie(cookie);
                                     driver.Navigate().Refresh();
 
                                     await Task.Delay(1000, stoppingToken);
-                                    logService.Information($"Admin made an initial check of support case {caseNumber}");
+
+                                    supportCase.UpdateStatus(SupportCaseStatus.InProgress);
+                                    supportCase.AssignCaseOfficer(user);
+                                    supportCaseRepository.UpdateCase(supportCase);
+
+                                    logService.Information($"Case {caseNumber} was assigned to {user.Username}");
                                 }
                                 catch (Exception ex)
                                 {
@@ -113,5 +124,15 @@ public class SupportHandlerJob(IServiceScopeFactory scopeFactory) : BackgroundSe
 
             await Task.Delay(_interval, stoppingToken);
         }
+    }
+
+    private static async Task<User> GetCaseOfficer(IUserRepository userRepository)
+    {
+        var handleOfficerIds = new[] { 2, 3, 4, 5 };
+        var users = userRepository.GetAllUsers();
+        return users
+            .Where(u => u.IsCaseOfficer)
+            .Where(u => handleOfficerIds.Contains(u.Id))
+            .PickOne();
     }
 }

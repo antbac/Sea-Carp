@@ -8,9 +8,13 @@ using System.Text;
 
 namespace SeaCarp.CrossCutting.Services;
 
-public class JwtService(IOptions<CryptographySettings> options) : IJwtService
+public class JwtService(
+    IOptions<CryptographySettings> options,
+    ITimeService timeService)
+    : IJwtService
 {
     private readonly CryptographySettings _cryptographySettings = options.Value;
+    private readonly ITimeService _timeService = timeService;
 
     public string GenerateJwt(params (string key, string value)[] claims)
     {
@@ -21,7 +25,7 @@ public class JwtService(IOptions<CryptographySettings> options) : IJwtService
             issuer: "SeaCarp",
             audience: "SeaCarp",
             claims: claims.Select(claim => new Claim(claim.key, claim.value)),
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: _timeService.UtcNow.AddHours(1),
             signingCredentials: credentials
         );
 
@@ -47,11 +51,6 @@ public class JwtService(IOptions<CryptographySettings> options) : IJwtService
             };
 
             handler.ValidateToken(token, validationParams, out var _);
-            return jwt;
-        }
-
-        if (alg.Equals(SecurityAlgorithms.None, StringComparison.OrdinalIgnoreCase))
-        {
             return jwt;
         }
 

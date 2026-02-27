@@ -8,5 +8,6 @@ public class AccountRegistrationRequest
     public string Email { get; set; }
     public decimal Credits { get; set; }
     public string ProfilePicture { get; set; }
+    public bool IsCaseOfficer { get; set; }
     public bool IsAdmin { get; set; }
 }

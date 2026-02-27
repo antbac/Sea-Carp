@@ -1,35 +1,48 @@
-﻿using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Annotations;
-using SeaCarp.CrossCutting.Config;
-using SeaCarp.CrossCutting.Extensions;
+﻿using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Domain.Models;
 using SeaCarp.Presentation.Attributes;
 using SeaCarp.Presentation.Models.Requests;
 using SeaCarp.Presentation.Models.Responses;
 using SeaCarp.Presentation.Models.ViewModels;
+using SeaCarp.Presentation.Services;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Text.RegularExpressions;
 
 namespace SeaCarp.Presentation.Controllers;
 
 [SwaggerTag("Admin operations for system management")]
-public class AdminController(
-    IOptions<CryptographySettings> options,
-    ICryptographyService cryptographyService,
-    IJwtService jwtService,
-    ILogService logService)
-    : BaseController(
-        jwtService,
-        logService)
+public class AdminController : BaseController
 {
     public static string AdminAuthenticationCookieName { get; } = "AdminAuthentication";
+    public static string AdminTerminalAuthenticationCookieName { get; } = "AdminTerminalAuthentication";
 
-    private readonly IOptions<CryptographySettings> _options = options;
-    private readonly ICryptographyService _cryptographyService = cryptographyService;
+    public static string AdminTerminalAuthenticationCookieValue { get; private set; }
+
+    private readonly ICryptographyService _cryptographyService;
+    private readonly IBugReportService _bugReportService;
+
+    public AdminController(
+        ICryptographyService cryptographyService,
+        IBugReportService bugReportService,
+        IJwtService jwtService,
+        ILogService logService) : base(
+            jwtService,
+            logService)
+    {
+        _cryptographyService = cryptographyService;
+        _bugReportService = bugReportService;
+        if (string.IsNullOrWhiteSpace(AdminTerminalAuthenticationCookieValue))
+        {
+            AdminTerminalAuthenticationCookieValue = _cryptographyService.NewSecureString();
+        }
+    }
 
     #region Index
 
     [HttpGet]
     [Route("/admin", Name = $"{nameof(AdminController)}/{nameof(Index_MVC)}")]
-    public IActionResult Index_MVC() => View("Index", new AdminViewModel(Index_Common()));
+    public async Task<IActionResult> Index_MVC() => View("Index", new AdminViewModel(await Index_Common()));
 
     [HttpGet]
     [Route("/api/v1/admin", Name = $"{nameof(AdminController)}/{nameof(Index_SPA)}")]
@@ -41,188 +54,204 @@ public class AdminController(
         Tags = new[] { "Admin" }
     )]
     [SwaggerResponse(200, "Response with admin dashboard information or error message", typeof(Models.Api.v1.Admin))]
-    public IActionResult Index_SPA() => Json(Index_Common());
+    public async Task<IActionResult> Index_SPA() => Json(await Index_Common());
 
-    public Models.Api.v1.Admin Index_Common()
+    private async Task<Models.Api.v1.Admin> Index_Common()
     {
-        if (CurrentUser is null)
-        {
-            LogService.Warning("Attempted to access Admin area without being logged in.");
-            return new Models.Api.v1.Admin("You must be logged in to access this page");
-        }
+        var errorMessage = AuthenticateUser();
+        var bugReports = string.IsNullOrWhiteSpace(errorMessage)
+            ? await _bugReportService.GetOpenBugReports()
+            : new List<BugReport>();
 
-        if (!CurrentUser.IsAdmin)
-        {
-            LogService.Warning($"Non admin user {CurrentUser.Username} attempted to access Admin area.");
-            return new Models.Api.v1.Admin("You must be an admin to access this page");
-        }
-
-        return new Models.Api.v1.Admin(null);
+        return new Models.Api.v1.Admin(errorMessage, bugReports);
     }
 
     #endregion Index
 
-    #region Elevate user
-
-    [HttpPost]
-    [Route("/api/v1/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(ElevateUser)}")]
-    [ApiEndpoint]
-    [SwaggerOperation(
-        Summary = "Elevate admin privileges",
-        Description = "Allows an admin to elevate their privileges using an authentication key. Requires admin privileges.",
-        OperationId = "AdminElevation",
-        Tags = new[] { "Admin" }
-    )]
-    [SwaggerResponse(200, "Response with a redirect URL or error message", typeof(GenericResponse))]
-    public IActionResult ElevateUser([FromBody] AdminLoginRequest request)
-    {
-        if (CurrentUser is null)
-        {
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in to access this page" });
-        }
-
-        if (!CurrentUser.IsAdmin)
-        {
-            return Json(new GenericResponse { Success = false, ErrorMessage = "You must be an admin to access this page" });
-        }
-
-        if (request.AdminAuthenticationKey != _options.Value.AdminAuthenticationKey)
-        {
-            LogService.Warning("Admin login attempt with incorrect key.");
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Invalid Admin authentication key." });
-        }
-
-        LogService.Information("Admin login successful.");
-
-        Response.Cookies.Append(AdminAuthenticationCookieName, _cryptographyService.HashPassword(request.AdminAuthenticationKey), new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(5)
-        });
-
-        return Json(new GenericResponse { Success = true, RedirectUrl = $"/{nameof(AdminController).RemoveControllerSuffix()}/{nameof(Pwn)}" });
-    }
-
-    #endregion Elevate user
-
-    #region Elevate
+    #region Terminal
 
     [HttpGet]
-    [Route("/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(Elevate_MVC)}")]
-    public IActionResult Elevate_MVC() => View("Elevate", new AdminViewModel(Elevate_Common()));
-
-    [HttpGet]
-    [Route("/api/v1/admin/elevate", Name = $"{nameof(AdminController)}/{nameof(Elevate_SPA)}")]
-    [ApiEndpoint]
-    [SwaggerOperation(
-        Summary = "Gets admin elevation dashboard information",
-        Description = "Retrieves information to show on the admin elevation dashboard. Requires admin privileges.",
-        OperationId = "GetAdminElevationDashboard",
-        Tags = new[] { "Admin" }
-    )]
-    [SwaggerResponse(200, "Response with admin elevation dashboard information or error message", typeof(Models.Api.v1.Admin))]
-    public IActionResult Elevate_SPA() => Json(Elevate_Common());
-
-    public Models.Api.v1.Admin Elevate_Common()
+    [Route("/admin/terminal", Name = $"{nameof(AdminController)}/{nameof(TerminalPage)}")]
+    public IActionResult TerminalPage()
     {
-        if (CurrentUser is null)
+        var errorMessage = AuthenticateUser();
+        if (!string.IsNullOrWhiteSpace(errorMessage))
         {
-            LogService.Warning("Attempted to access Admin elevation area without being logged in.");
-            return new Models.Api.v1.Admin("You must be logged in to access this page");
-        }
-
-        if (!CurrentUser.IsAdmin)
-        {
-            LogService.Warning($"Non admin user {CurrentUser.Username} attempted to access Admin elevation area.");
-            return new Models.Api.v1.Admin("You must be an admin to access this page");
-        }
-
-        return new Models.Api.v1.Admin(null);
-    }
-
-    #endregion Elevate
-
-    #region PwnPage
-
-    [HttpGet]
-    [Route("/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(PwnPage)}")]
-    public IActionResult PwnPage()
-    {
-        if (!AuthenticateUser())
-        {
-            LogService.Warning("Unauthorized attempt to access Pwn page.");
-            return RedirectToAction(nameof(Index_MVC));
-        }
-
-        return View();
-    }
-
-    #endregion PwnPage
-
-    #region Pwn
-
-    [HttpPost]
-    [Route("/api/v1/admin/pwn", Name = $"{nameof(AdminController)}/{nameof(Pwn)}")]
-    [ApiEndpoint]
-    [SwaggerOperation(
-        Summary = "Pwn the system",
-        Description = "Allows an authenticated admin to take control of the system by setting their name as the system owner. Requires admin privileges and valid admin authentication.",
-        OperationId = "PwnSystem",
-        Tags = new[] { "Admin" }
-    )]
-    [SwaggerResponse(200, "Response with a redirect URL or error message", typeof(GenericResponse))]
-    [SwaggerResponse(401, "Unauthorized access - returns this status code when user is not authenticated as an elevated admin")]
-    public IActionResult Pwn([FromBody] PwnRequest request)
-    {
-        if (!AuthenticateUser())
-        {
-            LogService.Warning("Unauthorized attempt to Pwn system.");
+            LogService.Warning("Unauthorized attempt to access the admin terminal.");
             return Unauthorized();
         }
 
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return Json(new GenericResponse { Success = false, ErrorMessage = "Enter your name to gain eternal glory!" });
-        }
-
-        Program.SitePwnedBy = request.Name;
-
-        LogService.Information($"System Pwned by {request.Name} at {DateTime.UtcNow}");
-
-        return Json(new GenericResponse { Success = true, RedirectUrl = "/" });
+        return !string.IsNullOrWhiteSpace(AuthenticateTerminal())
+            ? RedirectToAction(nameof(TerminalAuthenticationPage))
+            : View("Terminal", new AdminViewModel(new Models.Api.v1.Admin(string.Empty, [])));
     }
 
-    #endregion Pwn
+    [HttpGet]
+    [Route("/admin/terminal/auth", Name = $"{nameof(AdminController)}/{nameof(TerminalAuthenticationPage)}")]
+    public async Task<IActionResult> TerminalAuthenticationPage()
+    {
+        var errorMessage = AuthenticateUser();
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            LogService.Warning("Unauthorized attempt to access the admin terminal.");
+            return Unauthorized();
+        }
+
+        return string.IsNullOrWhiteSpace(AuthenticateTerminal())
+            ? RedirectToAction(nameof(TerminalPage))
+            : View("TerminalAuthentication");
+    }
+
+    [HttpPost]
+    [Route("/api/v1/admin/terminal/auth", Name = $"{nameof(AdminController)}/{nameof(TerminalAuthentication)}")]
+    [ApiEndpoint]
+    [SwaggerOperation(
+        Summary = "Authenticate as root user",
+        Description = "Authenticates the user as a root user. Requires admin privileges.",
+        OperationId = "AuthenticateAsRoot",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with redirection URL", typeof(GenericResponse))]
+    [SwaggerResponse(401, "Unauthorized")]
+    public async Task<IActionResult> TerminalAuthentication([FromBody] AdminTerminalAuthenticationRequest request)
+    {
+        var errorMessage = AuthenticateUser();
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            LogService.Warning("Unauthorized attempt to elevate to root user.");
+            return Unauthorized();
+        }
+
+        var passwordFormatRegex = new Regex(@"^[a-zA-Z0-9/+]{32}$");
+        if (request is null || string.IsNullOrWhiteSpace(request.RootPassword) || !passwordFormatRegex.IsMatch(request.RootPassword))
+        {
+            return Unauthorized();
+        }
+
+        var result = await TerminalCommandRunner.RunBashAsync(
+                $"chkpass \"root\" \"{request.RootPassword}\"",
+                timeout: TimeSpan.FromSeconds(2),
+                cancellationToken: HttpContext.RequestAborted);
+
+        var output = (result.StdOut ?? string.Empty) + (result.StdErr ?? string.Empty);
+        LogService.Information($"Root authentication attempt output: {output.Trim()}");
+        if (output.Trim() == "Password matches")
+        {
+            SetTerminalAuthCookie();
+            return Json(new GenericResponse { Success = true, RedirectUrl = "/admin/terminal" });
+        }
+
+        LogService.Warning("Unauthorized attempt to access the admin terminal with incorrect credentials.");
+        return Unauthorized();
+    }
+
+    [HttpPost]
+    [Route("/api/v1/admin/runterminalcommand", Name = $"{nameof(AdminController)}/{nameof(RunTerminalCommand)}")]
+    [ApiEndpoint]
+    [SwaggerOperation(
+        Summary = "Run terminal command",
+        Description = "Runs a terminal command on the server. Requires root privileges.",
+        OperationId = "RunTerminalCommand",
+        Tags = new[] { "Admin" }
+    )]
+    [SwaggerResponse(200, "Response with command output or error message", typeof(GenericResponse))]
+    [SwaggerResponse(400, "Bad Request")]
+    [SwaggerResponse(401, "Unauthorized")]
+    public async Task<IActionResult> RunTerminalCommand([FromBody] RunTerminalCommandRequest request)
+    {
+        var errorMessage = AuthenticateUser();
+        if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            LogService.Warning("Unauthorized attempt to run terminal command.");
+            return Unauthorized();
+        }
+
+        if (!string.IsNullOrWhiteSpace(AuthenticateTerminal()))
+        {
+            LogService.Warning("Unauthorized attempt to run terminal command without terminal authentication.");
+            return Unauthorized();
+        }
+
+        SetTerminalAuthCookie();
+
+        if (request is null || string.IsNullOrWhiteSpace(request.Command))
+        {
+            return Json(new GenericResponse { Output = string.Empty });
+        }
+
+        const int maxCommandLength = 4096;
+        if (request.Command.Length > maxCommandLength)
+        {
+            return BadRequest(new { errorMessage = $"Command too long (max {maxCommandLength} characters)." });
+        }
+
+        try
+        {
+            var result = await TerminalCommandRunner.RunBashAsync(
+                request.Command,
+                timeout: TimeSpan.FromSeconds(2),
+                cancellationToken: HttpContext.RequestAborted);
+
+            var output = (result.StdOut ?? string.Empty) + (result.StdErr ?? string.Empty);
+
+            if (result.TimedOut)
+            {
+                output += "\n[command terminated: timeout]\n";
+            }
+
+            const int maxOutputChars = 50_000;
+            if (output.Length > maxOutputChars)
+            {
+                output = output[..maxOutputChars] + "\n[output truncated]\n";
+            }
+
+            return Json(new GenericResponse { Success = true, Output = output });
+        }
+        catch (Exception ex)
+        {
+            LogService.Error($"Terminal command execution failed: {ex.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, new GenericResponse { ErrorMessage = "Terminal execution failed." });
+        }
+    }
+
+    #endregion Terminal
 
     #region Private help functions
 
-    private bool AuthenticateUser()
+    private string AuthenticateTerminal()
+    {
+        var isTerminalAuthed = Request.Cookies.TryGetValue(AdminTerminalAuthenticationCookieName, out var cookieValue)
+            && cookieValue == _cryptographyService.HashPassword(AdminTerminalAuthenticationCookieValue);
+
+        return isTerminalAuthed
+            ? null
+            : "You must authenticate in order to access the administration terminal";
+    }
+
+    private string AuthenticateUser()
     {
         if (CurrentUser is null)
         {
-            return false;
+            LogService.Warning("Administration access blocked: User not authenticated.");
+            return "You must be logged in to access this resource";
         }
 
         if (!CurrentUser.IsAdmin)
         {
-            return false;
+            LogService.Warning($"Administration access blocked: User {CurrentUser.Username} is not an administrator.");
+            return "You must be an administrator to access this resource";
         }
 
-        var isAdmin = Request.Cookies.TryGetValue(AdminAuthenticationCookieName, out var cookieValue) && cookieValue == _cryptographyService.HashPassword(_options.Value.AdminAuthenticationKey);
-
-        if (isAdmin)
-        {
-            LogService.Information("Admin authentication successful.");
-        }
-        else
-        {
-            LogService.Warning("Admin authentication failed.");
-        }
-
-        return isAdmin;
+        return null;
     }
+
+    private void SetTerminalAuthCookie() => Response.Cookies.Append(AdminTerminalAuthenticationCookieName, _cryptographyService.HashPassword(AdminTerminalAuthenticationCookieValue), new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddMinutes(5)
+    });
 
     #endregion Private help functions
 }

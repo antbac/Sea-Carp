@@ -1,0 +1,84 @@
+@{
+    ViewData["Title"] = "Admin - Terminal Authentication";
+}
+
+<div class="container mt-5" style="max-width: 720px;">
+    <h2 class="mb-3">Admin Terminal Authentication</h2>
+    <p class="text-muted">Enter the root password to access the admin terminal.</p>
+
+    <div class="card">
+        <div class="card-body">
+            <form id="terminal-auth-form" autocomplete="off">
+                <div class="mb-3">
+                    <label for="rootPassword" class="form-label">Root password</label>
+                    <input id="rootPassword"
+                           name="rootPassword"
+                           type="password"
+                           class="form-control"
+                           maxlength="32"
+                           inputmode="text"
+                           autocomplete="current-password"
+                           required />
+                    <div class="form-text">
+                        The password must be exactly 32 characters and contain only letters, digits, <code>/</code>, and <code>+</code>.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary" id="terminal-auth-submit">Authenticate</button>
+                    <a class="btn btn-secondary" href="/admin">Back</a>
+                </div>
+
+                <div class="mt-3">
+                    <div id="terminal-auth-error" class="text-danger" style="display:none;"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        (function () {
+            const form = document.getElementById('terminal-auth-form');
+            const pwd = document.getElementById('rootPassword');
+            const error = document.getElementById('terminal-auth-error');
+            const submit = document.getElementById('terminal-auth-submit');
+
+            // Must match server-side format in `AdminController.TerminalAuthentication`.
+            // Current password values can include digits as well.
+            const formatRegex = /^[a-zA-Z0-9/+]{32}$/;
+
+            function setError(message) {
+                error.textContent = message || '';
+                error.style.display = message ? 'block' : 'none';
+            }
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                setError('');
+
+                const value = (pwd.value || '').trim();
+                if (!formatRegex.test(value)) {
+                    setError('Invalid password format.');
+                    return;
+                }
+
+                submit.disabled = true;
+
+                try {
+                    makeAuthorizedRequest(
+                        '/api/v1/admin/terminal/auth',
+                        'POST',
+                        { rootPassword: value });
+                } catch {
+                    setError('Authentication failed.');
+                } finally {
+                    submit.disabled = false;
+                }
+            });
+        })();
+    </script>
+}

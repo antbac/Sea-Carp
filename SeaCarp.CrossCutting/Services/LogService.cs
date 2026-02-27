@@ -40,7 +40,7 @@ public class LogService(ITimeService timeService) : ILogService
     {
         lock (_lock)
         {
-            var now = _timeService.Now();
+            var now = _timeService.Now;
             foreach (var line in message.Split("\n").Reverse())
             {
                 _log.AddFirst($"{now:u} [{logLevel.ToString().ToUpperInvariant()}] {line.Trim()}");

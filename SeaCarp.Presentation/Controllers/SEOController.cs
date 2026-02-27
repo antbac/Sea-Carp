@@ -11,12 +11,14 @@ namespace SeaCarp.Presentation.Controllers;
 public class SEOController(
     IActionDescriptorCollectionProvider provider,
     IJwtService jwtService,
-    ILogService logService)
+    ILogService logService,
+    ITimeService timeService)
     : BaseController(
         jwtService,
         logService)
 {
     private readonly IActionDescriptorCollectionProvider _provider = provider;
+    private readonly ITimeService _timeService = timeService;
 
     #region RobotsTxt
 
@@ -27,7 +29,6 @@ public class SEOController(
     {
         var hiddenUrls = new string[] {
             $"{Url.Action(nameof(AdminController.Index_MVC), nameof(AdminController).RemoveControllerSuffix())}/",
-            $"{Url.Action(nameof(FileManagerController.Index), nameof(FileManagerController).RemoveControllerSuffix())}/",
             "/swagger/",
         };
 
@@ -85,7 +86,7 @@ public class SEOController(
                     sitemapNodes.Add(new SitemapNode
                     {
                         Url = Uri.UnescapeDataString(uri.GetLeftPart(UriPartial.Path)),
-                        LastModified = DateTime.UtcNow,
+                        LastModified = _timeService.UtcNow,
                         ChangeFrequency = "weekly",
                         Priority = 0.5M
                     });

@@ -4,17 +4,21 @@ namespace SeaCarp.Domain.Abstractions;
 
 public interface IUserRepository
 {
-    Task CreateUser(User user);
+    void CreateUser(User user);
 
-    Task<IEnumerable<User>> GetAllUsers();
+    IEnumerable<User> GetAllUsers();
 
-    Task<User> GetUser(string username, string password);
+    User GetUser(string username, string password);
 
-    Task<User> GetUser(int id);
+    User GetUser(int id, bool skipLock = false);
 
-    Task<User> GetUser(string username);
+    User GetUser(string username);
 
-    Task UpdateUser(User user);
+    void UpdateAdminStatus(User user);
 
-    Task RemoveUser(int id);
+    void UpdateCaseOfficerStatus(User user);
+
+    void UpdateCredits(User user);
+
+    void UpdateProfilePicture(User user);
 }

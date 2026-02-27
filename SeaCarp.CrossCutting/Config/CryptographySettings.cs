@@ -4,33 +4,30 @@ namespace SeaCarp.CrossCutting.Config;
 
 public class CryptographySettings
 {
-    private static string _adminAuthenticationKey;
-
-    public string AdminAuthenticationKey
+    public string JwtEncryptionKey
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(_adminAuthenticationKey))
+            if (string.IsNullOrWhiteSpace(field))
             {
                 var buffer = new byte[16];
                 RandomNumberGenerator.Fill(buffer);
-                _adminAuthenticationKey = Convert.ToHexString(buffer).ToUpperInvariant();
+                field = Convert.ToHexString(buffer).ToUpperInvariant();
             }
 
-            return _adminAuthenticationKey;
+            return field;
         }
 
         set
         {
-            if (string.IsNullOrWhiteSpace(_adminAuthenticationKey))
+            if (string.IsNullOrWhiteSpace(field))
             {
                 var buffer = new byte[16];
                 RandomNumberGenerator.Fill(buffer);
-                _adminAuthenticationKey = Convert.ToHexString(buffer).ToUpperInvariant();
+                field = Convert.ToHexString(buffer).ToUpperInvariant();
             }
         }
     }
 
-    public string JwtEncryptionKey { get; set; }
     public string PasswordSalt { get; set; }
 }

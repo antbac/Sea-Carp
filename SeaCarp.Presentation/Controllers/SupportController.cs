@@ -138,4 +138,216 @@ public class SupportController(
     }
 
     #endregion CreateSupportCase
+
+    #region OfficerHandling
+
+    [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/support/{identifier}/claim", Name = $"{nameof(SupportController)}/{nameof(ClaimCase)}")]
+    [SwaggerOperation(
+        Summary = "Claims a support case",
+        Description = "Allows a case officer to claim (assign themselves) to a support case.",
+        OperationId = "ClaimSupportCase",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully claimed support case", typeof(GenericResponse))]
+    public async Task<IActionResult> ClaimCase(string identifier)
+    {
+        try
+        {
+            if (CurrentUser is null)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in." });
+            }
+
+            if (!CurrentUser.IsCaseOfficer)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You are not authorized to handle support cases." });
+            }
+
+            await _supportCaseService.ClaimCase(CurrentUser, identifier);
+            return Json(new GenericResponse { Success = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Warning($"Failed to claim support case {identifier}: {ex.Message}");
+            throw;
+        }
+    }
+
+    [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/support/cases/{identifier}/status", Name = $"{nameof(SupportController)}/{nameof(UpdateStatus)}")]
+    [SwaggerOperation(
+        Summary = "Updates the status of a support case",
+        Description = "Allows the assigned case officer to update the status of the case.",
+        OperationId = "UpdateSupportCaseStatus",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully updated support case status", typeof(GenericResponse))]
+    public async Task<IActionResult> UpdateStatus(string identifier, [FromBody] UpdateSupportCaseStatusRequest request)
+    {
+        try
+        {
+            if (CurrentUser is null)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in." });
+            }
+
+            if (!CurrentUser.IsCaseOfficer)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You are not authorized to handle support cases." });
+            }
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Identifier is required." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request?.Status))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Status is required." });
+            }
+
+            if (Enum.TryParse<SupportCaseStatus>(request.Status, out var status))
+            {
+                await _supportCaseService.UpdateStatus(CurrentUser, identifier, status);
+            }
+            else
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Invalid status." });
+            }
+
+            return Json(new GenericResponse { Success = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Warning($"Failed to update status of support case {identifier}: {ex.Message}");
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [ApiEndpoint]
+    [Route("/api/v1/support/cases/{identifier}/note", Name = $"{nameof(SupportController)}/{nameof(AddNote)}")]
+    [SwaggerOperation(
+        Summary = "Adds an internal note to a support case",
+        Description = "Allows the assigned case officer to attach a note to the case for audit trail.",
+        OperationId = "AddSupportCaseInternalNote",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully added internal note", typeof(GenericResponse))]
+    public async Task<IActionResult> AddNote(string identifier, [FromBody] AddSupportCaseNoteRequest request)
+    {
+        try
+        {
+            if (CurrentUser is null)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in." });
+            }
+
+            if (!CurrentUser.IsCaseOfficer)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You are not authorized to handle support cases." });
+            }
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Identifier is required." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request?.Note))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Note is required." });
+            }
+
+            await _supportCaseService.AddNote(CurrentUser, identifier, request.Note);
+            return Json(new GenericResponse { Success = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Warning($"Failed to add note to support case {identifier}: {ex.Message}");
+            throw;
+        }
+    }
+
+    [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/support/cases/{identifier}/reopen", Name = $"{nameof(SupportController)}/{nameof(ReopenSupportCase)}")]
+    [SwaggerOperation(
+        Summary = "Reopens a support case",
+        Description = "Allows the assigned case officer to reopen a Resolved/Closed case (sets status back to InProgress).",
+        OperationId = "ReopenSupportCase",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully reopened support case", typeof(GenericResponse))]
+    public async Task<IActionResult> ReopenSupportCase(string identifier)
+    {
+        try
+        {
+            if (CurrentUser is null)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in." });
+            }
+
+            if (!CurrentUser.IsCaseOfficer)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You are not authorized to handle support cases." });
+            }
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Identifier is required." });
+            }
+
+            await _supportCaseService.ReopenCase(CurrentUser, identifier);
+            return Json(new GenericResponse { Success = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Warning($"Failed to reopen support case {identifier}: {ex.Message}");
+            throw;
+        }
+    }
+
+    [HttpPut]
+    [ApiEndpoint]
+    [Route("/api/v1/support/cases/{identifier}/unassign", Name = $"{nameof(SupportController)}/{nameof(UnassignSupportCase)}")]
+    [SwaggerOperation(
+        Summary = "Unassigns a support case",
+        Description = "Allows the assigned case officer to unassign themselves (returns case to Open).",
+        OperationId = "UnassignSupportCase",
+        Tags = new[] { "Support" }
+    )]
+    [SwaggerResponse(200, "Successfully unassigned support case", typeof(GenericResponse))]
+    public async Task<IActionResult> UnassignSupportCase(string identifier)
+    {
+        try
+        {
+            if (CurrentUser is null)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You must be logged in." });
+            }
+
+            if (!CurrentUser.IsCaseOfficer)
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "You are not authorized to handle support cases." });
+            }
+
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return Json(new GenericResponse { Success = false, ErrorMessage = "Identifier is required." });
+            }
+
+            await _supportCaseService.UnassignCase(CurrentUser, identifier);
+            return Json(new GenericResponse { Success = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.Warning($"Failed to unassign support case {identifier}: {ex.Message}");
+            throw;
+        }
+    }
+
+    #endregion OfficerHandling
 }
