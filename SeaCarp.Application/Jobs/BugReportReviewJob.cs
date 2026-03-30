@@ -20,7 +20,7 @@ public class BugReportReviewJob(IServiceScopeFactory scopeFactory) : BackgroundS
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _scopeFactory.CreateScope();
-            var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+            var logService = scope.ServiceProvider.GetRequiredService<ILogService<BugReportReviewJob>>();
             var jwtService = scope.ServiceProvider.GetRequiredService<IJwtService>();
             var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
             var bugReportRepository = scope.ServiceProvider.GetRequiredService<IBugReportRepository>();
@@ -72,10 +72,8 @@ public class BugReportReviewJob(IServiceScopeFactory scopeFactory) : BackgroundS
 
                                 try
                                 {
-                                    var baseUrl = "http://localhost:8080";
-                                    var adminUrl = $"{baseUrl}/admin";
-
-                                    driver.Navigate().GoToUrl(adminUrl);
+                                    var baseUrl = Constants.AppBaseUrl;
+                                    driver.Navigate().GoToUrl(baseUrl);
 
                                     var cookie = new OpenQA.Selenium.Cookie(
                                         name: Constants.JWT,
@@ -85,10 +83,12 @@ public class BugReportReviewJob(IServiceScopeFactory scopeFactory) : BackgroundS
                                         expiry: null,
                                         secure: false,
                                         isHttpOnly: true,
-                                        sameSite: "Lax");
+                                        sameSite: Constants.CookieSameSiteLax);
 
                                     driver.Manage().Cookies.AddCookie(cookie);
-                                    driver.Navigate().Refresh();
+
+                                    var adminUrl = $"{baseUrl}/admin";
+                                    driver.Navigate().GoToUrl(adminUrl);
 
                                     await Task.Delay(1000, stoppingToken);
 

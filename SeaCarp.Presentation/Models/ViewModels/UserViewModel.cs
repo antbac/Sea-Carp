@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
@@ -14,7 +15,7 @@ public class UserViewModel
     public IEnumerable<OrderViewModel> Orders { get; private set; }
     public IEnumerable<(HtmlString FileName, HtmlString FileContent)> UserFiles { get; private set; }
 
-    public UserViewModel(Api.v1.User user)
+    public UserViewModel(UserDto user)
     {
         Id = user?.Id ?? default;
         Username = new(string.IsNullOrWhiteSpace(user?.Username) ? string.Empty : user.Username);

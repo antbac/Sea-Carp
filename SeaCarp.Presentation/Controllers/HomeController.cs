@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json;
 using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Presentation.Attributes;
+using SeaCarp.Presentation.Models.Contracts;
 using SeaCarp.Presentation.Models.ViewModels;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -11,32 +11,14 @@ namespace SeaCarp.Presentation.Controllers;
 public class HomeController(
     IProductService productService,
     IJwtService jwtService,
-    ILogService logService)
-    : BaseController(
+    ILogService<HomeController> logService)
+    : BaseController<HomeController>(
         jwtService,
         logService)
 {
     private readonly IProductService _productService = productService;
 
-    #region Index
-
-    [HttpGet]
-    [Route("/", Name = $"{nameof(HomeController)}/{nameof(Index_MVC)}")]
-    public async Task<IActionResult> Index_MVC() => View("Index", (await Index_Common()).Select(product => new ProductViewModel(product)));
-
-    [HttpGet]
-    [ApiEndpoint]
-    [Route("/api/v1/overview", Name = $"{nameof(HomeController)}/{nameof(Index_SPA)}")]
-    [SwaggerOperation(
-        Summary = "Gets featured products overview",
-        Description = "Retrieves a list of featured products to be displayed on the home page.",
-        OperationId = "GetFeaturedProducts",
-        Tags = new[] { "Home" }
-    )]
-    [SwaggerResponse(200, "Successfully returned featured products", typeof(IEnumerable<Models.Api.v1.Product>))]
-    public async Task<IActionResult> Index_SPA() => Json(await Index_Common());
-
-    private async Task<IEnumerable<Models.Api.v1.Product>> Index_Common()
+    private async Task<IEnumerable<ProductDto>> GetFeaturedProducts()
     {
         var featuredProducts = await _productService.GetFeaturedProducts();
 
@@ -46,10 +28,14 @@ public class HomeController(
             return [];
         }
 
-        LogService.Information($"Featured products retrieved: {JsonConvert.SerializeObject(featuredProducts.Select(p => p.ProductName))}");
+        LogService.Information($"Featured products retrieved: {JsonSerializer.Serialize(featuredProducts.Select(p => p.ProductName))}");
 
-        return [.. featuredProducts.Select(product => new Models.Api.v1.Product(product))];
+        return [.. featuredProducts.Select(product => new ProductDto(product))];
     }
 
-    #endregion Index
+    [HttpGet]
+    [Route("/", Name = $"{nameof(HomeController)}/{nameof(Index)}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Index() =>
+        View("Index", (await GetFeaturedProducts()).Select(product => new ProductViewModel(product)));
 }

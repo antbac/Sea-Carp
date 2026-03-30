@@ -1,0 +1,5 @@
+#!/bin/bash
+SALT=$(openssl rand -hex 16 | tr '[:lower:]' '[:upper:]')
+jq ".Cryptography.PasswordSalt = \"$SALT\"" /app/appsettings.json > /app/appsettings.json.new \
+    && mv /app/appsettings.json.new /app/appsettings.json
+echo "Updated appsettings.json with new password salt"

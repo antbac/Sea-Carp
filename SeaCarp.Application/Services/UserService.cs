@@ -7,40 +7,46 @@ using SeaCarp.Domain.Models;
 namespace SeaCarp.Application.Services;
 
 public class UserService(
-    IHttpService httpService,
-    IUserRepository userRepository,
-    ISupportCaseRepository supportCaseRepository,
     ICryptographyService cryptographyService,
-    ILogService logService) : IUserService
+    IHttpService httpService,
+    IJwtService jwtService,
+    ILogService<UserService> logService,
+    ISupportCaseRepository supportCaseRepository,
+    IUserRepository userRepository) : IUserService
 {
     private readonly ICryptographyService _cryptographyService = cryptographyService;
     private readonly IHttpService _httpService = httpService;
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<UserService> _logService = logService;
     private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
+    private readonly IJwtService _jwtService = jwtService;
     private readonly IUserRepository _userRepository = userRepository;
 
-    public async Task<IEnumerable<User>> GetAllUsers()
+    public Task<IEnumerable<User>> GetAllUsers()
     {
         var users = _userRepository.GetAllUsers().ToList();
         _logService.Information($"Retrieved {users.Count} users.");
 
-        return users;
+        return Task.FromResult<IEnumerable<User>>(users);
     }
 
-    public async Task CreateUser(User user)
+    public Task CreateUser(User user)
     {
         _userRepository.CreateUser(user);
 
         _logService.Information($"User created: {user.Username} (ID: {user.Id})");
+
+        return Task.CompletedTask;
     }
 
-    public async Task DemoteCaseOfficer(User user)
+    public Task DemoteCaseOfficer(User user)
     {
         user.DemoteFromCaseOfficer();
         _userRepository.UpdateCaseOfficerStatus(user);
+
+        return Task.CompletedTask;
     }
 
-    public async Task<User> GetUser(int id)
+    public Task<User> GetUser(int id)
     {
         var user = _userRepository.GetUser(id);
         if (user == null)
@@ -56,10 +62,10 @@ public class UserService(
             order.AppendSupportCases(_supportCaseRepository.GetSupportCasesByOrderId(order.Id));
         }
 
-        return user;
+        return Task.FromResult(user);
     }
 
-    public async Task<User> GetUser(string identifier)
+    public Task<User> GetUser(string identifier)
     {
         var user = _userRepository.GetUser(identifier);
         if (user == null)
@@ -70,10 +76,10 @@ public class UserService(
 
         _logService.Information($"Retrieved user: {user.Username} (ID: {user.Id})");
 
-        return user;
+        return Task.FromResult(user);
     }
 
-    public async Task<User> GetUser(string username, string password)
+    public Task<User> GetUser(string username, string password)
     {
         var user = _userRepository.GetUser(username, _cryptographyService.HashPassword(password));
         if (user == null)
@@ -84,13 +90,15 @@ public class UserService(
 
         _logService.Information($"User authenticated: {user.Username} (ID: {user.Id})");
 
-        return user;
+        return Task.FromResult(user);
     }
 
-    public async Task PromoteCaseOfficer(User user)
+    public Task PromoteCaseOfficer(User user)
     {
         user.PromoteToCaseOfficer();
         _userRepository.UpdateCaseOfficerStatus(user);
+
+        return Task.CompletedTask;
     }
 
     public async Task UpdateProfilePicture(User user, string gravatarPath)
@@ -98,7 +106,17 @@ public class UserService(
         var imageContent = await _httpService.FetchContent(
             $"https://gravatar.com{gravatarPath}",
             OutputType.Base64,
-            user?.AuthenticationLevel ?? AuthenticationLevel.Anonymous)
+            user is null
+                ? string.Empty
+                : _jwtService.GenerateJwt(
+                    (nameof(User.Id), user.Id.ToString()),
+                    (nameof(User.Username), user.Username),
+                    (nameof(User.Password), user.Password),
+                    (nameof(User.Email), user.Email),
+                    (nameof(User.Credits), user.Credits.ToString()),
+                    (nameof(User.IsCaseOfficer), user.IsCaseOfficer.ToString()),
+                    (nameof(User.IsAdmin), user.IsAdmin.ToString())
+                ))
             as string;
 
         user.UpdateProfilePicture(imageContent);

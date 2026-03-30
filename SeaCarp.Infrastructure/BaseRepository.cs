@@ -14,7 +14,7 @@ public abstract class BaseRepository
                 null => "NULL",
                 string s when s is not null => $"'{EscapeParameter(parameters[i]?.ToString())}'",
                 Enum e => $"'{e}'",
-                float or double or decimal => parameters[i].ToString().Replace(",", "."),
+                float or double or decimal or int => parameters[i].ToString().Replace(",", "."),
                 bool b => b.ToInt().ToString(),
                 DateTime dt => $"'{dt:yyyy-MM-dd HH:mm:ss:fff}'",
                 _ => EscapeParameter(parameters[i]?.ToString())

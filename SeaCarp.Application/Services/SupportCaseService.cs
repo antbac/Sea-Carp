@@ -8,11 +8,12 @@ namespace SeaCarp.Application.Services;
 public class SupportCaseService(
     ISupportCaseRepository supportCaseRepository,
     IFileService fileService,
-    ILogService logService) : ISupportCaseService
+    ILogService<SupportCaseService> logService)
+    : ISupportCaseService
 {
     private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
     private readonly IFileService _fileService = fileService;
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<SupportCaseService> _logService = logService;
 
     public async Task<SupportCase> CreateSupportCase(User user, int orderId, string issueDescription, string imageName, byte[] imageBytes)
     {
@@ -33,7 +34,7 @@ public class SupportCaseService(
         return supportCase;
     }
 
-    public async Task<SupportCase> GetCaseByCaseNumber(string caseNumber)
+    public Task<SupportCase> GetCaseByCaseNumber(string caseNumber)
     {
         var supportCase = _supportCaseRepository.GetCaseByCaseNumber(caseNumber);
         if (supportCase == null)
@@ -44,10 +45,10 @@ public class SupportCaseService(
 
         _logService.Information($"Retrieved support case: {supportCase.CaseNumber} (ID: {supportCase.Id})");
 
-        return supportCase;
+        return Task.FromResult(supportCase);
     }
 
-    public async Task<SupportCase> GetCaseById(int id)
+    public Task<SupportCase> GetCaseById(int id)
     {
         var supportCase = _supportCaseRepository.GetCaseById(id);
         if (supportCase == null)
@@ -58,7 +59,7 @@ public class SupportCaseService(
 
         _logService.Information($"Retrieved support case: {supportCase.CaseNumber} (ID: {id})");
 
-        return supportCase;
+        return Task.FromResult(supportCase);
     }
 
     public async Task<SupportCase> ClaimCase(User officer, string identifier)

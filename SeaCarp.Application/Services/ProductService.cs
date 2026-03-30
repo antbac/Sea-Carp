@@ -7,9 +7,10 @@ namespace SeaCarp.Application.Services;
 
 public class ProductService(
     IProductRepository productRepository,
-    ILogService logService) : IProductService
+    ILogService<ProductService> logService)
+    : IProductService
 {
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<ProductService> _logService = logService;
     private readonly IProductRepository _productRepository = productRepository;
 
     public Task AddReview(int productId, Review review, User user)

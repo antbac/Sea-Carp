@@ -50,19 +50,19 @@ public static class Database
             cmd.CommandText = @$"
                     CREATE TABLE IF NOT EXISTS {nameof(User).ToPlural()} (
                         {nameof(User.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(User.Username)} TEXT NOT NULL UNIQUE,
-                        {nameof(User.Password)} TEXT NOT NULL,
-                        LoginVerifier TEXT NOT NULL,
-                        {nameof(User.Email)} TEXT NOT NULL UNIQUE,
+                        {nameof(User.Username)} TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                        {nameof(User.Password)} TEXT NOT NULL COLLATE NOCASE,
+                        LoginVerifier TEXT NOT NULL COLLATE NOCASE,
+                        {nameof(User.Email)} TEXT NOT NULL UNIQUE COLLATE NOCASE,
                         {nameof(User.Credits)} REAL NOT NULL,
-                        {nameof(User.ProfilePicture)} TEXT NOT NULL,
+                        {nameof(User.ProfilePicture)} TEXT NOT NULL COLLATE NOCASE,
                         {nameof(User.IsCaseOfficer)} INTEGER NOT NULL DEFAULT 0
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(Product).ToPlural()} (
                         {nameof(Product.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(Product.ProductName)} TEXT NOT NULL UNIQUE,
-                        {nameof(Product.Description)} TEXT,
+                        {nameof(Product.ProductName)} TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                        {nameof(Product.Description)} TEXT COLLATE NOCASE,
                         {nameof(Product.Price)} REAL NOT NULL,
                         {nameof(Product.Stock)} INTEGER,
                         {nameof(Product.Category)}Id INTEGER
@@ -71,9 +71,9 @@ public static class Database
                     CREATE TABLE IF NOT EXISTS {nameof(Order).ToPlural()} (
                         {nameof(Order.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
                         {nameof(User)}{nameof(User.Id)} INTEGER,
-                        {nameof(Order.OrderDate)} TEXT,
-                        {nameof(Order.Status)} TEXT,
-                        {nameof(Order.DeliveryAddress)} TEXT
+                        {nameof(Order.OrderDate)} TEXT COLLATE NOCASE,
+                        {nameof(Order.Status)} TEXT COLLATE NOCASE,
+                        {nameof(Order.DeliveryAddress)} TEXT COLLATE NOCASE
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(OrderItem).ToPlural()} (
@@ -89,31 +89,31 @@ public static class Database
                         {nameof(Product)}{nameof(Product.Id)} INTEGER,
                         {nameof(User)}{nameof(User.Id)} INTEGER,
                         {nameof(Review.Rating)} INTEGER,
-                        {nameof(Review.Comment)} TEXT,
-                        {nameof(Review.CreatedDate)} TEXT
+                        {nameof(Review.Comment)} TEXT COLLATE NOCASE,
+                        {nameof(Review.CreatedDate)} TEXT COLLATE NOCASE
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(SupportCase).ToPlural()} (
                         {nameof(SupportCase.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
                         {nameof(SupportCase.Order)}{nameof(SupportCase.Order.Id)} INTEGER,
-                        {nameof(SupportCase.Description)} TEXT,
-                        {nameof(SupportCase.Image)} TEXT,
-                        {nameof(SupportCase.CreatedDate)} TEXT,
-                        {nameof(SupportCase.Status)} TEXT,
+                        {nameof(SupportCase.Description)} TEXT COLLATE NOCASE,
+                        {nameof(SupportCase.Image)} TEXT COLLATE NOCASE,
+                        {nameof(SupportCase.CreatedDate)} TEXT COLLATE NOCASE,
+                        {nameof(SupportCase.Status)} TEXT COLLATE NOCASE,
                         {nameof(SupportCase.CaseOfficer)}Id INTEGER
                     );
 
                     CREATE TABLE IF NOT EXISTS {nameof(BugReport).ToPlural()} (
                         {nameof(BugReport.Id)} INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        {nameof(BugReport.FiledBy)} TEXT NOT NULL,
-                        {nameof(BugReport.Title)} TEXT NOT NULL,
-                        {nameof(BugReport.Description)} TEXT NOT NULL,
+                        {nameof(BugReport.FiledBy)} TEXT NOT NULL COLLATE NOCASE,
+                        {nameof(BugReport.Title)} TEXT NOT NULL COLLATE NOCASE,
+                        {nameof(BugReport.Description)} TEXT NOT NULL COLLATE NOCASE,
                         Closed BIT NOT NULL
                     );
 
                     CREATE TABLE IF NOT EXISTS Categories (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                        Category TEXT NOT NULL UNIQUE
+                        Category TEXT NOT NULL UNIQUE COLLATE NOCASE
                     );
 
                     CREATE TABLE IF NOT EXISTS Administrators (
@@ -125,8 +125,8 @@ public static class Database
                         {nameof(SupportCaseNote.Id)} INTEGER PRIMARY KEY AUTOINCREMENT,
                         {nameof(SupportCaseNote.SupportCase)}Id INTEGER NOT NULL,
                         {nameof(SupportCaseNote.CaseOfficer)}Id INTEGER NOT NULL,
-                        {nameof(SupportCaseNote.Note)} TEXT NOT NULL,
-                        {nameof(SupportCaseNote.CreatedDate)} TEXT NOT NULL
+                        {nameof(SupportCaseNote.Note)} TEXT NOT NULL COLLATE NOCASE,
+                        {nameof(SupportCaseNote.CreatedDate)} TEXT NOT NULL COLLATE NOCASE
                     );
                 ";
             cmd.ExecuteNonQuery();

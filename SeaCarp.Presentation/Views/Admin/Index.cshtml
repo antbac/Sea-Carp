@@ -3,50 +3,40 @@
     ViewData["Title"] = "Admin";
 }
 
-@if (string.IsNullOrWhiteSpace(Model.ErrorMessage.Value))
-{
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">Admin</h2>
-            <a class="btn btn-outline-secondary" href="/admin/terminal">Admin Terminal</a>
-        </div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Admin</h2>
+        <a class="btn btn-outline-secondary" href="/admin/terminal">Admin Terminal</a>
+    </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Bug Reports</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.BugReports is null || Model.BugReports.Count == 0)
-                {
-                    <div class="text-muted">No bug reports.</div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column gap-3">
-                        @foreach (var bugReport in Model.BugReports.AsEnumerable().Reverse())
-                        {
-                            <div class="card shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start gap-3">
-                                        <div class="flex-grow-1">
-                                            <h5 class="card-title mb-1">@bugReport.Title</h5>
-                                            <div class="card-subtitle text-muted small">Filed by: @bugReport.FiledBy</div>
-                                        </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Bug Reports</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.BugReports is null || Model.BugReports.Count == 0)
+            {
+                <div class="text-muted">No bug reports.</div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var bugReport in Model.BugReports.AsEnumerable().Reverse())
+                    {
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-1">@bugReport.Title</h5>
+                                        <div class="card-subtitle text-muted small">Filed by: @bugReport.FiledBy</div>
                                     </div>
-                                    <p class="card-text text-break mb-0 mt-3">@bugReport.Description</p>
                                 </div>
+                                <p class="card-text text-break mb-0 mt-3">@bugReport.Description</p>
                             </div>
-                        }
-                    </div>
-                }
-            </div>
+                        </div>
+                    }
+                </div>
+            }
         </div>
     </div>
-}
-else
-{
-    <div class="text-center mt-5">
-        <h2>Unauthorized</h2>
-        <h3>@Model.ErrorMessage</h3>
-    </div>
-}
+</div>

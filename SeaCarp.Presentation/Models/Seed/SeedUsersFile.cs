@@ -19,11 +19,8 @@ public sealed class SeedUser
     [JsonPropertyName("email")]
     public string Email { get; init; }
 
-    [JsonPropertyName("credits")]
-    public decimal Credits { get; init; }
-
     [JsonPropertyName("profile_picture")]
-    public string? ProfilePicture { get; init; }
+    public string ProfilePicture { get; init; }
 
     [JsonPropertyName("is_admin")]
     public bool IsAdmin { get; init; }

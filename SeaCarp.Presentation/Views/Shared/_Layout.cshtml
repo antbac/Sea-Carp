@@ -1,5 +1,6 @@
 ﻿@using System.Diagnostics
 @using SeaCarp.Infrastructure
+@using SeaCarp.Presentation.Controllers.Api
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -21,7 +22,7 @@
                         <img src="~/images/SeaCarpLogo.png" class="d-none d-sm-inline-block" width="48" height="48" alt="Sea Carp Logo" />
                         Sea Carp
                     </a>
-                    <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index_MVC), nameof(SearchController).RemoveControllerSuffix())" method="get">
+                    <form class="d-flex" id="search_form" role="search" action="@Url.ActionLink(nameof(SearchController.Index), nameof(SearchController).RemoveControllerSuffix())" method="get">
                         <input class="form-control rounded-pill"
                                type="search"
                                placeholder="Search"
@@ -40,7 +41,7 @@
                         @if (RequestContext.Instance.CurrentUser.Value != null)
                         {
                             <li>
-                                <a class="dropdown-item" asp-area="" asp-controller="Profiles" asp-action="Index">Profile</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Users" asp-action="Index">Profile</a>
                             </li>
                             <li>
                                 <a class="dropdown-item" asp-area="" asp-controller="Identity" asp-action="Logout">Logout</a>
@@ -100,7 +101,7 @@
                     &copy; @DateTime.Now.Year - Sea Carp - All rights reserved
                 </div>
                 <div class="col-md-6 text-end">
-                    <a asp-controller="System" asp-action="Index_MVC">System Information</a>
+                    <a asp-controller="System" asp-action="Index">System Information</a>
                 </div>
             </div>
         </div>
@@ -118,7 +119,7 @@
             body = body || {};
             headers = headers || {};
 
-            const tokenResponse = await fetch('@Url.ActionLink(nameof(IdentityController.TokenRetrieval), nameof(IdentityController).RemoveControllerSuffix())', {
+            const tokenResponse = await fetch('@Url.ActionLink(nameof(IdentityApiController.TokenRetrieval), nameof(IdentityApiController).RemoveControllerSuffix())', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });

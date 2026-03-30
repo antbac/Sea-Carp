@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class OrderViewModel(Api.v1.Order order)
+public class OrderViewModel(OrderDto order)
 {
     public int Id { get; private set; } = order?.Id ?? default;
     public HtmlString OrderDate { get; private set; } = new((order?.OrderDate ?? default).ToString("yyyy-MM-dd"));

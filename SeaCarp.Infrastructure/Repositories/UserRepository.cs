@@ -2,6 +2,7 @@
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using SeaCarp.Domain.Models.Enums;
 using System.Data.SQLite;
 using System.Globalization;
 

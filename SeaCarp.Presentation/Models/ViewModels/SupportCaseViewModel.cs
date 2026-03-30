@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class SupportCaseViewModel(Api.v1.SupportCase supportCase)
+public class SupportCaseViewModel(SupportCaseDto supportCase)
 {
     public int Id { get; private set; } = supportCase?.Id ?? default;
     public HtmlString CaseNumber => new($"SC{Id.ToString().PadLeft(8, '0')}");

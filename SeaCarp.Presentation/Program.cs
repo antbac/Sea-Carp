@@ -7,11 +7,18 @@ using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Presentation;
 using SeaCarp.Presentation.Attributes;
+using SeaCarp.Presentation.Authorization;
+using SeaCarp.Presentation.Authorization.IsAdministrator;
+using SeaCarp.Presentation.Authorization.IsAuthenticated;
+using SeaCarp.Presentation.Authorization.IsCaseOfficer;
+using SeaCarp.Presentation.Authorization.IsRoot;
+using SeaCarp.Presentation.Authorization.IsSystem;
 using SeaCarp.Presentation.Config;
 using SeaCarp.Presentation.Middlewares;
 using SeaCarp.Presentation.Models.Seed;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 internal class Program
 {
@@ -37,7 +44,7 @@ internal class Program
 
         builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(8080));
 
-        builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection("Cryptography"));
+        builder.Services.Configure<CryptographySettings>(builder.Configuration.GetSection(Constants.CryptographyConfigSection));
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -59,7 +66,7 @@ internal class Program
         });
 
         builder.Services.AddCors(options =>
-            options.AddPolicy("AllowCors", builder => builder
+            options.AddPolicy(Constants.Policies.AllowCors, builder => builder
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(_ => true)
@@ -75,11 +82,16 @@ internal class Program
         builder.Services
             .AddControllersWithViews()
             .AddRazorRuntimeCompilation()
-            .AddNewtonsoftJson()
+            .AddJsonOptions(opts =>
+            {
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            })
             .AddMvcOptions(options =>
             {
                 var jsonFormatter = options.InputFormatters
-                    .OfType<NewtonsoftJsonInputFormatter>()
+                    .OfType<SystemTextJsonInputFormatter>()
                     .FirstOrDefault();
 
                 if (jsonFormatter != null)
@@ -90,10 +102,34 @@ internal class Program
             });
 
         builder.Services.AddHostedService<StockingJob>();
-        builder.Services.AddHostedService<SupportHandlerJob>();
+        builder.Services.AddHostedService<SupportCaseReviewJob>();
         builder.Services.AddHostedService<BugReportReviewJob>();
 
         builder.Services.AddRazorPages();
+
+        builder.Services.AddSingleton<IAuthorizationHandler, IsAuthenticatedHandler>();
+        builder.Services.AddSingleton<IAuthorizationHandler, IsCaseOfficerHandler>();
+        builder.Services.AddSingleton<IAuthorizationHandler, IsAdministratorHandler>();
+        builder.Services.AddSingleton<IAuthorizationHandler, IsRootHandler>();
+        builder.Services.AddSingleton<IAuthorizationHandler, IsSystemHandler>();
+        builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultHandler>();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Constants.Policies.IsAuthenticated, policy =>
+                policy.Requirements.Add(new IsAuthenticatedRequirement()));
+
+            options.AddPolicy(Constants.Policies.IsCaseOfficer, policy =>
+                policy.Requirements.Add(new IsCaseOfficerRequirement()));
+
+            options.AddPolicy(Constants.Policies.IsAdministrator, policy =>
+                policy.Requirements.Add(new IsAdministratorRequirement()));
+
+            options.AddPolicy(Constants.Policies.IsRoot, policy =>
+                policy.Requirements.Add(new IsRootRequirement()));
+
+            options.AddPolicy(Constants.Policies.IsSystem, policy =>
+                policy.Requirements.Add(new IsSystemRequirement()));
+        });
 
         builder.Services.AddSwaggerGen(options =>
         {
@@ -112,16 +148,13 @@ internal class Program
 
         var app = builder.Build();
 
-        {
-            using var scope = app.Services.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IFileService>().ConfigureRoot(WebRootPath);
-        }
+        InitializeFileHandler(app);
 
         ServiceLocator.Instance = app.Services;
 
         app.UseForwardedHeaders();
 
-        SetUpDatabase();
+        SetUpDatabase(app.Services);
 
         app.UsePwnMiddleware();
 
@@ -132,12 +165,11 @@ internal class Program
 
         app.UseRouting();
 
-        app.UseCors("AllowCors");
+        app.UseCors(Constants.Policies.AllowCors);
 
         app.UseSession();
-        app.UseSystemCallLimiter();
-        app.UseAuthenticationLevelRequirement();
         app.UseJwtAuthentication();
+        app.UseAuthorization();
 
         app.MapControllerRoute(
             name: "default",
@@ -152,9 +184,15 @@ internal class Program
         app.Run();
     }
 
-    private static void SetUpDatabase()
+    private static void InitializeFileHandler(WebApplication app)
     {
-        var usersFilePath = MapPath("../users.json");
+        using var scope = app.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<IFileService>().ConfigureRoot(WebRootPath);
+    }
+
+    private static void SetUpDatabase(IServiceProvider services)
+    {
+        var usersFilePath = MapPath(Constants.UsersSeedFilePath);
         if (!File.Exists(usersFilePath))
         {
             throw new FileNotFoundException("The users.json seed file was not found.", usersFilePath);
@@ -169,14 +207,13 @@ internal class Program
             throw new InvalidOperationException("The users.json seed file is invalid.");
         }
 
-        using var scope = ServiceLocator.Instance.CreateScope();
-        var cryptographyService = scope.ServiceProvider.GetRequiredService<ICryptographyService>();
+        var cryptographyService = services.GetRequiredService<ICryptographyService>();
 
         var initialUsers = seed.Users.Select(user => SeaCarp.Domain.Models.User.Create(
             username: user.Username,
             email: user.Email,
             password: cryptographyService.NewSecureString(user.PasswordStrength),
-            credits: user.Credits,
+            credits: Math.Round((decimal)(Random.Shared.NextDouble() * (10000 - 100) + 100), 2),
             profilePicture: user.ProfilePicture,
             isAdmin: user.IsAdmin,
             isCaseOfficer: user.IsCaseOfficer));

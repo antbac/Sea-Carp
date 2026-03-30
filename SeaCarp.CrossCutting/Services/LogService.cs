@@ -3,14 +3,8 @@ using SeaCarp.CrossCutting.Services.Abstractions;
 
 namespace SeaCarp.CrossCutting.Services;
 
-public class LogService(ITimeService timeService) : ILogService
+public class LogService<T>(ITimeService timeService) : ILogService<T>
 {
-    private const int MAXIMUM_LOG_ENTRIES_PER_PAGE = 1000;
-    private const int MAXIMUM_NUMBER_OF_PAGES = 5;
-
-    private static readonly Lock _lock = new();
-    private static readonly LinkedList<string> _log = [];
-
     private readonly ITimeService _timeService = timeService;
 
     public void Critical(string message) => Log(LogLevel.Critical, message);
@@ -23,39 +17,17 @@ public class LogService(ITimeService timeService) : ILogService
 
     public void Warning(string message) => Log(LogLevel.Warning, message);
 
-    public string[] GetLogs(int page = 1)
-    {
-        if (page is <=1 or >MAXIMUM_NUMBER_OF_PAGES)
-        {
-            page = 1;
-        }
-
-        lock (_lock)
-        {
-            return [.. _log.Skip(MAXIMUM_LOG_ENTRIES_PER_PAGE * (page - 1)).Take(MAXIMUM_LOG_ENTRIES_PER_PAGE)];
-        }
-    }
+    public string[] GetLogs(int page = 1) => CrossCutting.Log.GetLogs(page);
 
     private void Log(LogLevel logLevel, string message)
     {
-        lock (_lock)
-        {
-            var now = _timeService.Now;
-            foreach (var line in message.Split("\n").Reverse())
-            {
-                _log.AddFirst($"{now:u} [{logLevel.ToString().ToUpperInvariant()}] {line.Trim()}");
-            }
-
-            while (_log.Count > MAXIMUM_LOG_ENTRIES_PER_PAGE * MAXIMUM_NUMBER_OF_PAGES)
-            {
-                _log.RemoveLast();
-            }
-        }
+        var now = _timeService.Now;
+        CrossCutting.Log.AppendLines([.. message.Split("\n").Select(line => $"{now:u} [{logLevel.ToString().ToUpperInvariant()}] [{typeof(T).Name}] {line.Trim()}")]);
     }
 
     public int GetNumberOfPages() =>
         Enumerable
-            .Range(0, MAXIMUM_NUMBER_OF_PAGES)
+            .Range(0, CrossCutting.Log.MAXIMUM_NUMBER_OF_PAGES)
             .Where(pageNumber => GetLogs(pageNumber).Length != 0)
             .Max();
 }

@@ -6,21 +6,25 @@ namespace SeaCarp.Application.Services;
 
 public class DebugService(
     IDebugRepository debugRepository,
-    ILogService logService) : IDebugService
+    ILogService<DebugService> logService)
+    : IDebugService
 {
     private readonly IDebugRepository _debugRepository = debugRepository;
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<DebugService> _logService = logService;
 
-    public async Task<string> QueryDatabase(string query)
+    public Task<string> QueryDatabase(string query)
     {
         var output = _debugRepository.QueryDatabase(query);
         _logService.Information($"Executed debug database query: {query}");
-        return output;
+
+        return Task.FromResult(output);
     }
 
-    public async Task UpdateDatabase(string command)
+    public Task UpdateDatabase(string command)
     {
         _debugRepository.UpdateDatabase(command);
         _logService.Information($"Executed debug database update: {command}");
+
+        return Task.CompletedTask;
     }
 }

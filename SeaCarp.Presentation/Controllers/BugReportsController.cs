@@ -1,4 +1,5 @@
 ﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.CrossCutting.Config;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Models;
 using SeaCarp.Presentation.Attributes;
@@ -9,11 +10,12 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace SeaCarp.Presentation.Controllers;
 
 [SwaggerTag("Bug report management and submission")]
+[Authorize(Policy = Constants.Policies.IsCaseOfficer)]
 public class BugReportsController(
     IBugReportService bugReportService,
     IJwtService jwtService,
-    ILogService logService)
-    : BaseController(
+    ILogService<BugReportsController> logService)
+    : BaseController<BugReportsController>(
         jwtService,
         logService)
 {
@@ -21,7 +23,7 @@ public class BugReportsController(
 
     [HttpGet]
     [Route("/bugreports", Name = $"{nameof(BugReportsController)}/{nameof(Index)}")]
-    public IActionResult Index() =>
+    public async Task<IActionResult> Index() =>
         CurrentUser?.IsCaseOfficer ?? false
             ? View()
             : Unauthorized("User is not authorized to file bug reports.");
@@ -52,10 +54,6 @@ public class BugReportsController(
                 request.Description));
         LogService.Information($"Bug report titled '{request.Title}' submitted successfully by user '{CurrentUser.Username}'.");
 
-        return Json(new GenericResponse
-        {
-            Success = true,
-            RedirectUrl = "/"
-        });
+        return Ok(GenericResponse.SuccessResponse("/"));
     }
 }

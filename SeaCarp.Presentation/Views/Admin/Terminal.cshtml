@@ -3,15 +3,6 @@
     ViewData["Title"] = "Admin - Terminal";
 }
 
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage.Value))
-{
-    <div class="text-center mt-5">
-        <h2>Unauthorized</h2>
-        <h3>@Model.ErrorMessage</h3>
-    </div>
-    return;
-}
-
 <div class="container-fluid bash-terminal-page">
     <div class="row">
         <div class="col-12">

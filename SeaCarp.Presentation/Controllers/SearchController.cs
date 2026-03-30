@@ -1,8 +1,9 @@
-﻿using SeaCarp.Application.Services.Abstractions;
+using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Services.Abstractions;
-using SeaCarp.Presentation.Attributes;
+using SeaCarp.Presentation.Models.Contracts;
 using SeaCarp.Presentation.Models.ViewModels;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.RegularExpressions;
 
 namespace SeaCarp.Presentation.Controllers;
 
@@ -10,54 +11,24 @@ namespace SeaCarp.Presentation.Controllers;
 public class SearchController(
     IProductService productService,
     IJwtService jwtService,
-    ILogService logService)
-    : BaseController(
+    ILogService<SearchController> logService)
+    : BaseController<SearchController>(
         jwtService,
         logService)
 {
     private readonly IProductService _productService = productService;
 
-    #region Index
-
-    [HttpGet]
-    [Route("/search", Name = $"{nameof(SearchController)}/{nameof(Index_MVC)}")]
-    public async Task<IActionResult> Index_MVC([FromQuery] string q)
+    private async Task<SearchDto> ResolveSearch(string query)
     {
-        if (string.IsNullOrWhiteSpace(q))
+        if (string.IsNullOrWhiteSpace(query))
         {
             LogService.Warning("Search query is empty or null.");
-            return BadRequest("Search query is empty or null.");
+            return new SearchDto { SearchQuery = query, MatchingProducts = [] };
         }
 
-        return View("Index", new SearchViewModel(await Index_Common(q)));
-    }
-
-    [HttpGet]
-    [ApiEndpoint]
-    [Route("/api/v1/search", Name = $"{nameof(SearchController)}/{nameof(Index_SPA)}")]
-    [SwaggerOperation(
-        Summary = "Searches for products",
-        Description = "Searches for products matching the provided query string.",
-        OperationId = "SearchProducts",
-        Tags = new[] { "Search" }
-    )]
-    [SwaggerResponse(200, "Successfully returned search results", typeof(Models.Api.v1.Search))]
-    [SwaggerResponse(400, "Bad request - search query is empty")]
-    public async Task<IActionResult> Index_SPA([FromQuery] string q)
-    {
-        if (string.IsNullOrWhiteSpace(q))
-        {
-            LogService.Warning("Search query is empty or null.");
-            return BadRequest("Search query is empty or null.");
-        }
-
-        return Json(await Index_Common(q));
-    }
-
-    private async Task<Models.Api.v1.Search> Index_Common(string query)
-    {
-        var matchingProducts = await _productService.GetProducts([.. query.Split([' ', '\t', '\n'], StringSplitOptions.RemoveEmptyEntries)]);
-        if (matchingProducts.Any())
+        var keywords = Regex.Split(query, @"\s+").Where(k => !string.IsNullOrWhiteSpace(k)).ToArray();
+        var matchingProducts = await _productService.GetProducts(keywords);
+        if (matchingProducts.Count != 0)
         {
             LogService.Information($"Found {matchingProducts.Count} products matching the search query '{query}'.");
         }
@@ -66,8 +37,24 @@ public class SearchController(
             LogService.Warning($"No products found matching the search query '{query}'.");
         }
 
-        return new Models.Api.v1.Search(query, [.. matchingProducts.Select(product => new Models.Api.v1.Product(product))]);
+        return new SearchDto
+        {
+            SearchQuery = query,
+            MatchingProducts = [.. matchingProducts.Select(product => new ProductDto(product))]
+        };
     }
 
-    #endregion Index
+    [HttpGet]
+    [Route("/search", Name = $"{nameof(SearchController)}/{nameof(Index)}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Index([FromQuery] string q)
+    {
+        if (string.IsNullOrWhiteSpace(q))
+        {
+            LogService.Warning("Search query is empty or null.");
+            return BadRequest("Search query is empty or null.");
+        }
+
+        return View("Index", new SearchViewModel(await ResolveSearch(q)));
+    }
 }

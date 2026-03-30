@@ -17,7 +17,7 @@ public class StockingJob(IServiceScopeFactory scopeFactory) : BackgroundService
         {
             using var scope = _scopeFactory.CreateScope();
             var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
-            var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+            var logService = scope.ServiceProvider.GetRequiredService<ILogService<StockingJob>>();
 
             var products = productRepository.GetAllProducts();
             foreach (var product in products)

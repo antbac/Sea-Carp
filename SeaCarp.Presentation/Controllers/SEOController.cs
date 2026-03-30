@@ -11,9 +11,9 @@ namespace SeaCarp.Presentation.Controllers;
 public class SEOController(
     IActionDescriptorCollectionProvider provider,
     IJwtService jwtService,
-    ILogService logService,
+    ILogService<SEOController> logService,
     ITimeService timeService)
-    : BaseController(
+    : BaseController<SEOController>(
         jwtService,
         logService)
 {
@@ -24,15 +24,16 @@ public class SEOController(
 
     [HttpGet]
     [Route("/robots.txt", Name = $"{nameof(SEOController)}/{nameof(RobotsTxt)}")]
+    [AllowAnonymous]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
-    public IActionResult RobotsTxt()
+    public async Task<IActionResult> RobotsTxt()
     {
         var hiddenUrls = new string[] {
-            $"{Url.Action(nameof(AdminController.Index_MVC), nameof(AdminController).RemoveControllerSuffix())}/",
+            $"{Url.Action(nameof(AdminController.Index), nameof(AdminController).RemoveControllerSuffix())}/",
             "/swagger/",
         };
 
-        var sitemapUrl = Url.ActionLink(nameof(SEOController.SitemapXml), nameof(SEOController).RemoveControllerSuffix());
+        var sitemapUrl = Url.ActionLink(nameof(SitemapXml), nameof(SEOController).RemoveControllerSuffix());
 
         return Content($"User-agent: *\r\nDisallow: {string.Join("\r\nDisallow: ", hiddenUrls)}\r\nSitemap: {sitemapUrl}", "text/plain");
     }
@@ -43,8 +44,9 @@ public class SEOController(
 
     [HttpGet]
     [Route("/sitemap.xml", Name = $"{nameof(SEOController)}/{nameof(SitemapXml)}")]
+    [AllowAnonymous]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
-    public IActionResult SitemapXml()
+    public async Task<IActionResult> SitemapXml()
     {
         var sitemapNodes = new List<SitemapNode>();
         var actionDescriptors = _provider.ActionDescriptors.Items;
@@ -61,11 +63,7 @@ public class SEOController(
                     .GetCustomAttributes(typeof(ApiEndpointAttribute), inherit: true)
                     .Any();
 
-                var isIgnoredEndpoint = cad.MethodInfo
-                    .GetCustomAttributes(typeof(SitemapIgnoreAttribute), inherit: true)
-                    .Any();
-
-                if (isIgnoredEndpoint || isApiEndpoint || !hasHttpGet)
+                if (isApiEndpoint || !hasHttpGet)
                 {
                     continue;
                 }

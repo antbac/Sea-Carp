@@ -50,17 +50,44 @@ RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-t
 # Copy the published app
 COPY --from=build /app/publish .
 
+# Copy seed data from repo root
+COPY users.json .
+
 # Copy the startup script and make it executable
 COPY startup .
 COPY chkpass /bin/chkpass
-COPY rndpass /bin/rndpass
+COPY usesecurepass /bin/usesecurepass
 COPY pwn /bin/pwn
+COPY updateappsettings /bin/updateappsettings
 
 # Fix potential line ending issues and ensure scripts are executable
-RUN sed -i 's/\r$//' startup && chmod 700 startup
-RUN chmod 700 /bin/chkpass
-RUN chmod 700 /bin/rndpass
-RUN chmod 700 /bin/pwn
+RUN sed -i 's/\r$//' startup /bin/chkpass /bin/usesecurepass /bin/pwn /bin/updateappsettings \
+    && chmod +x /bin/pwn
+
+# Creating a secure password for the root user
+RUN /bin/usesecurepass
+
+# Create a non-root user and switch to it for better security
+RUN apt-get update && apt-get install -y sudo \
+    && useradd -m -s /bin/bash -G shadow seacarp \
+    && echo "seacarp ALL=(root) NOPASSWD: /bin/pwn, /bin/usesecurepass, /bin/updateappsettings" > /etc/sudoers.d/seacarp-ops \
+    && chmod 440 /etc/sudoers.d/seacarp-ops \
+    && su -s /bin/bash -c "sudo -n /bin/usesecurepass" seacarp \
+    && chown root:root /app \
+    && find /app -type d -exec chmod 755 {} \; \
+    && find /app -type f -exec chmod 644 {} \; \
+    && chown -R seacarp:seacarp /app/wwwroot \
+    && chmod 755 /app/startup \
+    && chmod +x /app/runtimes/linux/native/selenium-manager \
+    && chown seacarp:seacarp /bin/usesecurepass /bin/chkpass \
+    && chmod 700 /bin/usesecurepass /bin/chkpass \
+    && chown root:root /bin/updateappsettings \
+    && chmod 700 /bin/updateappsettings \
+    && chmod a-w /home/seacarp/.bash_logout /home/seacarp/.bashrc /home/seacarp/.profile \
+    && chgrp shadow /etc/shadow \
+    && chmod 640 /etc/shadow \
+    && rm -rf /var/lib/apt/lists/*
+USER seacarp
 
 # Set the entry point to our startup script
 ENTRYPOINT ["./startup"]

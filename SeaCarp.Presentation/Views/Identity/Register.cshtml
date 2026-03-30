@@ -1,4 +1,5 @@
-﻿<div class="container">
+﻿@using SeaCarp.Presentation.Controllers.Api
+<div class="container">
     <main>
         <h1>Register</h1>
         <br />
@@ -100,7 +101,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#register_form').onsubmit = (e) => {
                 e.preventDefault();
-                fetch('@Url.Action(nameof(IdentityController.CreateAccount), nameof(IdentityController).RemoveControllerSuffix())', {
+                fetch('@Url.Action(nameof(IdentityApiController.CreateAccount), nameof(IdentityApiController).RemoveControllerSuffix())', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

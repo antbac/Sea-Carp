@@ -12,6 +12,6 @@ public static class IocSetup
             .AddScoped<IFileService, FileService>()
             .AddScoped<IHttpService, HttpService>()
             .AddScoped<IJwtService, JwtService>()
-            .AddScoped<ILogService, LogService>()
+            .AddScoped(typeof(ILogService<>), typeof(LogService<>))
             .AddScoped<ITimeService, TimeService>();
 }

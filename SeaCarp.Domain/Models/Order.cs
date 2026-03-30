@@ -1,4 +1,6 @@
-﻿namespace SeaCarp.Domain.Models;
+﻿using SeaCarp.Domain.Models.Enums;
+
+namespace SeaCarp.Domain.Models;
 
 public class Order
 {
@@ -14,13 +16,19 @@ public class Order
     public List<OrderItem> OrderItems { get; internal set; } = [];
     public List<SupportCase> SupportCases { get; internal set; } = [];
 
-    public static Order Create(string username, DateTime orderDate, OrderStatus orderStatus, string deliveryAddress, IEnumerable<OrderItem> orderItems) => new()
+    public static Order Create(string username, DateTime orderDate, OrderStatus orderStatus, string deliveryAddress, IEnumerable<OrderItem> orderItems) => true switch
     {
-        User = username,
-        OrderDate = orderDate,
-        Status = orderStatus,
-        DeliveryAddress = deliveryAddress,
-        OrderItems = orderItems.ToList(),
+        _ when string.IsNullOrWhiteSpace(username) => throw new ArgumentNullException(nameof(username), "Username cannot be null or whitespace."),
+        _ when string.IsNullOrWhiteSpace(deliveryAddress) => throw new ArgumentNullException(nameof(deliveryAddress), "Delivery address cannot be null or whitespace."),
+        _ when orderItems == null => throw new ArgumentNullException(nameof(orderItems), "Order items cannot be null."),
+        _ => new()
+        {
+            User = username,
+            OrderDate = orderDate,
+            Status = orderStatus,
+            DeliveryAddress = deliveryAddress,
+            OrderItems = orderItems.ToList(),
+        }
     };
 
     public Order AddItems(IEnumerable<OrderItem> orderItems)

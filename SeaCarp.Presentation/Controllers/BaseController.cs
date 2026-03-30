@@ -4,12 +4,15 @@ using SeaCarp.Infrastructure;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public abstract class BaseController(
+[Consumes("application/json")]
+[Authorize(Policy = Constants.Policies.IsAuthenticated)]
+public abstract class BaseController<T>(
     IJwtService jwtService,
-    ILogService logService) : Controller
+    ILogService<T> logService)
+    : Controller
 {
     private readonly IJwtService _jwtService = jwtService;
-    protected readonly ILogService LogService = logService;
+    protected readonly ILogService<T> LogService = logService;
 
     protected Domain.Models.User CurrentUser
     {

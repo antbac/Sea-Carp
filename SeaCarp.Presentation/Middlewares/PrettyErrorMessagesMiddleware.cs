@@ -1,4 +1,5 @@
-﻿using SeaCarp.Presentation.Models.Responses;
+﻿using SeaCarp.CrossCutting.Services.Abstractions;
+using SeaCarp.Presentation.Models.Responses;
 
 namespace SeaCarp.Presentation.Middlewares;
 
@@ -14,15 +15,19 @@ public static class PrettyErrorMessagesMiddleware
             }
             catch (Exception e)
             {
-                var response = new GenericResponse
+                var logService = context.RequestServices.GetService<ILogService<Program>>();
+                if (!string.IsNullOrWhiteSpace(e.StackTrace))
                 {
-                    Success = false,
-                    ErrorMessage = e.Message,
-                    StackTrace = e.StackTrace,
-                };
+                    logService.Error(e.StackTrace);
+                }
+
+                logService.Error(e.Message);
+
+                var response = GenericResponse.ErrorResponse(e.Message, e.StackTrace);
 
                 context.Response.ContentType = "application/json";
-                context.Response.StatusCode = 200;
+                context.Response.StatusCode = string.IsNullOrWhiteSpace(e.StackTrace) ? 400 : 500;
+
                 await context.Response.WriteAsJsonAsync(response);
             }
         });

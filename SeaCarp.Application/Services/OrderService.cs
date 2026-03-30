@@ -2,6 +2,7 @@
 using SeaCarp.CrossCutting.Services.Abstractions;
 using SeaCarp.Domain.Abstractions;
 using SeaCarp.Domain.Models;
+using SeaCarp.Domain.Models.Enums;
 
 namespace SeaCarp.Application.Services;
 
@@ -11,7 +12,7 @@ public class OrderService(
     IProductService productService,
     IProductRepository productRepository,
     ISupportCaseRepository supportCaseRepository,
-    ILogService logService,
+    ILogService<OrderService> logService,
     ITimeService timeService) : IOrderService
 {
     private readonly IOrderRepository _orderRepository = orderRepository;
@@ -19,7 +20,7 @@ public class OrderService(
     private readonly IProductService _productService = productService;
     private readonly IProductRepository _productRepository = productRepository;
     private readonly ISupportCaseRepository _supportCaseRepository = supportCaseRepository;
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<OrderService> _logService = logService;
     private readonly ITimeService _timeService = timeService;
 
     public async Task<(bool orderPlaced, string errorMessage)> CreateOrder(
@@ -112,7 +113,7 @@ public class OrderService(
         return (true, null);
     }
 
-    public async Task<Order> GetNewestOrder()
+    public Task<Order> GetNewestOrder()
     {
         var order = _orderRepository.GetNewestOrder();
 
@@ -121,10 +122,10 @@ public class OrderService(
         var supportCases = _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
         order.AppendSupportCases(supportCases);
 
-        return order;
+        return Task.FromResult(order);
     }
 
-    public async Task<Order> GetOrder(string orderNumber)
+    public Task<Order> GetOrder(string orderNumber)
     {
         var order = _orderRepository.GetOrder(orderNumber);
 
@@ -133,13 +134,15 @@ public class OrderService(
         var supportCases = _supportCaseRepository.GetSupportCasesByOrderId(order.Id);
         order.AppendSupportCases(supportCases);
 
-        return order;
+        return Task.FromResult(order);
     }
 
-    public async Task UpdateOrder(int id, Order order)
+    public Task UpdateOrder(int id, Order order)
     {
         _orderRepository.UpdateOrder(id, order);
 
         _logService.Information($"Order {order.OrderNumber} updated with {order.OrderItems.Sum(orderItem => orderItem.Quantity)} products.");
+
+        return Task.CompletedTask;
     }
 }

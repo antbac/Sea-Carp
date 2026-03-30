@@ -15,14 +15,20 @@ public class SupportCase
     public User CaseOfficer { get; internal set; }
     public List<SupportCaseNote> Notes { get; set; } = [];
 
-    public static SupportCase Create(Order order, string description, string image, DateTime CreatedDate, SupportCaseStatus status) => new()
+    public static SupportCase Create(Order order, string description, string image, DateTime CreatedDate, SupportCaseStatus status) => true switch
     {
-        Order = order,
-        Description = description,
-        Image = image,
-        CreatedDate = CreatedDate,
-        Status = status,
-        Notes = [],
+        _ when order == null => throw new ArgumentNullException(nameof(order), "Order cannot be null."),
+        _ when string.IsNullOrWhiteSpace(description) => throw new ArgumentNullException(nameof(description), "Description cannot be null or whitespace."),
+        _ when status == SupportCaseStatus.Unknown => throw new ArgumentException("Status cannot be Unknown.", nameof(status)),
+        _ => new()
+        {
+            Order = order,
+            Description = description,
+            Image = image,
+            CreatedDate = CreatedDate,
+            Status = status,
+            Notes = [],
+        }
     };
 
     public SupportCase UpdateStatus(SupportCaseStatus status)

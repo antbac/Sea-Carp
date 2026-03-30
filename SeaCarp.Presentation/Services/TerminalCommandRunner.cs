@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace SeaCarp.Presentation.Services;
 
@@ -14,12 +14,14 @@ internal static class TerminalCommandRunner
         var psi = new ProcessStartInfo
         {
             FileName = "/bin/bash",
-            Arguments = $"-lc \"{EscapeForBash(command)}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
+
+        psi.ArgumentList.Add("-lc");
+        psi.ArgumentList.Add(command);
 
         using var process = new Process { StartInfo = psi };
         process.Start();
@@ -62,12 +64,10 @@ internal static class TerminalCommandRunner
 
     private static string EscapeForBash(string command)
     {
-        // We wrap in "..." for -lc "<cmd>". Escape backslashes and quotes.
-        // Note: this is not a security boundary; authentication/authorization must protect this endpoint.
-        return (command ?? string.Empty)
-            .Replace("\\", "\\\\")
-            .Replace("\"", "\\\"")
+        var sanitized = (command ?? string.Empty)
             .Replace("\r", string.Empty)
             .Replace("\n", "; ");
+
+        return sanitized.Replace("'", "'\\''");
     }
 }

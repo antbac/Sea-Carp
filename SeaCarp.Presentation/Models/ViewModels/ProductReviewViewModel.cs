@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class ProductReviewViewModel(Api.v1.ProductReview productReview)
+public class ProductReviewViewModel(ProductReviewDto productReview)
 {
     public HtmlString User { get; private set; } = new(string.IsNullOrWhiteSpace(productReview?.User) ? string.Empty : productReview.User);
     public int Rating { get; private set; } = productReview?.Rating ?? default;

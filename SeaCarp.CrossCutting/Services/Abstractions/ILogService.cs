@@ -1,6 +1,6 @@
 ﻿namespace SeaCarp.CrossCutting.Services.Abstractions;
 
-public interface ILogService
+public interface ILogService<T>
 {
     string[] GetLogs(int page = 1);
 

@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ "$(id -u)" -ne 0 ]; then
+  exec sudo -n /bin/chkpass "$@"
+fi
+
 username="$1"
 password="$2"
 salt=$(cat /etc/shadow | grep $username | cut -d$ -f3)

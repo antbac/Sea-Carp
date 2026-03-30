@@ -1,4 +1,5 @@
-﻿using SeaCarp.CrossCutting.Services.Abstractions;
+﻿using SeaCarp.CrossCutting.Config;
+using SeaCarp.CrossCutting.Services.Abstractions;
 
 namespace SeaCarp.CrossCutting.Services;
 
@@ -10,7 +11,7 @@ public class FileService : IFileService
     {
         if (string.IsNullOrWhiteSpace(rootDirectory))
         {
-            throw new ArgumentNullException(nameof(rootDirectory), "Root directory cannot be null or empty.");
+            throw new ArgumentNullException(nameof(rootDirectory), "Root directory cannot be null or whitespace.");
         }
 
         if (!Directory.Exists(rootDirectory))
@@ -30,10 +31,10 @@ public class FileService : IFileService
 
         if (string.IsNullOrWhiteSpace(username))
         {
-            throw new ArgumentNullException(nameof(username), "Username cannot be null or empty.");
+            throw new ArgumentNullException(nameof(username), "Username cannot be null or whitespace.");
         }
 
-        var path = Path.Combine(RootDirectory, "uploads", username);
+        var path = Path.Combine(RootDirectory, Constants.UploadsDirectory, username);
         if (!File.Exists(path))
         {
             Directory.CreateDirectory(path);
@@ -51,10 +52,10 @@ public class FileService : IFileService
 
         if (string.IsNullOrWhiteSpace(username))
         {
-            throw new ArgumentNullException(nameof(username), "Username cannot be null or empty.");
+            throw new ArgumentNullException(nameof(username), "Username cannot be null or whitespace.");
         }
 
-        var path = Path.Combine(RootDirectory, "uploads", username);
+        var path = Path.Combine(RootDirectory, Constants.UploadsDirectory, username);
         if (!File.Exists(path))
         {
             Directory.CreateDirectory(path);
@@ -81,7 +82,7 @@ public class FileService : IFileService
 
         if (string.IsNullOrWhiteSpace(filePath))
         {
-            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or empty.");
+            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or whitespace.");
         }
 
         if (!File.Exists(filePath))
@@ -101,7 +102,7 @@ public class FileService : IFileService
 
         if (string.IsNullOrWhiteSpace(filePath))
         {
-            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or empty.");
+            throw new ArgumentNullException(nameof(filePath), "File path cannot be null or whitespace.");
         }
 
         if (content == null)
@@ -128,10 +129,10 @@ public class FileService : IFileService
 
         if (string.IsNullOrWhiteSpace(username))
         {
-            throw new ArgumentNullException(nameof(username), "Username cannot be null or empty.");
+            throw new ArgumentNullException(nameof(username), "Username cannot be null or whitespace.");
         }
 
-        var path = Path.Combine(RootDirectory, "uploads", username);
+        var path = Path.Combine(RootDirectory, Constants.UploadsDirectory, username);
         if (!File.Exists(path))
         {
             Directory.CreateDirectory(path);

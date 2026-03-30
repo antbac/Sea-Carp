@@ -28,4 +28,29 @@ public class AuthenticationSettings
             }
         }
     }
+
+    public static string RootTerminalKey
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(field))
+            {
+                var buffer = new byte[16];
+                RandomNumberGenerator.Fill(buffer);
+                field = Convert.ToHexString(buffer).ToUpperInvariant();
+            }
+
+            return field;
+        }
+
+        set
+        {
+            if (string.IsNullOrWhiteSpace(field))
+            {
+                var buffer = new byte[16];
+                RandomNumberGenerator.Fill(buffer);
+                field = Convert.ToHexString(buffer).ToUpperInvariant();
+            }
+        }
+    }
 }

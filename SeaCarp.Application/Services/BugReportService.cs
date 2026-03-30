@@ -7,27 +7,33 @@ namespace SeaCarp.Application.Services;
 
 public class BugReportService(
     IBugReportRepository bugReportRepository,
-    ILogService logService) : IBugReportService
+    ILogService<BugReportService> logService)
+    : IBugReportService
 {
     private readonly IBugReportRepository _bugReportRepository = bugReportRepository;
-    private readonly ILogService _logService = logService;
+    private readonly ILogService<BugReportService> _logService = logService;
 
-    public async Task CreateBugReport(BugReport bugReport)
+    public Task CreateBugReport(BugReport bugReport)
     {
         _bugReportRepository.CreateBugReport(bugReport);
         _logService.Information($"Bug report '{bugReport.Title}' submitted by '{bugReport.FiledBy}'.");
+
+        return Task.CompletedTask;
     }
 
-    public async Task<List<BugReport>> GetOpenBugReports()
+    public Task<List<BugReport>> GetOpenBugReports()
     {
         var reports = _bugReportRepository.GetOpenBugReports();
         _logService.Information($"Retrieved {reports.Count} open bug reports.");
-        return reports;
+
+        return Task.FromResult(reports);
     }
 
-    public async Task CloseBugReport(int id)
+    public Task CloseBugReport(int id)
     {
         _bugReportRepository.CloseBugReport(id);
         _logService.Information($"Closed bug report {id}.");
+
+        return Task.CompletedTask;
     }
 }

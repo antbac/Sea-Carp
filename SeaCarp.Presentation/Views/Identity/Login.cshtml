@@ -1,4 +1,5 @@
-﻿<div class="container">
+﻿@using SeaCarp.Presentation.Controllers.Api
+<div class="container">
     <main>
         <h1>Log in</h1>
         <br />
@@ -87,7 +88,7 @@
                 }
 
                 e.preventDefault();
-                fetch('@Url.Action(nameof(IdentityController.Login), nameof(IdentityController).RemoveControllerSuffix())', {
+                fetch('@Url.Action(nameof(IdentityApiController.Login), nameof(IdentityApiController).RemoveControllerSuffix())', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -109,7 +110,7 @@
                     if (returnUrl) {
                         window.location = returnUrl;
                     } else {
-                        window.location = '@Url.ActionLink(nameof(ProfilesController.GetProfile), nameof(ProfilesController).RemoveControllerSuffix())';
+                        window.location = '@Url.ActionLink(nameof(UsersController.GetProfile), nameof(UsersController).RemoveControllerSuffix())';
                     }
                 });
             };

@@ -1,6 +1,8 @@
-﻿namespace SeaCarp.Presentation.Models.ViewModels;
+using SeaCarp.Presentation.Models.Contracts;
 
-public class OrderItemViewModel(Api.v1.OrderItem orderItem)
+namespace SeaCarp.Presentation.Models.ViewModels;
+
+public class OrderItemViewModel(OrderItemDto orderItem)
 {
     public ProductViewModel Product { get; private set; } = new(orderItem?.Product);
     public int Quantity { get; private set; } = orderItem?.Quantity ?? default;

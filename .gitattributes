@@ -1,0 +1,63 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# C# and .NET files
+*.cs text eol=lf
+*.csproj text eol=lf
+*.sln text eol=lf
+*.xaml text eol=lf
+*.config text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+
+# Web files
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+startup text eol=lf
+pwn text eol=lf
+usesecurepass text eol=lf
+chkpass text eol=lf
+
+# Docker
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+.dockerignore text eol=lf
+
+# Documentation and config
+*.md text eol=lf
+*.txt text eol=lf
+.editorconfig text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files
+*.dll binary
+*.exe binary
+*.so binary
+*.dylib binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.otf binary
+*.db binary
+*.sqlite binary

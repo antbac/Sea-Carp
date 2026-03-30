@@ -13,13 +13,21 @@ public class Product
     public int Stock { get; internal set; }
     public List<Review> Reviews { get; internal set; }
 
-    public static Product Create(string productName, string description, decimal price, string category, int stock) => new()
+    public static Product Create(string productName, string description, decimal price, string category, int stock) => true switch
     {
-        ProductName = productName,
-        Description = description,
-        Price = price,
-        Category = category,
-        Stock = stock,
+        _ when string.IsNullOrWhiteSpace(productName) => throw new ArgumentNullException(nameof(productName), "Product name cannot be null or whitespace."),
+        _ when price < 0 => throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative."),
+        _ when string.IsNullOrWhiteSpace(category) => throw new ArgumentNullException(nameof(category), "Category cannot be null or whitespace."),
+        _ when stock < 0 => throw new ArgumentOutOfRangeException(nameof(stock), "Stock cannot be negative."),
+        _ => new()
+        {
+            ProductName = productName,
+            Description = description,
+            Price = price,
+            Category = category,
+            Stock = stock,
+            Reviews = [],
+        }
     };
 
     public Product AddStock(int addedStock)

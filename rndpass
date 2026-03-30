@@ -1,7 +1,0 @@
-#!/bin/bash
-username="$1"
-new_password=$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9/+' | head -c 32)
-salt=$(openssl rand -base64 24 | tr -dc 'a-zA-Z0-9/+' | head -c 32)
-hashed_password=$(openssl passwd -6 -salt $salt $new_password)
-old_hashed_password=$(cat /etc/shadow | grep $username | cut -d: -f2)
-sed -i "s|$username:$old_hashed_password|$username:$hashed_password|g" /etc/shadow

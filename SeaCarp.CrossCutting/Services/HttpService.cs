@@ -7,11 +7,11 @@ public class HttpService : IHttpService
 {
     private readonly HttpClient _httpClient = new();
 
-    public async Task<object> FetchContent(string url, OutputType outputType, AuthenticationLevel authenticationLevel)
+    public async Task<object> FetchContent(string url, OutputType outputType, string jwt)
     {
         if (string.IsNullOrWhiteSpace(url))
         {
-            throw new ArgumentException("URL cannot be null or empty.", nameof(url));
+            throw new ArgumentException("URL cannot be null or whitespace.", nameof(url));
         }
 
         if (outputType == OutputType.Unknown)
@@ -44,7 +44,7 @@ public class HttpService : IHttpService
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
 
         AddClientId(request);
-        AddAuthenticationLevel(request, authenticationLevel);
+        ForwardUserIdentification(request, jwt);
 
         using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
@@ -86,13 +86,14 @@ public class HttpService : IHttpService
         return uri;
     }
 
-    private static void AddAuthenticationLevel(HttpRequestMessage request, AuthenticationLevel authenticationLevel)
+    private static void ForwardUserIdentification(HttpRequestMessage request, string jwt)
     {
         if (request.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
             request.RequestUri.Host.Equals("127.0.0.1") ||
             request.RequestUri.Host.Equals("[::1]"))
         {
-            request.Headers.TryAddWithoutValidation("AuthenticationLevel", authenticationLevel.ToString());
+            request.Headers.TryAddWithoutValidation(Constants.AuthorizationHeaderName, $"{Constants.BearerScheme}{jwt}");
+            request.Headers.TryAddWithoutValidation(Constants.CookieHeaderName, jwt);
         }
     }
 
@@ -102,7 +103,7 @@ public class HttpService : IHttpService
             request.RequestUri.Host.Equals("127.0.0.1") ||
             request.RequestUri.Host.Equals("[::1]"))
         {
-            request.Headers.TryAddWithoutValidation("ClientId", AuthenticationSettings.ClientId);
+            request.Headers.TryAddWithoutValidation(Constants.ClientIdHeaderName, AuthenticationSettings.ClientId);
         }
     }
 }

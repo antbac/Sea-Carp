@@ -19,16 +19,18 @@ public static class AuthenticationMiddleware
             var apiEndpointAttribute = endpoint?.Metadata.GetMetadata<ApiEndpointAttribute>();
             var isCallForApiEndpoint = apiEndpointAttribute != null;
 
-            if (isCallForApiEndpoint)
+            var isTokenEndpoint = context.Request.Path.StartsWithSegments(Constants.TokenEndpoint);
+
+            if (isCallForApiEndpoint && !isTokenEndpoint)
             {
                 var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
-                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith(Constants.BearerScheme, StringComparison.OrdinalIgnoreCase))
                 {
                     await next(context);
                     return;
                 }
 
-                token = authHeader["Bearer ".Length..].Trim();
+                token = authHeader[Constants.BearerScheme.Length..].Trim();
             }
             else if (!context.Request.Cookies.TryGetValue(Constants.JWT, out token) || string.IsNullOrWhiteSpace(token))
             {
@@ -57,7 +59,7 @@ public static class AuthenticationMiddleware
             }
             catch (Exception)
             {
-                if (!isCallForApiEndpoint)
+                if (!isCallForApiEndpoint || isTokenEndpoint)
                 {
                     context.Response.Cookies.Delete(Constants.JWT);
                 }

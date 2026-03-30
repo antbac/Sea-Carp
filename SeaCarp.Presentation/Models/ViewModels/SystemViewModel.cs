@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class SystemViewModel(Api.v1.System system)
+public class SystemViewModel(SystemDto system)
 {
     public HtmlString LastDeployment { get; private set; } = new((system?.LastDeployment ?? default).ToString("yyy-MM-dd:HH:mm:ss"));
     public HtmlString AdminEmail { get; private set; } = new(string.IsNullOrWhiteSpace(system?.AdminEmail) ? string.Empty : system.AdminEmail);

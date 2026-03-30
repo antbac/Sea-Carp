@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Html;
+using SeaCarp.Presentation.Models.Contracts;
 
 namespace SeaCarp.Presentation.Models.ViewModels;
 
-public class ProductViewModel(Api.v1.Product product)
+public class ProductViewModel(ProductDto product)
 {
     public int Id { get; private set; } = product?.Id ?? default;
     public HtmlString ProductName { get; private set; } = new(string.IsNullOrWhiteSpace(product?.ProductName) ? string.Empty : product.ProductName);
