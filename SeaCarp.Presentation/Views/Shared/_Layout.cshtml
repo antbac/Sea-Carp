@@ -1,6 +1,11 @@
 ﻿@using System.Diagnostics
 @using SeaCarp.Infrastructure
 @using SeaCarp.Presentation.Controllers.Api
+@{
+    var cartItemCount = Context.Items.TryGetValue(Constants.CartItemCountKey, out var cartCountObj) && cartCountObj is int serverCartCount
+        ? serverCartCount
+        : 0;
+}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -71,10 +76,10 @@
                             <li id="top_menu_dropdown_divider">
                                 <hr class="dropdown-divider" />
                             </li>
-                            <li id="top_menu_dropdown_cart">
+                            <li id="top_menu_dropdown_cart"@(cartItemCount > 0 ? "" : Html.Raw(" style=\"display: none\""))>
                                 <a class="dropdown-item" href="/@nameof(CartController).RemoveControllerSuffix()">
                                     Cart
-                                    <span id="cartBadge" class="badge bg-secondary ms-1"></span>
+                                    <span id="cartBadge" class="badge bg-secondary ms-1"@(cartItemCount > 0 ? "" : Html.Raw(" style=\"display: none\""))>@(cartItemCount > 0 ? cartItemCount.ToString() : "")</span>
                                 </a>
                             </li>
                         </ul>
@@ -162,6 +167,7 @@
         {
             <text>
                 localStorage.removeItem("cartItems");
+                SeaCarpCart.clear();
             </text>
         }
         @if (RequestContext.Instance.CurrentUser.Value is not null && RequestContext.Instance.CurrentUser.Value.IsAdmin)
@@ -178,22 +184,12 @@
         }
             setInterval(() => {
                 const cartBadge = document.getElementById("cartBadge");
-                let cartItems = localStorage.getItem("cartItems");
-                if (cartItems) {
+                const items = SeaCarpCart.get();
+                if (items && items.length > 0) {
                     document.getElementById("top_menu_dropdown_divider").style.display = 'list-item';
                     document.getElementById("top_menu_dropdown_cart").style.display = 'list-item';
-                    try {
-                        const items = JSON.parse(cartItems);
-                        if (items && items.length > 0) {
-                            cartBadge.innerText = items.length;
-                            cartBadge.style.display = 'inline-block';
-                        } else {
-                            cartBadge.style.display = 'none';
-                        }
-                    } catch (error) {
-                        console.error("Error parsing cartItems:", error);
-                        cartBadge.style.display = 'none';
-                    }
+                    cartBadge.innerText = items.length;
+                    cartBadge.style.display = 'inline-block';
                 } else {
                     cartBadge.style.display = 'none';
                     document.getElementById("top_menu_dropdown_divider").style.display = 'none';

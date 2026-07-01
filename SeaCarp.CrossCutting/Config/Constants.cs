@@ -9,6 +9,8 @@ public static class Constants
     public const string ControllerSuffix = "Controller";
     public const string AdminAuthenticationCookieName = "AdminAuthentication";
     public const string AdminTerminalAuthenticationCookieName = "AdminTerminalAuthentication";
+    public const string CartCookieName = "cart";
+    public const string CartItemCountKey = "CartItemCount";
 
     public const string BearerScheme = "Bearer ";
     public const string TokenEndpoint = "/api/v1/identity/token";

@@ -8,12 +8,12 @@ using System.Xml;
 
 namespace SeaCarp.Presentation.Controllers;
 
-public class SEOController(
+public class SeoController(
     IActionDescriptorCollectionProvider provider,
     IJwtService jwtService,
-    ILogService<SEOController> logService,
+    ILogService<SeoController> logService,
     ITimeService timeService)
-    : BaseController<SEOController>(
+    : BaseController<SeoController>(
         jwtService,
         logService)
 {
@@ -23,7 +23,7 @@ public class SEOController(
     #region RobotsTxt
 
     [HttpGet]
-    [Route("/robots.txt", Name = $"{nameof(SEOController)}/{nameof(RobotsTxt)}")]
+    [Route("/robots.txt", Name = $"{nameof(SeoController)}/{nameof(RobotsTxt)}")]
     [AllowAnonymous]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> RobotsTxt()
@@ -33,7 +33,7 @@ public class SEOController(
             "/swagger/",
         };
 
-        var sitemapUrl = Url.ActionLink(nameof(SitemapXml), nameof(SEOController).RemoveControllerSuffix());
+        var sitemapUrl = Url.ActionLink(nameof(SitemapXml), nameof(SeoController).RemoveControllerSuffix());
 
         return Content($"User-agent: *\r\nDisallow: {string.Join("\r\nDisallow: ", hiddenUrls)}\r\nSitemap: {sitemapUrl}", "text/plain");
     }
@@ -43,7 +43,7 @@ public class SEOController(
     #region SitemapXml
 
     [HttpGet]
-    [Route("/sitemap.xml", Name = $"{nameof(SEOController)}/{nameof(SitemapXml)}")]
+    [Route("/sitemap.xml", Name = $"{nameof(SeoController)}/{nameof(SitemapXml)}")]
     [AllowAnonymous]
     [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> SitemapXml()
@@ -57,11 +57,11 @@ public class SEOController(
             {
                 var hasHttpGet = cad.MethodInfo
                     .GetCustomAttributes(typeof(HttpGetAttribute), inherit: true)
-                    .Any();
+                    .Length != 0;
 
                 var isApiEndpoint = cad.MethodInfo
                     .GetCustomAttributes(typeof(ApiEndpointAttribute), inherit: true)
-                    .Any();
+                    .Length != 0;
 
                 if (isApiEndpoint || !hasHttpGet)
                 {

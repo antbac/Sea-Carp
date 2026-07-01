@@ -85,13 +85,16 @@ public class SupportCasesApiController(
     [SwaggerResponse(200, "Successfully created support case or returned an error message", typeof(GenericResponse))]
     public async Task<IActionResult> CreateSupportCase([FromBody] CreateSupportCaseRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.ImageName) || string.IsNullOrWhiteSpace(request.ProductImage))
+        var hasImageName = !string.IsNullOrWhiteSpace(request.ImageName);
+        var hasProductImage = !string.IsNullOrWhiteSpace(request.ProductImage);
+
+        if (hasImageName != hasProductImage)
         {
             LogService.Warning("Support case creation failed due to missing image name or product image.");
             return BadRequest(GenericResponse.ErrorResponse("An error occurred when handling the image"));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.ImageName) && !request.ImageName.Contains(".png", StringComparison.InvariantCultureIgnoreCase))
+        if (hasImageName && !request.ImageName.Contains(".png", StringComparison.InvariantCultureIgnoreCase))
         {
             LogService.Warning("Support case creation failed due to invalid image name.");
             return BadRequest(GenericResponse.ErrorResponse("The filename does not contain .png"));

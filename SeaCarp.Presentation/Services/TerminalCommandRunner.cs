@@ -61,13 +61,4 @@ internal static class TerminalCommandRunner
 
         return new Result(exitCode, stdOut, stdErr, timedOut);
     }
-
-    private static string EscapeForBash(string command)
-    {
-        var sanitized = (command ?? string.Empty)
-            .Replace("\r", string.Empty)
-            .Replace("\n", "; ");
-
-        return sanitized.Replace("'", "'\\''");
-    }
 }

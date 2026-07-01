@@ -2,7 +2,7 @@
 
 namespace SeaCarp.CrossCutting.Config;
 
-public class AuthenticationSettings
+public static class AuthenticationSettings
 {
     public static string ClientId
     {

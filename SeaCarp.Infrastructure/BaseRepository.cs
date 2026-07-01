@@ -12,7 +12,7 @@ public abstract class BaseRepository
             var escapedParameter = parameters[i] switch
             {
                 null => "NULL",
-                string s when s is not null => $"'{EscapeParameter(parameters[i]?.ToString())}'",
+                string s => $"'{EscapeParameter(s)}'",
                 Enum e => $"'{e}'",
                 float or double or decimal or int => parameters[i].ToString().Replace(",", "."),
                 bool b => b.ToInt().ToString(),
@@ -33,7 +33,7 @@ public abstract class BaseRepository
     /// prevent SQL injection when constructing SQL statements dynamically.</remarks>
     /// <param name="parameter">The parameter value to be escaped.</param>
     /// <returns>A string that is safe to use as a SQL parameter.</returns>
-    protected string EscapeParameter(string parameter)
+    protected static string EscapeParameter(string parameter)
     {
         if (parameter is null)
         {

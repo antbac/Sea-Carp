@@ -60,7 +60,7 @@ public static class StringExtensions
         if (Regex.IsMatch(singular, "fe?$", RegexOptions.IgnoreCase))
         {
             var lowerSingular = singular.ToLower();
-            if (lowerSingular.EndsWith("f") || lowerSingular.EndsWith("fe"))
+            if (lowerSingular.EndsWith('f') || lowerSingular.EndsWith("fe"))
             {
                 var knownFtoVWords = new HashSet<string> { "knife", "leaf", "life", "loaf", "wife", "wolf", "shelf", "calf", "elf", "thief" };
                 var root = lowerSingular.EndsWith("fe")

@@ -32,16 +32,6 @@ public class AdminApiController(
         };
     }
 
-    private string AuthenticateTerminal()
-    {
-        var isTerminalAuthed = Request.Cookies.TryGetValue(Constants.AdminTerminalAuthenticationCookieName, out var cookieValue)
-            && cookieValue == cryptographyService.HashPassword(AuthenticationSettings.RootTerminalKey);
-
-        return isTerminalAuthed
-            ? null
-            : "You must authenticate in order to access the administration terminal";
-    }
-
     private void SetTerminalAuthCookie() => Response.Cookies.Append(Constants.AdminTerminalAuthenticationCookieName, cryptographyService.HashPassword(AuthenticationSettings.RootTerminalKey), new CookieOptions
     {
         HttpOnly = true,

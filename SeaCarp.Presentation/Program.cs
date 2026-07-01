@@ -169,6 +169,7 @@ internal class Program
 
         app.UseSession();
         app.UseJwtAuthentication();
+        app.UseCart();
         app.UseAuthorization();
 
         app.MapControllerRoute(

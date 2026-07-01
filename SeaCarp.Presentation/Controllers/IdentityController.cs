@@ -1,4 +1,3 @@
-using SeaCarp.Application.Services.Abstractions;
 using SeaCarp.CrossCutting.Extensions;
 using SeaCarp.CrossCutting.Services.Abstractions;
 using Swashbuckle.AspNetCore.Annotations;
@@ -7,15 +6,12 @@ namespace SeaCarp.Presentation.Controllers;
 
 [SwaggerTag("Authentication and user registration operations")]
 public class IdentityController(
-    IUserService userService,
     IJwtService jwtService,
     ILogService<IdentityController> logService)
     : BaseController<IdentityController>(
         jwtService,
         logService)
 {
-    private readonly IUserService _userService = userService;
-
     #region Index
 
     [HttpGet]

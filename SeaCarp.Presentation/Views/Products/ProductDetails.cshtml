@@ -188,7 +188,7 @@
 {
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            if (JSON.parse(localStorage.getItem('cartItems'))) {
+            if (SeaCarpCart.count() > 0) {
                 document.querySelector('#go_to_cart_link').style.display = 'block';
             }
 
@@ -234,7 +234,7 @@
                         quantity: productQuantity
                     };
 
-                    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+                    let cartItems = SeaCarpCart.get();
 
                     const existingItemIndex = cartItems.findIndex(i => i.productId === productId);
                     if (existingItemIndex >= 0) {
@@ -243,7 +243,7 @@
                         cartItems.push(item);
                     }
 
-                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                    SeaCarpCart.save(cartItems);
 
                     const alertElement = document.createElement('div');
                     alertElement.classList.add('alert', 'alert-success', 'alert-dismissible', 'fade', 'show');

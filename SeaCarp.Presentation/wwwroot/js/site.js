@@ -1,4 +1,57 @@
 ﻿// ------------------------------------------------------
+// Shopping cart (shared helper)
+// ------------------------------------------------------
+// The cart lives in the non-HttpOnly "cart" cookie (a CartToken) so the server
+// can render the mini-cart badge on every page. JS owns reading/writing it.
+const SeaCarpCart = (function () {
+    const COOKIE = 'cart';
+
+    function readToken() {
+        const entry = document.cookie
+            .split('; ')
+            .find(c => c.startsWith(COOKIE + '='));
+
+        if (!entry) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(decodeURIComponent(entry.substring(COOKIE.length + 1)));
+        } catch {
+            return null;
+        }
+    }
+
+    function get() {
+        const token = readToken();
+        return token && Array.isArray(token.items) ? token.items : [];
+    }
+
+    function save(items) {
+        const token = {
+            currency: 'USD',
+            updatedUtc: new Date().toISOString(),
+            items: items
+        };
+
+        document.cookie = COOKIE + '=' +
+            encodeURIComponent(JSON.stringify(token)) +
+            '; path=/; SameSite=Lax';
+    }
+
+    function clear() {
+        document.cookie = COOKIE +
+            '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    }
+
+    function count() {
+        return get().length;
+    }
+
+    return { get, save, clear, count };
+})();
+
+// ------------------------------------------------------
 // Bash-like terminal (Admin/Terminal)
 // ------------------------------------------------------
 // All commands are executed server-side via `/api/v1/admin/runterminalcommand`.
@@ -19,46 +72,6 @@
         } catch {
             return '';
         }
-    }
-
-    function tokenize(input) {
-        const tokens = [];
-        let current = '';
-        let quote = null;
-
-        for (let i = 0; i < input.length; i++) {
-            const ch = input[i];
-
-            if (quote) {
-                if (ch === quote) {
-                    quote = null;
-                } else if (ch === '\\' && quote === '"' && i + 1 < input.length) {
-                    current += input[i + 1];
-                    i++;
-                } else {
-                    current += ch;
-                }
-                continue;
-            }
-
-            if (ch === '"' || ch === "'") {
-                quote = ch;
-                continue;
-            }
-
-            if (ch === ' ') {
-                if (current.length) {
-                    tokens.push(current);
-                    current = '';
-                }
-                continue;
-            }
-
-            current += ch;
-        }
-
-        if (current.length) tokens.push(current);
-        return tokens;
     }
 
     function createTerminal(root) {
@@ -94,7 +107,7 @@
             // Prevent unbounded DOM growth, which can also contribute to layout issues in some browsers.
             const maxLines = 2000;
             while (output.childElementCount > maxLines) {
-                output.removeChild(output.firstElementChild);
+                output.firstElementChild.remove();
             }
         }
 
@@ -137,15 +150,6 @@
             if (outputText === null || outputText === undefined) return;
             const normalized = String(outputText).replaceAll('\r\n', '\n');
             normalized.split('\n').forEach(l => printLine(l));
-        }
-
-        async function parseResponseBody(response) {
-            const contentType = response.headers.get('content-type') || '';
-            if (contentType.includes('application/json')) {
-                return await response.json();
-            }
-            const text = await response.text();
-            return { cwd: '', output: text };
         }
 
         async function runServerCommand(command) {
@@ -240,7 +244,6 @@
             if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
                 e.preventDefault();
                 output.innerHTML = '';
-                return;
             }
         });
 
@@ -258,7 +261,7 @@
         };
     }
 
-    window.SeaCarpTerminal = {
+    globalThis.SeaCarpTerminal = {
         init: function (root) {
             if (!root) return null;
             return createTerminal(root);

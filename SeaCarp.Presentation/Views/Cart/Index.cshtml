@@ -33,10 +33,9 @@
 @section Scripts {
     <script>
         function updateCartItem(productId, change) {
-            var cartData = localStorage.getItem('cartItems');
-            if (!cartData) return;
+            var items = SeaCarpCart.get();
+            if (!items.length) return;
 
-            var items = JSON.parse(cartData);
             var itemIndex = items.findIndex(item => item.productId === productId);
 
             if (itemIndex !== -1) {
@@ -47,23 +46,17 @@
                     items.splice(itemIndex, 1);
                 }
 
-                localStorage.setItem('cartItems', JSON.stringify(items));
+                SeaCarpCart.save(items);
                 renderCart();
             }
         }
 
         function renderCart() {
             var cartContent = document.getElementById('cartContent');
-            var cartData = localStorage.getItem('cartItems');
             var clearCartBtn = document.getElementById('clearCartBtn');
 
-            if (!cartData) {
-                cartContent.innerHTML = "<p>Your cart is empty.</p>";
-                clearCartBtn.style.display = "none";
-                return;
-            }
             try {
-                var items = JSON.parse(cartData);
+                var items = SeaCarpCart.get();
                 if (!items || items.length === 0) {
                     cartContent.innerHTML = "<p>Your cart is empty.</p>";
                     clearCartBtn.style.display = "none";
@@ -134,7 +127,7 @@
                 });
             }
             catch (error) {
-                console.error("Error parsing cartItems from localStorage:", error);
+                console.error("Error parsing cart cookie:", error);
                 cartContent.innerHTML = "<p>Error loading cart.</p>";
                 clearCartBtn.style.display = "none";
             }
@@ -142,7 +135,7 @@
 
         function clearCart() {
             if (confirm("Are you sure you want to clear your cart? This cannot be undone.")) {
-                localStorage.removeItem('cartItems');
+                SeaCarpCart.clear();
                 renderCart();
                 document.getElementById("orderResult").innerHTML =
                     "<div class='alert alert-success'>Your cart has been cleared.</div>";
@@ -166,14 +159,7 @@
                 return;
             }
 
-            var cartData = localStorage.getItem('cartItems');
-            if (!cartData) {
-                errorDiv.innerText = "Your cart is empty.";
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            var cartItems = JSON.parse(cartData);
+            var cartItems = SeaCarpCart.get();
             if (!cartItems || cartItems.length === 0) {
                 errorDiv.innerText = "Your cart is empty.";
                 errorDiv.style.display = 'block';
@@ -197,7 +183,7 @@
                         return;
                     }
 
-                    localStorage.removeItem('cartItems');
+                    SeaCarpCart.clear();
 
                     document.getElementById("orderResult").innerHTML =
                         "<div class='alert alert-success'>Thank you for your order! Redirecting to receipt...</div>";

@@ -287,7 +287,7 @@ public class UserRepository(ICryptographyService cryptographyService) : BaseRepo
 
     #region Private Helper Methods
 
-    private User InstantiateUserObject(SQLiteCommand cmd)
+    private static User InstantiateUserObject(SQLiteCommand cmd)
     {
         using var reader = cmd.ExecuteReader();
 

@@ -1,5 +1,4 @@
-﻿using SeaCarp.CrossCutting.Config;
-using SeaCarp.CrossCutting.Services.Abstractions;
+﻿using SeaCarp.CrossCutting.Services.Abstractions;
 
 namespace SeaCarp.CrossCutting.Services;
 
@@ -39,71 +38,6 @@ public class HttpService : IHttpService
             throw new ArgumentException($"The provided URL {url} is not a valid absolute URL.", nameof(url));
         }
 
-        uri = DowngradeSchemeOnLoopback(uri);
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-
-        AddClientId(request);
-        ForwardUserIdentification(request, jwt);
-
-        using var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        switch (outputType)
-        {
-            case OutputType.String:
-            {
-                return await response.Content.ReadAsStringAsync();
-            }
-            case OutputType.Binary:
-            {
-                return await response.Content.ReadAsByteArrayAsync();
-            }
-            case OutputType.Base64:
-            {
-                var bytes = await response.Content.ReadAsByteArrayAsync();
-                return Convert.ToBase64String(bytes);
-            }
-
-            default:
-                throw new ArgumentException("Can not generate output of unknown output type", nameof(outputType));
-        }
-    }
-
-    private static Uri DowngradeSchemeOnLoopback(Uri uri)
-    {
-        if (uri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
-            uri.Host.Equals("127.0.0.1") ||
-            uri.Host.Equals("[::1]"))
-        {
-            uri = new UriBuilder(uri)
-            {
-                Scheme = Uri.UriSchemeHttp,
-                Port = uri.Port
-            }.Uri;
-        }
-
-        return uri;
-    }
-
-    private static void ForwardUserIdentification(HttpRequestMessage request, string jwt)
-    {
-        if (request.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
-            request.RequestUri.Host.Equals("127.0.0.1") ||
-            request.RequestUri.Host.Equals("[::1]"))
-        {
-            request.Headers.TryAddWithoutValidation(Constants.AuthorizationHeaderName, $"{Constants.BearerScheme}{jwt}");
-            request.Headers.TryAddWithoutValidation(Constants.CookieHeaderName, jwt);
-        }
-    }
-
-    private static void AddClientId(HttpRequestMessage request)
-    {
-        if (request.RequestUri.Host.Equals("localhost", StringComparison.InvariantCultureIgnoreCase) ||
-            request.RequestUri.Host.Equals("127.0.0.1") ||
-            request.RequestUri.Host.Equals("[::1]"))
-        {
-            request.Headers.TryAddWithoutValidation(Constants.ClientIdHeaderName, AuthenticationSettings.ClientId);
-        }
+        return new HttpGetHelper(url, string.Empty, outputType.ToString(), jwt).Response;
     }
 }

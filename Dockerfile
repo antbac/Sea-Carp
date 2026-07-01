@@ -36,16 +36,20 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     jq
 
-# Install Chrome version 138.0.7204.49 directly
-RUN wget -q https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_138.0.7204.49-1_amd64.deb -O /tmp/chrome.deb \
-    && apt-get install -y /tmp/chrome.deb \
-    && rm /tmp/chrome.deb
+# Install Chrome via Google's apt repository (always gets current stable)
+RUN mkdir -p /etc/apt/keyrings \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install ChromeDriver
-RUN wget -q -O /tmp/chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.49/linux64/chrome-linux64.zip \
-    && unzip /tmp/chromedriver.zip -d /usr/bin \
-    && chmod +x /usr/bin/chrome-linux64 \
-    && rm /tmp/chromedriver.zip
+# Install matching Chrome for Testing build
+RUN CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+') \
+    && wget -q -O /tmp/chrome-linux64.zip "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chrome-linux64.zip" \
+    && unzip /tmp/chrome-linux64.zip -d /usr/bin \
+    && chmod +x /usr/bin/chrome-linux64/chrome \
+    && rm /tmp/chrome-linux64.zip
 
 # Copy the published app
 COPY --from=build /app/publish .

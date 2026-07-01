@@ -11,21 +11,19 @@ namespace SeaCarp.Presentation.Controllers;
 public class ProductsController(
     IProductService productService,
     IJwtService jwtService,
-    ILogService<ProductsController> logService,
-    ITimeService timeService)
+    ILogService<ProductsController> logService)
     : BaseController<ProductsController>(
         jwtService,
         logService)
 {
     private readonly IProductService _productService = productService;
-    private readonly ITimeService _timeService = timeService;
 
     private async Task<IEnumerable<ProductDto>> GetProducts(string category, string priceRange)
     {
         var products = await _productService.GetProducts();
 
         products = [.. products
-            .Where(product => string.IsNullOrWhiteSpace(category) || product.Category.ToLowerInvariant() == category.ToLowerInvariant())
+            .Where(product => string.IsNullOrWhiteSpace(category) || product.Category.Equals(category, StringComparison.InvariantCultureIgnoreCase))
             .Where(product => string.IsNullOrWhiteSpace(priceRange) || priceRange switch
             {
                 Constants.ProductPriceRanges.Budget => product.Price < 50,
@@ -49,7 +47,7 @@ public class ProductsController(
         }
 
         var relatedProducts = await _productService.GetProductsByCategory(product.Category);
-        if (relatedProducts is null || !relatedProducts.Any())
+        if (relatedProducts is null || relatedProducts.Count == 0)
         {
             LogService.Information($"No related products found for product ID {product.Id} in category '{product.Category}'.");
             return new ProductDto(product, []);

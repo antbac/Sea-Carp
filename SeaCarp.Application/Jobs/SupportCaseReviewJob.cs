@@ -72,7 +72,7 @@ public class SupportCaseReviewJob(IServiceScopeFactory scopeFactory) : Backgroun
                                 try
                                 {
                                     var baseUrl = Constants.AppBaseUrl;
-                                    driver.Navigate().GoToUrl(baseUrl);
+                                    await driver.Navigate().GoToUrlAsync(baseUrl);
 
                                     var cookie = new OpenQA.Selenium.Cookie(
                                         name: Constants.JWT,
@@ -87,7 +87,7 @@ public class SupportCaseReviewJob(IServiceScopeFactory scopeFactory) : Backgroun
                                     driver.Manage().Cookies.AddCookie(cookie);
 
                                     var supportCaseUrl = $"{baseUrl}/supportcases/{supportCase.CaseNumber}";
-                                    driver.Navigate().GoToUrl(supportCaseUrl);
+                                    await driver.Navigate().GoToUrlAsync(supportCaseUrl);
 
                                     await Task.Delay(1000, stoppingToken);
 

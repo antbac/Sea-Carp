@@ -8,8 +8,8 @@ public static class EnumExtensions
     {
         var fieldInfo = value.GetType().GetField(value.ToString());
 
-        return fieldInfo?.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any()
-            ? attributes.First().Description
+        return fieldInfo?.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Length != 0
+            ? attributes[0].Description
             : value.ToString();
     }
 }

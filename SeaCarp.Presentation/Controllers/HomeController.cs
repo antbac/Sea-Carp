@@ -22,7 +22,7 @@ public class HomeController(
     {
         var featuredProducts = await _productService.GetFeaturedProducts();
 
-        if (featuredProducts is null || !featuredProducts.Any())
+        if (featuredProducts is null || featuredProducts.Count == 0)
         {
             LogService.Warning("No featured products found.");
             return [];

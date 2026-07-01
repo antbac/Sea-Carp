@@ -8,7 +8,7 @@ public interface IFileService
 
     Task<string> ReadFile(string filePath);
 
-    void ConfigureRoot(string rootDirectoy);
+    void ConfigureRoot(string rootDirectory);
 
     Task WriteFile(string filePath, byte[] content);
 

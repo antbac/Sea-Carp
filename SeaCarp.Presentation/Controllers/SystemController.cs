@@ -9,7 +9,6 @@ namespace SeaCarp.Presentation.Controllers;
 
 [SwaggerTag("System information and diagnostic operations")]
 public class SystemController(
-    IFileService fileService,
     IJwtService jwtService,
     ILogService<SystemController> logService,
     IUserService userService,
@@ -18,7 +17,6 @@ public class SystemController(
         jwtService,
         logService)
 {
-    private readonly IFileService _fileService = fileService;
     private readonly IUserService _userService = userService;
     private readonly ICryptographyService _cryptographyService = cryptographyService;
 

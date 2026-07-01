@@ -56,7 +56,7 @@ public class OrderService(
         }
 
         var productsToBuy = new List<Product>();
-        foreach (var (ProductId, Quantity, Price) in orderItems)
+        foreach (var (ProductId, _, _) in orderItems)
         {
             var product = await _productService.GetProduct(ProductId);
             if (product is null)
@@ -99,7 +99,7 @@ public class OrderService(
             _userRepository.UpdateCredits(user);
         }
 
-        foreach (var (ProductId, Quantity, Price) in orderItems)
+        foreach (var (ProductId, Quantity, _) in orderItems)
         {
             var product = productsToBuy.First(p => p.Id == ProductId);
             product.RemoveStock(Quantity);

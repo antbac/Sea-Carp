@@ -28,7 +28,6 @@ public static class PwnMiddleware
             context.Response.Headers.Append(Constants.CacheControlHeaderName, Constants.CacheControlNoStore);
 
             await context.Response.WriteAsync(_pwnMessage);
-            return;
         });
     }
 
@@ -62,7 +61,10 @@ public static class PwnMiddleware
                 {
                     process.Kill(entireProcessTree: true);
                 }
-                catch { }
+                catch
+                {
+                    // Ignore exceptions when trying to kill the process
+                }
 
                 return null;
             }

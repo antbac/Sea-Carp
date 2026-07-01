@@ -66,43 +66,40 @@ public class BugReportReviewJob(IServiceScopeFactory scopeFactory) : BackgroundS
                     {
                         try
                         {
-                            if (openBugReports.Count != 0)
+                            using var driver = new ChromeDriver(service, options);
+
+                            try
                             {
-                                using var driver = new ChromeDriver(service, options);
+                                var baseUrl = Constants.AppBaseUrl;
+                                await driver.Navigate().GoToUrlAsync(baseUrl);
 
-                                try
+                                var cookie = new OpenQA.Selenium.Cookie(
+                                    name: Constants.JWT,
+                                    value: jwt,
+                                    domain: new Uri(baseUrl).DnsSafeHost,
+                                    path: "/",
+                                    expiry: null,
+                                    secure: false,
+                                    isHttpOnly: true,
+                                    sameSite: Constants.CookieSameSiteLax);
+
+                                driver.Manage().Cookies.AddCookie(cookie);
+
+                                var adminUrl = $"{baseUrl}/admin";
+                                await driver.Navigate().GoToUrlAsync(adminUrl);
+
+                                await Task.Delay(1000, stoppingToken);
+
+                                foreach (var bugReport in openBugReports)
                                 {
-                                    var baseUrl = Constants.AppBaseUrl;
-                                    driver.Navigate().GoToUrl(baseUrl);
-
-                                    var cookie = new OpenQA.Selenium.Cookie(
-                                        name: Constants.JWT,
-                                        value: jwt,
-                                        domain: new Uri(baseUrl).DnsSafeHost,
-                                        path: "/",
-                                        expiry: null,
-                                        secure: false,
-                                        isHttpOnly: true,
-                                        sameSite: Constants.CookieSameSiteLax);
-
-                                    driver.Manage().Cookies.AddCookie(cookie);
-
-                                    var adminUrl = $"{baseUrl}/admin";
-                                    driver.Navigate().GoToUrl(adminUrl);
-
-                                    await Task.Delay(1000, stoppingToken);
-
-                                    foreach (var bugReport in openBugReports)
-                                    {
-                                        bugReportRepository.CloseBugReport(bugReport.Id);
-                                    }
-
-                                    logService.Information($"Administrator {user.Username} reviewed and closed all active bug reports");
+                                    bugReportRepository.CloseBugReport(bugReport.Id);
                                 }
-                                catch (Exception ex)
-                                {
-                                    logService.Error($"Error processing bug reports: {ex.Message}");
-                                }
+
+                                logService.Information($"Administrator {user.Username} reviewed and closed all active bug reports");
+                            }
+                            catch (Exception ex)
+                            {
+                                logService.Error($"Error processing bug reports: {ex.Message}");
                             }
 
                             break;

@@ -133,9 +133,9 @@
                                                         if (order.SupportCases.Any())
                                                         {
                                                             <th>
-                                                                @foreach (var supportCase in order.SupportCases)
+                                                                @foreach (var caseNumber in order.SupportCases.Select(supportCase => supportCase.CaseNumber))
                                                                 {
-                                                                    <p><a href="/supportcases/@supportCase.CaseNumber">@supportCase.CaseNumber</a></p>
+                                                                    <p><a href="/supportcases/@caseNumber">@caseNumber</a></p>
                                                                 }
                                                             </th>
                                                         }

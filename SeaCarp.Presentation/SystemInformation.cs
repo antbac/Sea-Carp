@@ -27,7 +27,7 @@ public static class SystemInformation
         }[Random.Shared.Next(10)]
         + ")";
 
-    public static string LocalPort = "8080";
+    public const string LocalPort = "8080";
 
-    public static string DeploymentTechnology = "Docker";
+    public const string DeploymentTechnology = "Docker";
 }

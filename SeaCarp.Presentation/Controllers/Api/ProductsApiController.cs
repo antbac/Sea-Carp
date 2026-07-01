@@ -26,7 +26,7 @@ public class ProductsApiController(
         var products = await productService.GetProducts();
 
         products = [.. products
-            .Where(product => string.IsNullOrWhiteSpace(category) || product.Category.ToLowerInvariant() == category.ToLowerInvariant())
+            .Where(product => string.IsNullOrWhiteSpace(category) || product.Category.Equals(category, StringComparison.InvariantCultureIgnoreCase))
             .Where(product => string.IsNullOrWhiteSpace(priceRange) || priceRange switch
             {
                 Constants.ProductPriceRanges.Budget => product.Price < 50,
@@ -50,7 +50,7 @@ public class ProductsApiController(
         }
 
         var relatedProducts = await productService.GetProductsByCategory(product.Category);
-        if (relatedProducts is null || !relatedProducts.Any())
+        if (relatedProducts is null || relatedProducts.Count == 0)
         {
             LogService.Information($"No related products found for product ID {product.Id} in category '{product.Category}'.");
             return new ProductDto(product, []);
@@ -65,7 +65,7 @@ public class ProductsApiController(
     {
         var featuredProducts = await productService.GetFeaturedProducts();
 
-        if (featuredProducts is null || !featuredProducts.Any())
+        if (featuredProducts is null || featuredProducts.Count == 0)
         {
             LogService.Warning("No featured products found.");
             return [];
